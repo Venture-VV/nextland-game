@@ -235,10 +235,13 @@ const FLOWS = [
 ];
 
 (async () => {
+  // 版本号过期会让线上的老访客看到新旧混杂的页面,所以先查这个
+  let bad = 0;
+  try { require('child_process').execFileSync('python3', [path.join(__dirname, 'stamp.py'), '--check'], { stdio: 'pipe' }); console.log('✓ 版本号是最新的'); }
+  catch (e) { if (e.status === 1) { bad++; console.log('✗ ' + String(e.stdout).trim()); } else console.log('- 跳过版本号检查(没有 python3)'); }
   fs.mkdirSync(SHOTS, { recursive: true });
   const browser = await chromium.launch();
   const base = 'file://' + path.join(ROOT, 'index.html');
-  let bad = 0;
   for (const [title, steps] of FLOWS) {
     const page = await browser.newPage({ viewport: { width: 360, height: 781 }, deviceScaleFactor: 2 });
     const errs = [];

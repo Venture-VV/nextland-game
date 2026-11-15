@@ -45,6 +45,8 @@
       else el.appendChild(k.nodeType ? k : document.createTextNode(String(k)));
     }
   }
+  // 给由脚本按需加载的文件带上版本号(版本号由 tools/stamp.py 写进页面)
+  NL.ver = (path) => { const v = window.NL_VER && window.NL_VER.files[path]; return v ? path + '?v=' + v : path; };
   NL.img = (p) => 'assets/img/' + p;
   NL.bg = (p) => 'url(' + NL.img(p) + ')';
   // 绝对定位的图片;x/y/w/h 用设计尺寸（录屏像素的一半）
