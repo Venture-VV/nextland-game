@@ -46,6 +46,18 @@
       });
       root.appendChild(NL.hit(266, 94, 80, 24, () => ui.toast('当前按默认顺序排列。')));
     },
+    // 表的画法:不用整页底图,六张卡面自己排
+    renderBiao(root) {
+      root.classList.add('bp');
+      root.appendChild(h('div.bp-title', '伙伴协议', h('i', 'PARTNER  CONTRACT')));
+      root.appendChild(h('button.bp-sort', { onclick: () => ui.toast('当前按默认顺序排列。') }, '默认'));
+      root.appendChild(h('div.bp-grid', D.partners.map((p) => {
+        const st = ps(p);
+        return h('button.bp-card', { 'data-partner': p.id, onclick: () => NL.go('partnerInfo', { id: p.id }) },
+          biaoPic('div.bp-pic', 'partner/card_' + p.id + '.webp'),
+          h('b', p.name), h('span', '♥ ' + st.likes), h('u', 'Lv.' + st.lv));
+      })));
+    },
   };
 
   /* ---------- 伙伴协议 ---------- */
@@ -61,10 +73,7 @@
       }
       root.appendChild(h('div.pi-likes', String(st.likes)));
       root.appendChild(h('div.pi-trust', trustCard(p)));
-      root.appendChild(NL.hit(14, 480, 48, 50, () => {
-        if (d.liked[p.id]) return ui.toast('今天已经点过赞了。');
-        d.liked[p.id] = true; st.likes++; NL.save(); NL.refresh();
-      }, { 'data-act': 'like' }));
+      root.appendChild(NL.hit(14, 480, 48, 50, () => like(p), { 'data-act': 'like' }));
       root.appendChild(NL.hit(298, 238, 56, 58, () => NL.go('partnerLv', { id: p.id }), { 'data-act': 'plv' }));
       root.appendChild(NL.hit(298, 302, 56, 58, () => NL.go('partnerVisual', { id: p.id }), { 'data-act': 'pvisual' }));
       root.appendChild(NL.hit(298, 364, 56, 58, () => NL.go('partnerDaily', { id: p.id }), { 'data-act': 'pdaily' }));
@@ -72,7 +81,33 @@
       root.appendChild(NL.hit(264, 664, 70, 20, () => NL.go('parkmap')));
       root.appendChild(NL.hit(264, 687, 70, 20, () => archive(p), { 'data-act': 'parchive' }));
     },
+    // 表的画法:夜色底 + 立绘 + 自己排的信息面板。按钮和里一一对应,动作是同一份
+    renderBiao(root, pr) {
+      const p = byId(pr.id), st = ps(p);
+      root.classList.add('bp');
+      root.appendChild(biaoPic('div.bp-art', 'partner/art_' + p.id + '.webp'));
+      root.appendChild(h('div.bp-name', h('b', p.name), h('i', p.race || ''), h('span', '伙伴协议')));
+      const side = (y, text, name, act) => root.appendChild(h('button.bp-side', { style: { top: y }, 'data-act': act, onclick: () => NL.go(name, { id: p.id }) }, text));
+      side(238, '等级权益', 'partnerLv', 'plv');
+      side(302, '视觉档案', 'partnerVisual', 'pvisual');
+      side(364, '每日委托', 'partnerDaily', 'pdaily');
+      root.appendChild(h('button.bp-like', { 'data-act': 'like', onclick: () => like(p) }, '♥', h('b', String(st.likes))));
+      root.appendChild(h('div.bp-panel',
+        h('div.bp-trust', trustCard(p)),
+        h('button.btn.purple.bp-gift', { 'data-act': 'pgift', onclick: () => NL.go('partnerGift', { id: p.id }) }, '情感赠礼'),
+        h('div.bp-row', h('span', '所处位置'), h('em', p.place), h('button', { onclick: () => NL.go('parkmap') }, '查看地图')),
+        h('div.bp-row', h('span', '特点'), h('em', p.trait), h('button', { 'data-act': 'parchive', onclick: () => archive(p) }, '查看档案'))));
+    },
   };
+  // 表的立绘:画好了就用,还没画的留一个「绘制中」的空位(不去借里的图,里没有同名的)
+  function biaoPic(spec, path) {
+    return NL.biaoAssets[path] ? h(spec, { style: { backgroundImage: NL.bg(path) } }) : h(spec + '.none', h('span', '立绘绘制中'));
+  }
+  function like(p) {
+    const st = ps(p), d = day();
+    if (d.liked[p.id]) return ui.toast('今天已经点过赞了。');
+    d.liked[p.id] = true; st.likes++; NL.save(); NL.refresh();
+  }
   function archive(p) {
     const m = ui.mask({});
     const f = p.file || {};
