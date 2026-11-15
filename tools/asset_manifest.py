@@ -140,4 +140,31 @@ MANIFEST = [
     {"out": "gift/holo.webp", "frame": 261, "box": [433, 1298, 532, 1396], "fill": [[65, 0, 99, 20, [70, 70, 76]]], "mirror_br": [0.3, 0.24], "q": 88},
     {"out": "gift/perfume.webp", "frame": 261, "box": [552, 1298, 651, 1396], "fill": [[65, 0, 99, 20, [70, 70, 76]]], "mirror_br": [0.3, 0.24], "q": 88},
     {"out": "gift/can.webp", "frame": 334, "box": [72, 1297, 164, 1396], "fill": [[58, 0, 92, 20, [70, 70, 76]]], "mirror_br": [0.3, 0.24], "q": 88},
+
+    # ---------- 战斗 ----------
+    # 545 帧里对手在右上角的起始位置;从 549 帧(对手已冲到中间)取那一块空背景盖上,对手由页面来画
+    {"out": "battle/bg.jpg", "frame": 545, "patch": [[549, [420, 420, 700, 700], [420, 420]]], "q": 82},
+    {"out": "battle/enemy.jpg", "frame": 545, "box": [441, 443, 668, 670], "q": 88},
+    {"out": "battle/start.jpg", "frame": 541, "box": [0, 640, 720, 960], "q": 85},
+    {"out": "battle/win.jpg", "frame": 676, "box": [0, 470, 720, 660], "q": 85},
+    # ---------- 关卡 ----------
+    {"out": "stage/head_core.jpg", "frame": 557, "box": [0, 0, 720, 380], "q": 84},
+    {"out": "stage/head_museum.jpg", "frame": 570, "box": [0, 0, 720, 380], "q": 84},
+    {"out": "stage/boss.jpg", "frame": 555, "box": [96, 419, 218, 545], "q": 88},
+    {"out": "stage/detail.jpg", "frame": 534, "box": [30, 327, 690, 1288], "q": 86},
+    # ---------- 玩法 ----------
+    {"out": "modes/string.jpg", "frame": 695, "box": [26, 277, 694, 600], "q": 84},
+    {"out": "modes/ring.jpg", "frame": 695, "box": [26, 633, 694, 960], "q": 84},
+    {"out": "modes/catch.jpg", "frame": 695, "box": [26, 993, 694, 1316], "q": 84},
+    {"out": "modes/mine.jpg", "frame": 651, "box": [26, 703, 694, 1026], "q": 84},
+    {"out": "modes/gorge.jpg", "frame": 651, "box": [26, 1058, 694, 1380], "q": 84},
+    # ---------- 排行榜 ----------
+    {"out": "rank/bg.jpg", "frame": 718, "q": 82},
+    {"out": "rank/rewards.jpg", "frame": 720, "box": [30, 277, 690, 1332], "q": 85},
+    # ---------- 商城与补给 ----------
+    {"out": "shop/head.jpg", "frame": 593, "box": [0, 0, 720, 390], "q": 84},
+    {"out": "supply/p1.jpg", "frame": 603, "q": 82},
+    {"out": "supply/p2.jpg", "frame": 612, "q": 82},
+    {"out": "supply/p3.jpg", "frame": 615, "q": 82},
+    {"out": "supply/result_head.jpg", "frame": 640, "box": [0, 0, 720, 420], "q": 84},
 ]

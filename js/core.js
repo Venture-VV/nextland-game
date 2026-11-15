@@ -115,7 +115,9 @@
     current = scr;
     const title = typeof scr.title === 'function' ? scr.title(top.params) : scr.title;
     $('#title-tag').textContent = title || '';
-    $('#chrome').classList.toggle('hidden', !!scr.plate); // 整幅底图里已经带着页面名和胶囊
+    // plate: true 表示底图里已经带着页面名和胶囊;'cap' 表示只带着胶囊
+    $('#chrome').classList.toggle('hidden', scr.plate === true);
+    $('#capsule').classList.toggle('hidden', scr.plate === 'cap');
     const nav = $('#nav');
     nav.classList.toggle('off', !scr.nav);
     if (scr.nav) nav.style.backgroundImage = NL.bg('nav/' + scr.nav + '.jpg');
@@ -166,7 +168,7 @@
   // 白底「提示」对话框
   ui.dialog = function (opts) {
     const m = ui.mask({ dismiss: !!opts.dismiss, onClose: opts.onClose });
-    const body = h('div.dlg-body', opts.html ? { html: opts.html } : null, opts.text || null, opts.extra || null);
+    const body = h('div.dlg-body', h('div', opts.html ? { html: opts.html } : null, opts.text || null), opts.extra || null);
     const btns = h('div.dlg-btns', (opts.buttons || [{ text: '确认', cls: 'purple' }]).map((b) =>
       h('button.btn.' + (b.cls || 'purple'), { onclick: () => { m.close(); if (b.onClick) b.onClick(); } }, b.text)));
     m.el.appendChild(h('div.dlg', { style: { top: opts.top == null ? 320 : opts.top } }, h('div.dlg-head'), body, btns));

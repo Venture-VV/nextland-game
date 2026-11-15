@@ -174,4 +174,39 @@
     { id: 'box', title: '提交物品', submit: ['box_white', 10], heart: 2 },
     { id: 'white', title: '提交白色品质物品', submitRare: ['white', 3], heart: 3 },
   ];
+
+  /* ---------- 冒险与玩法 ---------- */
+  // 录屏里只打了圣物核心 05(对手林然,5 级,战力 1900)和峡谷探索号 2 节(裂壁灵,10 级,1.2 万);其余按这两个点外推
+  D.zones = {
+    core: { name: '圣物核心', part: 1, head: 'core', enemy: '林然', per: 380, desc: '霓虹雨夜，你需要接受圣物核心的试炼。' },
+    hanshin: { name: '阪神公司', part: 2, head: 'core', enemy: '阪神安保', per: 2400, desc: '阪神公司的大楼戒备森严，想进去得先过安保这一关。' },
+    museum: { name: '运动博物馆', part: 3, head: 'museum', enemy: '馆内守卫', per: 5200, desc: '运动博物馆的展厅里，有人不欢迎访客。' },
+  };
+  D.stageCount = 10;
+  D.stageCost = 6;
+  D.stageRewards = R('exp', 100, 'crystal', 10);
+  D.stageDrop = R('credit', 10);
+  D.modes = [['string', null], ['ring', null], ['catch', null], ['mine', 'mine'], ['gorge', 'gorge']];
+  D.trains = {
+    gorge: { name: '追光峡谷探索列车', car: '峡谷探索号', ev: 'gorge', enemy: '裂壁灵', powers: [4500, 12000, 19000, 26000, 33000],
+      rewards: [R('box_white', 1), R('box_white', 2), R('box_white', 3), R('box_green', 1, 'box_white', 1), R('box_green', 2, 'box_white', 1)] },
+    mine: { name: '地核矿山探索列车', car: '地核探索号', ev: 'mine', enemy: '掘地机', powers: [4500, 12000, 19000, 26000, 33000],
+      rewards: [R('credit', 100), R('credit', 200), R('credit', 300), R('credit', 400), R('credit', 500)] },
+  };
+  // 排行榜:前三名的战力出现在录屏里,其余是补的
+  D.rankers = [["Je t'aime", 84000], ['岩峰工程型', 41000], ['飞轮回声', 43000], ['Wraith', 39000], ['格里芬极光', 37000], ['离子哨兵', 35000],
+    ['Watcher', 33000], ['飞轮工匠', 31000], ['光谱观测者', 29000], ['瓦尔基里心', 27000], ['流沙驱动器', 25500], ['熔岩裂谷', 24000]];
+
+  /* ---------- 商城与补给 ---------- */
+  const S = (id, n, name, price, limit, per) => ({ id, n, name, price, limit, per });
+  D.shop = {
+    pack: [S('box_white', 1, '白品装备补给箱', 10, 5, '每日'), S('box_green', 1, '绿品装备补给箱', 35, 5, '每日'), S('box_blue', 1, '蓝品装备补给箱', 110, 5, '每日')],
+    mat: [S('special_card', 1, '特需补给卡*1', 400, 3, '每周'), S('supply_card', 10, '补给卡*10', 400, 99, '每日'), S('crystal', 100, '装备晶片*100', 50, 0, ''),
+      S('gift_green', 1, '绿品好感道具箱', 10, 3, '每日'), S('gift_blue', 1, '蓝品好感道具箱', 20, 3, '每日'), S('gift_purple', 1, '紫品好感道具箱', 40, 3, '每日'), S('gift_orange', 1, '橙品好感道具箱', 100, 3, '每日')],
+  };
+  D.supply = [
+    { name: '基础物资补给', card: 'supply_card', cost: 1, crystal: 1, ev: 'supply_basic', pool: ['pistol', 'vest', 'chain', 'helmet_grey', 'helmet_brown'] },
+    { name: '高级物资补给', card: 'supply_card', cost: 1, crystal: 5, ev: 'supply_premium', pool: ['chain', 'rifle', 'pistol_color', 'vest_green', 'choker', 'bracelet', 'gauntlet', 'armor_pink', 'tuxedo'] },
+    { name: '特级物资补给', card: 'special_card', cost: 4, crystal: 20, ev: 'supply_special', pool: ['choker', 'gauntlet', 'boots', 'armor_pink', 'tuxedo', 'hat', 'ring', 'pants'] },
+  ];
 })();

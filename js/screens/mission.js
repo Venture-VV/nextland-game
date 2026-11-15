@@ -9,7 +9,7 @@
   const open = { main: true, side: false, explore: false };
   let timer = 0;
 
-  NL.defaults.push(() => ({ tasks: {}, daily: { date: '', c: {}, claimed: {}, points: 0, gifts: {} }, stages: { core: 10, museum: 1, hanshin: 0 } }));
+  NL.defaults.push(() => ({ tasks: {}, daily: { date: '', c: {}, claimed: {}, points: 0, gifts: {} }, stages: { core: 10, hanshin: 10, museum: 1 } }));
 
   const today = () => { const d = new Date(Date.now() - 8 * 3600e3); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); };
   function daily() {

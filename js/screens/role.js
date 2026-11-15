@@ -11,7 +11,7 @@
     let uid = 1;
     Object.entries(D.startEquipped).forEach(([slot, id]) => { gear.push({ uid, id }); equipped[slot] = uid++; });
     D.startGear.forEach((id, i) => gear.push({ uid: uid++, id, isNew: i >= 7 && !KEEP_OLD.includes(id) }));
-    return { gear, equipped, iface: {}, uidNext: uid, bag: { crystal: 651, box_white: 3 } };
+    return { gear, equipped, iface: {}, uidNext: uid, bag: { crystal: 651, box_white: 3, special_card: 961 } };
   });
 
   /* ---------- 数值 ---------- */
@@ -24,7 +24,9 @@
     return g ? sum + game.gearPower(g.id, slot) : sum;
   }, 0));
   game.addGear = function (id, n) {
-    for (let i = 0; i < (n || 1); i++) NL.state.gear.push({ uid: NL.state.uidNext++, id, isNew: true });
+    const uids = [];
+    for (let i = 0; i < (n || 1); i++) { uids.push(NL.state.uidNext); NL.state.gear.push({ uid: NL.state.uidNext++, id, isNew: true }); }
+    return uids;
   };
   game.equip = function (slot, uid) {
     const before = game.power();
