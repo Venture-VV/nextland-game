@@ -14,6 +14,7 @@
     },
   };
 
+  NL.ui.notice = notice; // 个人页的「公告」也用它
   function notice() {
     const m = NL.ui.mask({ dismiss: false });
     m.el.style.background = 'rgba(20,8,44,.72)';

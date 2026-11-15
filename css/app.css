@@ -144,3 +144,5 @@ input { font: inherit; }
 .reward-body .item b { font-size: 8.5px; right: 2px; bottom: 1px; }
 .btn.abs { position: absolute; }
 .toast.shift { padding-left: 168px; max-width: 360px; }
+.nl-input { display: block; width: 210px; height: 26px; margin: 10px auto 0; border: 0; border-radius: 13px; outline: none; background: #1b1a20; color: #fff; font-size: 11px; text-align: center; user-select: text; -webkit-user-select: text; touch-action: auto; }
+.nl-input::placeholder { color: #9a99a3; }

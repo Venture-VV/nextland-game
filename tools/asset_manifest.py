@@ -167,4 +167,18 @@ MANIFEST = [
     {"out": "supply/p2.jpg", "frame": 612, "q": 82},
     {"out": "supply/p3.jpg", "frame": 615, "q": 82},
     {"out": "supply/result_head.jpg", "frame": 640, "box": [0, 0, 720, 420], "q": 84},
+
+    # ---------- 外围界面 ----------
+    {"out": "mail/head.jpg", "frame": 802, "box": [0, 0, 720, 290], "q": 84},
+    {"out": "mail/ico.jpg", "frame": 802, "box": [34, 331, 132, 427], "q": 88},
+    {"out": "mail/ico_read.jpg", "frame": 823, "box": [34, 331, 132, 427], "q": 88},
+    {"out": "item/box_race.webp", "frame": 815, "box": [310, 790, 410, 890], "mirror_br": [0.3, 0.2], "q": 90},
+    {"out": "friend/head.jpg", "frame": 791, "box": [0, 0, 720, 300], "q": 84},
+    {"out": "friend/avatar.jpg", "frame": 791, "box": [70, 482, 148, 562], "q": 88},
+    {"out": "extra/profile.jpg", "frame": 849, "q": 84},
+    {"out": "extra/tickets.jpg", "frame": 854, "q": 84},
+    {"out": "extra/ticket_shop.jpg", "frame": 862, "q": 84},
+    {"out": "extra/bind.jpg", "frame": 880, "q": 84},
+    {"out": "extra/parkmap.jpg", "frame": 772, "q": 84},
+    {"out": "extra/faction.jpg", "frame": 736, "q": 84},
 ]
