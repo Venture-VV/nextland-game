@@ -181,4 +181,25 @@ MANIFEST = [
     {"out": "extra/bind.jpg", "frame": 880, "q": 84},
     {"out": "extra/parkmap.jpg", "frame": 772, "q": 84},
     {"out": "extra/faction.jpg", "frame": 736, "q": 84},
+    # ---------- 弹窗外框与整窗底图(逐页对照后补的) ----------
+    {"out": "ui/wd_head.jpg", "frame": 878, "box": [28, 440, 694, 500], "q": 92},  # 深色弹窗的标题条
+    {"out": "ui/wd_foot.jpg", "frame": 878, "box": [28, 1128, 694, 1176], "q": 92},
+    {"out": "ui/buy_head.jpg", "frame": 588, "box": [30, 280, 690, 448], "q": 90},  # 商城购买窗
+    {"out": "ui/buy_foot.jpg", "frame": 588, "box": [30, 1296, 690, 1336], "q": 90},
+    {"out": "ui/cal_head.jpg", "frame": 745, "box": [30, 281, 690, 370], "q": 90},  # 活动日历
+    {"out": "ui/cal_foot.jpg", "frame": 745, "box": [30, 1232, 690, 1336], "q": 90},
+    {"out": "ui/interact.jpg", "frame": 575, "box": [30, 360, 690, 1256], "q": 88},  # 互动窗整窗
+    # 设置窗整窗;玩家编号是真实账号的,涂掉后由页面写占位值
+    {"out": "ui/settings.jpg", "frame": 830, "box": [30, 568, 690, 1044], "fill": [[150, 384, 520, 432, [24, 22, 25]]], "q": 90},
+    {"out": "mail/btn_del.jpg", "frame": 802, "box": [12, 1350, 212, 1418], "q": 90},
+    {"out": "mail/btn_all.jpg", "frame": 802, "box": [432, 1350, 712, 1418], "q": 90},
+    {"out": "modes/train_car.jpg", "frame": 656, "box": [30, 546, 190, 772], "q": 88},
+    {"out": "modes/train_head.jpg", "frame": 656, "box": [30, 1224, 190, 1450], "q": 88},
+    {"out": "supply/result_foot.jpg", "frame": 640, "box": [0, 1280, 720, 1450], "q": 88},
+    {"out": "ui/ico_power.jpg", "frame": 487, "box": [64, 510, 114, 560], "q": 92},  # 装备窗里的「战力」图标
+    {"out": "ui/ico_power_dark.jpg", "frame": 656, "box": [516, 622, 558, 664], "q": 92},
+    {"out": "mail/diamonds.jpg", "frame": 802, "box": [580, 336, 672, 376], "q": 92},
+    # 原版战斗上下两条警戒带(字是静止的)
+    {"out": "battle/band_top.jpg", "frame": 543, "box": [0, 200, 720, 372], "q": 88},
+    {"out": "battle/band_bot.jpg", "frame": 543, "box": [0, 1286, 720, 1448], "q": 88},
 ]

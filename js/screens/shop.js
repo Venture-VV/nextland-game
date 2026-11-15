@@ -27,16 +27,47 @@
         const book = g.per === '每周' ? l.wc : l.dc, left = g.limit ? g.limit - (book[g.id] || 0) : 0;
         return h('button.sh-card', { 'data-buy': g.id, onclick: () => {
           if (g.limit && left <= 0) return ui.toast('已达到限购次数。');
-          ui.confirm('是否消耗<em>' + g.price + '阪神信用点</em>购买<em>' + g.name + '</em>？', () => {
-            if (!game.spend('credit', g.price)) return ui.toast('阪神信用点不足。');
-            if (g.limit) book[g.id] = (book[g.id] || 0) + 1;
-            game.award([{ id: g.id, n: g.n }]);
-          });
+          buyWin(g, book, left);
         } }, h('span', g.name), ui.itemEl(g.id, '×' + g.n), h('i', g.limit ? g.per + '限购:' + left + '/' + g.limit : ''),
           h('b', h('img', { src: NL.img('home/ico_coin.webp') }), String(g.price)));
       })));
     },
   };
+
+  // 购买窗(录屏 4:53):标题和底边取自录屏,中间是商品、宝箱内容、数量滑条和「共花费」
+  function buyWin(g, book, left) {
+    const m = ui.mask({});
+    const d = D.items[g.id] || {}, pool = D.boxPools[g.id] || D.giftPools[g.id];
+    const max = g.limit ? left : 100;
+    let n = 1;
+    const qty = h('b'), cost = h('b', String(g.price));
+    const range = h('input', { type: 'range', min: '1', max: String(max), value: '1', oninput: () => set(+range.value) });
+    function set(v) { n = Math.max(1, Math.min(max, v)); range.value = n; qty.textContent = n + '/' + max; cost.textContent = String(g.price * n); }
+    const win = h('div.buy',
+      NL.sprite('ui/buy_head.jpg', 0, 0, 330, 84), NL.sprite('ui/buy_foot.jpg', 0, 508, 330, 20),
+      NL.state.gem === 100000 ? null : h('div.buy-gem', String(NL.state.gem)),
+      NL.hit(288, 4, 42, 32, () => m.close()),
+      h('div.buy-body',
+        g.limit ? h('div.buy-limit', g.per + '限购：' + left + '/' + g.limit) : null,
+        h('div.buy-name', g.name.replace(/\*\d+$/, '')),
+        ui.itemEl(g.id, '×' + g.n, 'buy-ico'),
+        h('div.buy-price', '单价', h('img', { src: NL.img('home/ico_coin.webp') }), h('b', String(g.price))),
+        pool ? ui.sec('宝箱内容', 173) : null,
+        pool ? h('div.buy-pool.scroll-x', pool.map((id) => ui.itemEl(id))) : null,
+        ui.sec('描述', pool ? 260 : 173),
+        h('div.buy-desc', { style: { top: pool ? 288 : 201 } }, d.desc || g.name),
+        h('div.buy-qty', h('span', '购买数量', qty), h('button.minus', { onclick: () => set(n - 1) }), range, h('button.plus', { 'data-act': 'buy-plus', onclick: () => set(n + 1) })),
+        h('div.buy-bar', '共花费', h('img', { src: NL.img('home/ico_coin.webp') }), cost,
+          h('button', { 'data-act': 'buy-ok', onclick: () => {
+            if (!game.spend('credit', g.price * n)) return ui.toast('阪神信用点不足。');
+            m.close();
+            if (g.limit) book[g.id] = (book[g.id] || 0) + n;
+            game.award([{ id: g.id, n: g.n * n }]);
+          } }, '购买'))));
+    set(1);
+    m.el.appendChild(win);
+    m.el.appendChild(h('div.close-hint.abs', { style: { left: 0, width: 360, top: 686, textAlign: 'center', margin: 0 } }, '点击空白处关闭。'));
+  }
 
   /* ---------- 补给 ---------- */
   const pick = (list) => list[Math.floor(Math.random() * list.length)];
@@ -68,20 +99,25 @@
       root.appendChild(NL.hit(182, 644, 166, 50, () => pull(10), { 'data-act': 'pull10' }));
     },
   };
+  // 结果页:十张卡片分两排,每往右一张高出 9.5(量自录屏 5:19),名字下面的色条是品质
   NL.screens.supplyResult = {
     title: '', plate: true,
     render(root, p) {
       root.classList.add('paper');
       root.appendChild(NL.sprite('supply/result_head.jpg', 0, 0, 360, 210));
+      root.appendChild(NL.sprite('supply/result_foot.jpg', 0, 640, 360, 85));
       const one = p.uids.length === 1;
-      root.appendChild(h('div.sr-grid' + (one ? '.one' : ''), p.uids.map((uid, i) => {
-        const g = game.gear(uid), e = g ? D.equips[g.id] : null;
-        return h('button.sr-card', { 'data-res': i, style: 'animation-delay:' + i * 0.05 + 's', onclick: () => g && ui.gearWin(uid) },
-          h('u', String(i + 1).padStart(2, '0')), e ? h('img', { src: NL.img(e.icon), draggable: 'false' }) : null, h('span', e ? e.name : '已分解'));
-      })));
-      root.appendChild(h('div.sr-got', '获得', h('img', { src: NL.img('item/crystal.webp') }), '装备晶片×' + p.crystal));
-      root.appendChild(h('button.sr-btn', { style: { left: 15 }, onclick: () => { NL.back(); pull(1); } }, '补给1次'));
-      root.appendChild(h('button.sr-btn.y', { style: { left: 183 }, onclick: () => { NL.back(); pull(10); } }, '补给10次'));
+      p.uids.forEach((uid, i) => {
+        const g = game.gear(uid), e = g ? D.equips[g.id] : null, c = i % 5, r = Math.floor(i / 5);
+        const color = e ? D.rarity[e.rare][1] : '#b9b8c2';
+        root.appendChild(h('button.sr-card', { 'data-res': i, style: 'left:' + (one ? 151 : 16 + c * 65.5) + 'px;top:' + (one ? 300 : 256 - c * 9.5 + r * 173) + 'px;animation-delay:' + i * 0.05 + 's;--q:' + color, onclick: () => g && ui.gearWin(uid) },
+          h('u', String(i + 1).padStart(2, '0')), h('i'), e ? h('img', { src: NL.img(e.icon), draggable: 'false' }) : null, h('span', e ? e.name : '已分解')));
+      });
+      // 底图上烙着十连的「装备晶片X50」,数量不同时盖一层自己的字
+      if (p.crystal !== 50) root.appendChild(h('div.sr-got', '装备晶片X' + p.crystal));
+      [1, 10].forEach((n, i) => {
+        root.appendChild(NL.hit(15 + i * 169, 673, 162, 46, () => { NL.back(); pull(n); }, { 'data-act': 'again' + n }));
+      });
     },
   };
 })();

@@ -98,7 +98,9 @@
   D.storyPlates = { 熊杰: ['story/xiong.jpg', 'l'], 吴谩: ['story/wu.jpg', 'r'], 银砂: ['story/yin.jpg', 'r'] };
 
   /* ---------- 装备 ---------- */
-  // 录屏里看得到名字和数值的只有 4 件(金链、白手套、粉色护手、高地守卫上衣),其余按同样风格补
+  // 名字:往事圆顶帽、勇士上衣、高地守卫上衣出现在录屏里,其余是补的。
+  // power 是装备窗口里显示的面板战力(录屏里读得到的都照录屏);总战力涨多少录屏里看不出规律,
+  // 所以另留一个 eff 作为实际贡献,保证开局 2.4 万、穿满 4.2 万和录屏一致
   D.slots = [
     { id: 'head', name: '头盔', type: 'head', at: [160, 696] }, { id: 'neck', name: '项链', type: 'neck', at: [330, 696] },
     { id: 'weapon', name: '武器', type: 'weapon', at: [498, 696] },
@@ -113,14 +115,14 @@
   D.equips = {
     prism: E('棱镜核心', 'hand', 'orange', 5200, 'prism', { attr: '暴击+5%' }),
     pistol: E('制式手枪', 'weapon', 'white', 1200, 'pistol'),
-    vest: E('战术背心', 'armor', 'white', 800, 'vest'),
-    hat: E('圆顶礼帽', 'head', 'purple', 6700, 'hat', { attr: '魅力+6%' }),
+    vest: E('勇士上衣', 'armor', 'white', 17, 'vest', { perk: '获得阪神信用点增加{10%}', eff: 800, desc: '阪神集团所属武装力量基础装备，被大量倒卖到黑市，并进行各种改造，是最基础的装备素材。', src: ['补给', '【玩法】追光峡谷探索列车'] }),
+    hat: E('往事圆顶帽', 'head', 'purple', 535, 'hat', { perk: '阪神信用点消耗减少{10%}', eff: 6700 }),
     neck_gold: E('金链吊坠', 'neck', 'purple', 485, 'neck_gold', { attr: '轻盈+7%', perk: '获得装备晶片增加{10%}' }),
-    ring: E('纹章戒指', 'hand', 'purple', 3476, 'ring', { attr: '活力+4%' }),
+    ring: E('纹章戒指', 'hand', 'purple', 538, 'ring', { attr: '活力+4%', eff: 3476 }),
     glove_white: E('白手套', 'hand', 'purple', 461, 'glove_white', { perk: '获得阪神信用点增加{10}' }),
     gauntlet: E('粉晶护手', 'hand', 'blue', 55, 'gauntlet', { attr: '击晕抗性+3%', perk: '消耗阪神信用点减少{5}' }),
-    pants: E('黑色长裤', 'pants', 'purple', 3118, 'pants', { attr: '结实+4%' }),
-    boots: E('粉晶战靴', 'shoes', 'blue', 2250, 'boots', { attr: '轻盈+3%' }),
+    pants: E('黑色长裤', 'pants', 'purple', 468, 'pants', { attr: '结实+4%', eff: 3118 }),
+    boots: E('粉晶战靴', 'shoes', 'blue', 52, 'boots', { attr: '轻盈+3%', eff: 2250 }),
     tuxedo: E('晚宴礼服', 'armor', 'purple', 2900, 'tuxedo', { attr: '魅力+5%' }),
     choker: E('粉晶项圈', 'neck', 'blue', 320, 'choker'),
     armor_pink: E('粉晶胸甲', 'armor', 'blue', 1500, 'armor_pink', { attr: '结实+3%' }),
@@ -206,7 +208,7 @@
   };
   D.supply = [
     { name: '基础物资补给', card: 'supply_card', cost: 1, crystal: 1, ev: 'supply_basic', pool: ['pistol', 'vest', 'chain', 'helmet_grey', 'helmet_brown'] },
-    { name: '高级物资补给', card: 'supply_card', cost: 1, crystal: 5, ev: 'supply_premium', pool: ['chain', 'rifle', 'pistol_color', 'vest_green', 'choker', 'bracelet', 'gauntlet', 'armor_pink', 'tuxedo'] },
-    { name: '特级物资补给', card: 'special_card', cost: 4, crystal: 20, ev: 'supply_special', pool: ['choker', 'gauntlet', 'boots', 'armor_pink', 'tuxedo', 'hat', 'ring', 'pants'] },
+    { name: '高级物资补给', card: 'special_card', cost: 1, crystal: 5, ev: 'supply_premium', pool: ['chain', 'rifle', 'pistol_color', 'vest_green', 'choker', 'bracelet', 'gauntlet', 'armor_pink', 'tuxedo'] },
+    { name: '特级物资补给', card: 'special_card', cost: 4, crystal: 5, ev: 'supply_special', pool: ['choker', 'gauntlet', 'boots', 'armor_pink', 'tuxedo', 'hat', 'ring', 'pants'] },
   ];
 })();

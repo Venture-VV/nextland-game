@@ -9,11 +9,13 @@
   const today = () => { const d = new Date(Date.now() - 8 * 3600e3); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); };
   game.rateText = function (enemyPower) {
     const r = game.power() / enemyPower;
-    return r >= 1.5 ? '碾压' : r >= 1 ? '轻松' : r >= 0.8 ? '势均力敌' : '危险';
+    // 四档的叫法和分界取自策划文档:高出 10% 以上是碾压,往下依次是高、中(低 20% 以上)、低(低 30% 以上)
+    return r >= 1.1 ? '碾压' : r > 0.8 ? '高' : r > 0.7 ? '中' : '低';
   };
 
-  /* ---------- 战斗 ----------
-   * 原版是两个头像自动对撞。这里重新设计成 3D 的节拍对决:
+  /* ---------- 战斗(扩展玩法:节拍对决) ----------
+   * 默认的战斗是 js/battle_classic.js 里照原版复刻的自动对撞;在设置里打开「扩展玩法」才走这里。
+   * 这一套是重新设计的 3D 节拍对决:
    * - 战斗音乐每拍 0.923 秒,双方轮流出手,每一击都落在重拍上;
    * - 对手出手时,光环合拢的瞬间点「格挡」,这一击只吃 80% 伤害;
    * - 出手和挨打都会攒能量,攒满后点「爆发」,下一击变成光束,伤害 140%;
@@ -77,7 +79,7 @@
   };
 
   // opts: {enemy:{name, lv, power}, rewards, onEnd(win)}
-  ui.battle = function (opts) {
+  ui.battleBeat = function (opts) {
     const s = NL.state, e = opts.enemy, myPower = game.power();
     const plan = game.fightPlan(myPower, e.power);
     const F = { hp: [HP, HP], gauge: 0, armed: false, c: 0, n: 0, over: false, win: false, koAt: 0, loser: 1, tries: {} };
@@ -346,8 +348,9 @@
   };
 
   /* ---------- 探索列车 ---------- */
+  let trainSeen = false;
   NL.screens.train = {
-    title: '玩法',
+    title: '', plate: 'cap',
     render(root, p) {
       const t = D.trains[p.id], s = NL.state;
       if (s.trainDay.date !== today()) s.trainDay = { date: today(), left: 30 };
@@ -362,8 +365,8 @@
       const list = h('div.tr-list.scroll', { 'data-keep': 'train-' + p.id });
       for (let n = t.powers.length; n >= 1; n--) {
         const power = t.powers[n - 1], open = n <= cleared + 1;
-        list.appendChild(h('div.tr-row', h('div.tr-film'), h('div.tr-name', t.car + n + '节'),
-          h('div.tr-rate', '通关率 ', h('em', game.rateText(power))), h('div.tr-power', '战力 ', h('em', NL.fmt.power(power))),
+        list.appendChild(h('div.tr-row', h('div.tr-film' + (n === 1 ? '.head' : '')), h('div.tr-name', t.car + n + '节'),
+          h('div.tr-rate', '通关率', h('em', game.rateText(power))), h('div.tr-power', '战力', h('i'), h('em', NL.fmt.power(power))),
           h('div.tr-rewards', t.rewards[n - 1].map((r) => ui.itemEl(r.id, r.n, 'sm'))),
           open ? h('button.btn.purple.small.tr-go', { 'data-train': n, onclick: () => {
             if (s.trainDay.left <= 0) return ui.toast('今日挑战次数已用完。');
@@ -372,10 +375,12 @@
             ui.battle({ enemy: { name: t.enemy, lv: n * 5, power }, rewards: t.rewards[n - 1], onEnd(win) {
               if (win && cleared < n) { s.train[p.id] = n; NL.save(); NL.refresh(); }
             } });
-          } }, '挑战') : h('div.tr-lock', '🔒 挑战前一层解锁')));
+          } }, '挑战') : h('div.tr-lock', h('i'), '挑战前一层解锁')));
       }
       root.appendChild(list);
+      // 原版一进来停在列表最下面(第 1 节车厢在底部)
+      if (!trainSeen) { trainSeen = true; requestAnimationFrame(() => (list.scrollTop = list.scrollHeight)); }
     },
-    leave() { clearInterval(timer); },
+    leave() { clearInterval(timer); trainSeen = false; },
   };
 })();
