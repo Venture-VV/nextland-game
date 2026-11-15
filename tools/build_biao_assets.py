@@ -11,6 +11,7 @@ art/biao/cast.json 记着每个角色用哪张母版、脸在哪、卡面裁哪�
     partner/card_<id>.webp  列表里的卡面,276×368
     partner/face_<id>.webp  头像,160×160
     battle/me.jpg、battle/enemy.jpg  战斗里的头像(和里的同名),另有 js/embed_biao.js 给 3D 战斗用
+    cast.json 里 _backgrounds 列的页面背景(例如 home/bg.webp)
 然后自动更新 js/skin_assets.js。改完记得再跑 tools/stamp.py。
 """
 import json
@@ -44,7 +45,12 @@ def main():
     cast = json.load(open(os.path.join(SRC, "cast.json"), encoding="utf-8"))
     os.makedirs(os.path.join(OUT, "partner"), exist_ok=True)
     n = 0
+    for dst, master in cast.get("_backgrounds", {}).items():  # 页面背景:只缩放,不裁脸
+        os.makedirs(os.path.dirname(os.path.join(OUT, dst)), exist_ok=True)
+        Image.open(os.path.join(SRC, "masters", master)).convert("RGB").resize((720, 1052), Image.LANCZOS).save(os.path.join(OUT, dst), quality=80, method=6)
     for cid, c in cast.items():
+        if cid.startswith("_"):
+            continue
         path = os.path.join(SRC, "masters", c["master"])
         if not os.path.exists(path):
             print("缺母版,跳过:", cid, c["master"])

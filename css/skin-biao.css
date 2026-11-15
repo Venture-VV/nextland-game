@@ -168,3 +168,20 @@ html[data-skin=biao] #screen.bp::after { display: none; }
 .bl-age { position: absolute; left: 14px; top: 130px; width: 34px; height: 34px; border-radius: 6px; border: 1.5px solid var(--b-ice); color: var(--b-ice); font-size: 12px; font-weight: 800; line-height: 31px; text-align: center; }
 /* 战斗里的头像:表的图没有烙着的圆环,用样式补一圈 */
 html[data-skin=biao] .btc-av, html[data-skin=biao] .bt2-av { box-shadow: 0 0 0 3px #e8cf9a, 0 0 0 5px #7a2cf0, 0 0 14px 4px rgba(255, 61, 127, .5); }
+
+/* ---------- 主页的表画法 ---------- */
+.bh-bg { position: absolute; inset: 0; background: center/cover no-repeat; opacity: .55; pointer-events: none; -webkit-mask-image: linear-gradient(#000 55%, transparent 96%); mask-image: linear-gradient(#000 55%, transparent 96%); }
+.bh-art { position: absolute; left: 40px; top: 176px; width: 300px; height: 438px; background: center top / 300px 438px no-repeat; pointer-events: none; -webkit-mask-image: linear-gradient(90deg, transparent 2%, #000 28%, #000 72%, transparent 98%), linear-gradient(#000 60%, transparent 94%); -webkit-mask-composite: source-in; mask-image: linear-gradient(90deg, transparent 2%, #000 28%, #000 72%, transparent 98%), linear-gradient(#000 60%, transparent 94%); mask-composite: intersect; }
+.bh-card { position: absolute; left: 14px; top: 132px; width: 204px; height: 58px; border-radius: 29px 12px 12px 29px; background: var(--b-glass); border: 1px solid rgba(232, 207, 154, .55); color: #fff; text-align: left; }
+.bh-face { position: absolute; left: 4px; top: 4px; width: 48px; height: 48px; border-radius: 50%; background: #1a1d33 center/cover; border: 1.5px solid var(--b-rose); }
+.bh-card b { position: absolute; left: 64px; top: 10px; font-size: 14px; letter-spacing: 1px; color: var(--b-gold); }
+.bh-card span { position: absolute; left: 64px; top: 34px; font-size: 9.5px; color: var(--b-ice); letter-spacing: 1px; }
+.bh-place { position: absolute; left: 100px; top: 194px; height: 20px; padding: 0 10px; border-radius: 10px; background: rgba(11, 13, 26, .7); color: #d9d6e8; font-size: 9.5px; }
+.bh-chip { position: absolute; width: 36px; height: 36px; border-radius: 50%; background: var(--b-glass); border: 1px solid rgba(125, 232, 255, .55); color: var(--b-ice); font-size: 9.5px; }
+.bh-side { position: absolute; left: 284px; width: 68px; height: 40px; border-radius: 12px 0 0 12px; background: var(--b-glass); border: 1px solid rgba(232, 207, 154, .55); border-right: 0; color: var(--b-gold); font-size: 11.5px; letter-spacing: 1px; }
+.bh-zones { position: absolute; left: 14px; top: 470px; width: 332px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.bh-zones span { width: 100%; color: var(--b-rose); font-size: 9px; letter-spacing: 4px; text-shadow: 0 1px 4px #000; }
+.bh-zones button { height: 30px; padding: 0 14px; border-radius: 15px; background: var(--b-glass); border: 1px solid rgba(255, 61, 127, .6); color: #fff; font-size: 11px; letter-spacing: 1px; }
+.bh-adv { position: absolute; left: 14px; top: 582px; width: 150px; min-width: 0; height: 46px; border-radius: 23px; font-size: 17px; letter-spacing: 8px; }
+.bh-exp { position: absolute; left: 236px; top: 640px; width: 110px; min-width: 0; height: 40px; border-radius: 20px; font-size: 14px; letter-spacing: 6px; }
+#screen.bh .skin-flip { top: 270px; }
