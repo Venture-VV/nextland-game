@@ -255,6 +255,7 @@
         camPos.copy(CAM); camLook.copy(LOOK);
         camPos.x += Math.sin(S.t * 0.33) * 0.55; camPos.y += Math.sin(S.t * 0.21) * 0.15;
         if (S.focus) { tmp.copy(fighters[S.focus.who].pos); camPos.lerp(tmp2.copy(tmp).add(camOff.set(0.1, 5.2, 10.2)), zoom * 0.3); camLook.lerp(tmp, zoom * 0.3); }
+        if (NL.motion && NL.motion.reduced()) shake = 0; // 系统开了「减少动态效果」就不震屏
         camPos.x += Math.sin(S.t * 67) * shake * 0.16; camPos.y += Math.cos(S.t * 53) * shake * 0.13;
         cam.position.copy(camPos); cam.lookAt(camLook);
         cam.fov = FOV - S.pulse * 0.35 - shake * 1.1 - (S.punch || 0) * 2.2; cam.updateProjectionMatrix();

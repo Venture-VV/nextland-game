@@ -107,12 +107,23 @@
       root.appendChild(NL.sprite('supply/result_head.jpg', 0, 0, 360, 210));
       root.appendChild(NL.sprite('supply/result_foot.jpg', 0, 640, 360, 85));
       const one = p.uids.length === 1;
+      const RARE_RANK = { white: 1, green: 2, blue: 3, purple: 4, orange: 5 };
+      let best = 0;
       p.uids.forEach((uid, i) => {
         const g = game.gear(uid), e = g ? D.equips[g.id] : null, c = i % 5, r = Math.floor(i / 5);
         const color = e ? D.rarity[e.rare][1] : '#b9b8c2';
-        root.appendChild(h('button.sr-card', { 'data-res': i, style: 'left:' + (one ? 151 : 16 + c * 65.5) + 'px;top:' + (one ? 300 : 256 - c * 9.5 + r * 173) + 'px;animation-delay:' + i * 0.05 + 's;--q:' + color, onclick: () => g && ui.gearWin(uid) },
-          h('u', String(i + 1).padStart(2, '0')), h('i'), e ? h('img', { src: NL.img(e.icon), draggable: 'false' }) : null, h('span', e ? e.name : '已分解')));
+        root.appendChild(h('button.sr-card', { 'data-res': i, style: 'left:' + (one ? 151 : 16 + c * 65.5) + 'px;top:' + (one ? 300 : 256 - c * 9.5 + r * 173) + 'px;--i:' + i + ';--dx:' + (one ? 0 : (2 - c) * 60) + 'px;--q:' + color, onclick: () => g && ui.gearWin(uid) },
+          h('u', String(i + 1).padStart(2, '0')), h('i'), e ? h('img', { src: NL.img(e.icon), draggable: 'false' }) : null, h('span', e ? e.name : '已分解'), h('em')));
+        if (e && e.rare !== 'white' && e.rare !== 'green') root.lastChild.classList.add('r-' + e.rare);
+        if (e && RARE_RANK[e.rare] > best) best = RARE_RANK[e.rare];
       });
+      // 升级动效的抽卡编排:先闪一下白光(出了橙色就换成放射光),卡片一张张发下来翻开;点任意处直接看结果
+      if (!p.seen) {
+        p.seen = true;
+        root.appendChild(h('div.sr-flash' + (best >= 5 ? '.orange' : '')));
+        if (best >= 4) NL.motion.shake(best >= 5 ? 0.7 : 0.4);
+        root.addEventListener('pointerdown', () => root.classList.add('skip'), { once: true });
+      } else root.classList.add('skip');
       // 底图上烙着十连的「装备晶片X50」,数量不同时盖一层自己的字
       if (p.crystal !== 50) root.appendChild(h('div.sr-got', '装备晶片X' + p.crystal));
       [1, 10].forEach((n, i) => {

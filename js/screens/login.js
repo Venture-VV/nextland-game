@@ -37,7 +37,7 @@
       p = Math.min(100, p + 4 + Math.random() * 9);
       fill.style.width = p + '%';
       num.textContent = Math.floor(p) + '%';
-      if (p >= 100) { clearInterval(t); setTimeout(() => NL.go('home'), 120); }
+      if (p >= 100) { clearInterval(t); setTimeout(() => NL.motion.pixels({ mode: 'dither', onMid: () => NL.go('home') }), 120); }
     }, 60);
   }
 })();

@@ -190,12 +190,15 @@
       hit(152, () => { m.close(); NL.go('login'); }),
       NL.hit(286, 0, 44, 30, () => m.close()),
       h('div.set-id', '玩家编号:' + NL.state.uid)));
-    const sw2 = h('button.set-switch', { 'data-act': 'set-beat', onclick: () => { NL.state.battleMode = NL.state.battleMode === 'beat' ? 'classic' : 'beat'; NL.save(); paint2(); } });
-    const paint2 = () => { const on = NL.state.battleMode === 'beat'; sw2.classList.toggle('on', on); sw2.textContent = on ? '开' : '关'; };
-    paint2();
-    // 下面两行是网页版加的,原版没有:声音开关,和把战斗换成 3D 节拍对决的开关
+    // 下面三行是网页版加的,原版没有。后两个关掉就是原版的样子
+    const sw2 = h('button.set-switch', { 'data-act': 'set-beat', onclick: () => { NL.state.beat = !NL.state.beat; NL.save(); paint2(); } });
+    const paint2 = () => { sw2.classList.toggle('on', !!NL.state.beat); sw2.textContent = NL.state.beat ? '开' : '关'; };
+    const sw3 = h('button.set-switch', { 'data-act': 'set-motion', onclick: () => { NL.state.motion = NL.motion.plus() ? 'orig' : 'plus'; NL.save(); NL.motion.apply(); paint3(); } });
+    const paint3 = () => { sw3.classList.toggle('on', NL.motion.plus()); sw3.textContent = NL.motion.plus() ? '开' : '关'; };
+    paint2(); paint3();
     m.el.appendChild(h('div.set-row', '背景音乐', sw));
-    m.el.appendChild(h('div.set-row.two', h('span', '扩展玩法：节拍对决', h('small', '战斗改成可以格挡、爆发的 3D 版')), sw2));
+    m.el.appendChild(h('div.set-row.two', h('span', '3D 节拍对决', h('small', '关掉就是原版战斗:自动对撞,只能看')), sw2));
+    m.el.appendChild(h('div.set-row.three', h('span', '升级动效', h('small', '关掉就照原版:弹窗和页面直接出现')), sw3));
     m.el.appendChild(h('div.close-hint.abs', { style: { left: 0, width: 360, top: 686, textAlign: 'center', margin: 0 } }, '点击空白处关闭。'));
   };
 

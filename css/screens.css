@@ -493,7 +493,7 @@
 .buy-bar img { width: 24px; height: 24px; }
 .buy-bar b { font-size: 15px; margin-left: -5px; }
 .buy-bar button { position: absolute; right: 4px; top: 3px; width: 134px; height: 30px; border-radius: 15px; background: #ffe21f; color: #222; font-size: 12px; font-weight: 700; }
-.sr-card { position: absolute; width: 57px; height: 157px; background: #2b2a30; animation: pop .3s ease-out both; }
+.sr-card { position: absolute; width: 57px; height: 157px; background: #2b2a30; animation: pop .3s ease-out both; animation-delay: calc(var(--i, 0) * 50ms); }
 .sr-card::before { content: ""; position: absolute; left: 0; top: 0; border: solid transparent; border-width: 5px 5px 0 0; border-top-color: var(--q); }
 .sr-card::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--q); }
 .sr-card u { position: absolute; right: 2px; top: 5px; color: transparent; -webkit-text-stroke: .6px #77767e; font-size: 21px; font-weight: 300; line-height: 1; text-decoration: none; letter-spacing: -.5px; }
@@ -600,7 +600,8 @@
 .itx-input { position: absolute; left: 73px; top: 141px; width: 184px; height: 30px; border: 0; border-radius: 15px; outline: none; background: #2b2a2f; color: #fff; font-size: 14px; text-align: center; user-select: text; -webkit-user-select: text; touch-action: auto; }
 .itx-input::placeholder { color: #f1f0f4; }
 .set-row { position: absolute; left: 62px; top: 536px; display: flex; align-items: center; justify-content: space-between; width: 236px; color: #fff; font-size: 11.5px; }
-.set-row.two { top: 572px; }
+.set-row.two { top: 568px; }
+.set-row.three { top: 606px; }
 .set-row small { display: block; margin-top: 1px; color: rgba(255, 255, 255, .6); font-size: 8.5px; }
 .set-switch { position: relative; width: 52px; height: 24px; border-radius: 12px; background: #3a3942; color: #9a99a3; font-size: 9.5px; font-weight: 700; text-align: right; padding-right: 9px; transition: background .15s; }
 .set-switch::before { content: ""; position: absolute; left: 3px; top: 3px; width: 18px; height: 18px; border-radius: 50%; background: #c9c8d2; transition: transform .15s; }
