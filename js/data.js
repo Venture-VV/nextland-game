@@ -96,4 +96,82 @@
     noname: [{ text: '【增益市场的义体贩子收了你的好处，但却没有按照约定将你带到旧时代自由人身前，正在你觉得被骗之时，你收到一条来自陌生终端的定位信息，附言只有四个字：“不问姓名”。】' }],
   };
   D.storyPlates = { 熊杰: ['story/xiong.jpg', 'l'], 吴谩: ['story/wu.jpg', 'r'], 银砂: ['story/yin.jpg', 'r'] };
+
+  /* ---------- 装备 ---------- */
+  // 录屏里看得到名字和数值的只有 4 件(金链、白手套、粉色护手、高地守卫上衣),其余按同样风格补
+  D.slots = [
+    { id: 'head', name: '头盔', type: 'head', at: [160, 696] }, { id: 'neck', name: '项链', type: 'neck', at: [330, 696] },
+    { id: 'weapon', name: '武器', type: 'weapon', at: [498, 696] },
+    { id: 'hand1', name: '手饰1', type: 'hand', at: [76, 832] }, { id: 'hand2', name: '手饰2', type: 'hand', at: [244, 832] },
+    { id: 'hand3', name: '手饰3', type: 'hand', at: [414, 832] }, { id: 'hand4', name: '手饰4', type: 'hand', at: [582, 832] },
+    { id: 'armor', name: '护甲', type: 'armor', at: [160, 968] }, { id: 'pants', name: '裤子', type: 'pants', at: [330, 968] },
+    { id: 'shoes', name: '鞋子', type: 'shoes', at: [498, 968] },
+  ];
+  D.slotTypes = { head: '头盔', neck: '项链', weapon: '武器', hand: '手饰', armor: '护甲', pants: '裤子', shoes: '鞋子' };
+  D.rarity = { white: ['白', '#b9b8c2', 3], green: ['绿', '#8ad628', 3], blue: ['蓝', '#1fb4e8', 6], purple: ['紫', '#7c3bf0', 12], orange: ['橙', '#f07a18', 24] };
+  const E = (name, type, rare, power, icon, o) => Object.assign({ name, type, rare, power, icon: 'equip/' + icon + '.webp', desc: '新生乐园世界里流通的制式装备。', src: ['补给'] }, o || {});
+  D.equips = {
+    prism: E('棱镜核心', 'hand', 'orange', 5200, 'prism', { attr: '暴击+5%' }),
+    pistol: E('制式手枪', 'weapon', 'white', 1200, 'pistol'),
+    vest: E('战术背心', 'armor', 'white', 800, 'vest'),
+    hat: E('圆顶礼帽', 'head', 'purple', 6700, 'hat', { attr: '魅力+6%' }),
+    neck_gold: E('金链吊坠', 'neck', 'purple', 485, 'neck_gold', { attr: '轻盈+7%', perk: '获得装备晶片增加{10%}' }),
+    ring: E('纹章戒指', 'hand', 'purple', 3476, 'ring', { attr: '活力+4%' }),
+    glove_white: E('白手套', 'hand', 'purple', 461, 'glove_white', { perk: '获得阪神信用点增加{10}' }),
+    gauntlet: E('粉晶护手', 'hand', 'blue', 55, 'gauntlet', { attr: '击晕抗性+3%', perk: '消耗阪神信用点减少{5}' }),
+    pants: E('黑色长裤', 'pants', 'purple', 3118, 'pants', { attr: '结实+4%' }),
+    boots: E('粉晶战靴', 'shoes', 'blue', 2250, 'boots', { attr: '轻盈+3%' }),
+    tuxedo: E('晚宴礼服', 'armor', 'purple', 2900, 'tuxedo', { attr: '魅力+5%' }),
+    choker: E('粉晶项圈', 'neck', 'blue', 320, 'choker'),
+    armor_pink: E('粉晶胸甲', 'armor', 'blue', 1500, 'armor_pink', { attr: '结实+3%' }),
+    bracelet: E('粉晶手环', 'hand', 'blue', 48, 'bracelet'),
+    helmet_brown: E('旧式飞行盔', 'head', 'green', 310, 'helmet_brown'),
+    helmet_grey: E('巡逻头盔', 'head', 'green', 280, 'helmet_grey'),
+    chain: E('银色链圈', 'neck', 'green', 60, 'chain'),
+    rifle: E('训练步枪', 'weapon', 'green', 640, 'rifle', { src: ['补给', '【玩法】追光峡谷探索列车'] }),
+    pistol_color: E('涂装手枪', 'weapon', 'green', 520, 'pistol_color'),
+    vest_green: E('高地守卫上衣', 'armor', 'green', 25, 'vest_green', { perk: '消耗阪神信用点减少{5}', desc: '弹道训练营老兵守卫的制式装备。', src: ['补给', '【玩法】追光峡谷探索列车'] }),
+  };
+  // 开局:3 件穿在身上,其余在仓库(录屏开始时也是这样;仓库里原有 69 件,这里只放录屏里看得清的)
+  D.startEquipped = { hand1: 'prism', weapon: 'pistol', armor: 'vest' };
+  D.startGear = ['hat', 'neck_gold', 'pants', 'ring', 'glove_white', 'boots', 'gauntlet', 'hat', 'tuxedo', 'choker', 'armor_pink', 'boots',
+    'bracelet', 'bracelet', 'gauntlet', 'gauntlet', 'gauntlet', 'helmet_brown', 'helmet_grey', 'helmet_grey', 'chain', 'chain',
+    'chain', 'chain', 'rifle', 'rifle', 'pistol_color', 'vest_green'];
+  D.perks = [['装备', '获得阪神信用点增加', '10%', '永久'], ['装备', '获得装备晶片增加', '10%', '永久']];
+
+  /* ---------- 伙伴 ---------- */
+  D.partners = [
+    { id: 'jiguang', name: '冀光', race: '人类', art: 'jiguang', likes: 5, trust: 6, place: '新生乐园L2-01', trait: '威严的外表与阴鸷的内心', love: ['geiger', 'rouge'],
+      file: { years: '30', birth: '新纪元 1月1日', star: '摩羯座', like: '教义', hate: '无信仰者' } },
+    { id: 'ling', name: '凌', race: '人类', art: 'ling', likes: 0, trust: 0, place: '新生乐园L2-02', trait: '既有市侩、奸诈的一面，也有热心的一面。', love: ['papers', 'holo'] },
+    { id: 'maguangyao', name: '麻光耀', race: '人类', art: 'maguangyao', likes: 0, trust: 0, place: '新生乐园L2-03', trait: '热心但暗中抵抗阪神的科学家', love: ['holo', 'geiger'] },
+    { id: 'linxiao', name: '林鸮', race: '改造者', art: 'linxiao', likes: 1, trust: 0, place: '新生乐园L2-04', trait: '希望建立自己势力，但又温和', love: ['can', 'perfume'] },
+    { id: 'guxuan', name: '顾轩', race: '人类', art: 'maguangyao', blank: true, likes: 1, trust: 0, place: '新生乐园L2-05', trait: '???', love: ['papers', 'can'] },
+    { id: 'yinsha', name: '银砂', race: '仿生人', art: 'yinsha', likes: 0, trust: 0, place: '新生乐园L2-06', trait: '职业化的状态与觉醒后自身思维的冲突', love: ['rouge', 'perfume'] },
+  ];
+  // 礼物:只有「便携式盖革计数器」「旧时代气味罐头」的名字和说明出现在录屏里,其余是补的
+  const G = (name, rare, base, icon, desc) => ({ name, kind: '情感礼物', rare, base, gift: true, icon: 'gift/' + icon + '.webp', desc });
+  Object.assign(D.items, {
+    geiger: G('便携式盖革计数器', 'blue', 10, 'geiger', '战前的古董。巴掌大小，能实时显示当前辐射值。地下城有些区域辐射忽高忽低，带一个能保命。'),
+    can: G('旧时代气味罐头', 'purple', 20, 'can', '战前一家公司生产的气味保留装置。是一罐可以喷出“雨后柏油路”“地铁站烤红薯”等旧时代气味的喷雾。'),
+    rouge: G('复古胭脂盒', 'blue', 10, 'rouge', '旧时代的手工胭脂，颜色依然鲜亮。'),
+    papers: G('旧时代报纸', 'orange', 30, 'papers', '一叠泛黄的战前报纸，记录着已经消失的日常。'),
+    holo: G('全息留影匣', 'orange', 30, 'holo', '能循环播放一段全息影像的小匣子。'),
+    perfume: G('手工香水', 'orange', 30, 'perfume', '玻璃瓶装的手工香水，在地下城是稀罕物。'),
+  });
+  D.giftPools = { gift_green: ['geiger', 'rouge'], gift_blue: ['geiger', 'rouge'], gift_purple: ['can'], gift_orange: ['papers', 'holo', 'perfume'] };
+  D.boxPools = { box_white: ['pistol', 'vest', 'chain'], box_green: ['helmet_brown', 'helmet_grey', 'chain', 'rifle', 'pistol_color', 'vest_green'], box_blue: ['choker', 'armor_pink', 'bracelet', 'gauntlet', 'boots'] };
+  // 伙伴等级权益(录屏里拍到 1~10 级)
+  D.partnerLv = [
+    { reward: R('box_white', 1) }, { reward: R('special_card', 1) }, { perk: '可兑换权益', cost: 333 }, { word: '生命吸取+1%' }, { perk: '可兑换权益', cost: 498 },
+    { reward: R('special_card', 1) }, { perk: '可兑换权益', cost: 998 }, { unlock: '每日赠礼次数+1' }, { reward: R('special_card', 2) }, { perk: '可兑换权益', cost: 1333 },
+  ];
+  // 每日委托:从这里面抽 3 条
+  D.commissions = [
+    { id: 'credit', title: '获得100阪神信用点。', ev: 'credit_gain', need: 100, heart: 2 },
+    { id: 'supply1', title: '补给1次。', ev: 'supply', need: 1, heart: 1 },
+    { id: 'supply2', title: '补给2次。', ev: 'supply', need: 2, heart: 2 },
+    { id: 'box', title: '提交物品', submit: ['box_white', 10], heart: 2 },
+    { id: 'white', title: '提交白色品质物品', submitRare: ['white', 3], heart: 3 },
+  ];
 })();

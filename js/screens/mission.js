@@ -17,6 +17,7 @@
     if (s.daily.date !== today()) s.daily = { date: today(), c: {}, claimed: {}, points: 0, gifts: {} };
     return s.daily;
   }
+  game.daily = daily;
   const trackers = [];
   game.onTrack = (fn) => trackers.push(fn);
   // 各玩法做完一次就报一下，日常任务、引导任务和伙伴委托都靠它计数
@@ -173,7 +174,7 @@
   }
 
   NL.screens.mission = {
-    title: '任务', nav: 'mission',
+    title: '', nav: 'mission', plate: true,
     render(root) {
       const s = NL.state;
       clearInterval(timer);

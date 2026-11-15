@@ -76,6 +76,11 @@ def main():
             # 抹掉混进来的其他元素(坐标是裁剪后的)
             im = im.copy()
             im.paste((0, 0, 0, 0), (x0, y0, x1, y1))
+        for frame, (sx0, sy0, sx1, sy1), (dx, dy) in e.get("patch", []):
+            # 从另一帧取一块贴上来(坐标是裁剪后的)
+            other = Image.open(os.path.join(fdir, "%04d.jpg" % frame))
+            im = im.copy()
+            im.paste(other.crop((sx0, sy0, sx1, sy1)), (dx, dy))
         for x0, y0, x1, y1, color in e.get("fill", []):
             # 用纯色盖掉一块(坐标是裁剪后的)
             im = im.copy()
@@ -89,6 +94,14 @@ def main():
             y0 = h - ph - round(h * e.get("mirror_up", 0.0))
             patch = im.crop((0, y0, pw, y0 + ph)).transpose(Image.FLIP_LEFT_RIGHT)
             im.paste(patch, (w - pw, y0))
+        if e.get("mirror_bl"):
+            # 左下角压着等级徽章:用右下角镜像盖掉
+            fw, fh = e["mirror_bl"]
+            im = im.copy()
+            w, h = im.size
+            pw, ph = round(w * fw), round(h * fh)
+            patch = im.crop((w - pw, h - ph, w, h)).transpose(Image.FLIP_LEFT_RIGHT)
+            im.paste(patch, (0, h - ph))
         if e.get("scale"):
             im = im.resize((round(im.width * e["scale"]), round(im.height * e["scale"])), Image.LANCZOS)
         save(im, os.path.join(ROOT, "assets", "img", out), e.get("q", 86))

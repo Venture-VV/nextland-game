@@ -115,6 +115,7 @@
     current = scr;
     const title = typeof scr.title === 'function' ? scr.title(top.params) : scr.title;
     $('#title-tag').textContent = title || '';
+    $('#chrome').classList.toggle('hidden', !!scr.plate); // 整幅底图里已经带着页面名和胶囊
     const nav = $('#nav');
     nav.classList.toggle('off', !scr.nav);
     if (scr.nav) nav.style.backgroundImage = NL.bg('nav/' + scr.nav + '.jpg');
@@ -190,7 +191,7 @@
     return m;
   };
   ui.itemEl = function (id, n, cls) {
-    const d = (NL.data.items && NL.data.items[id]) || {};
+    const d = (NL.data.items && NL.data.items[id]) || (NL.data.equips && NL.data.equips[id]) || {};
     const el = h('div.item' + (cls ? '.' + cls : ''), { title: d.name || id });
     if (d.icon) el.style.backgroundImage = NL.bg(d.icon);
     else el.textContent = '';
@@ -207,8 +208,9 @@
     m.el.appendChild(h('div.close-hint.abs', { style: { left: 0, width: 360, top: 628, textAlign: 'center', margin: 0 } }, '点击空白处关闭。'));
     return m;
   };
-  ui.toast = function (text) {
-    const el = h('div.toast', text);
+  // shift: 和「战力提升」同时出现时把字往右挪,免得被挡住
+  ui.toast = function (text, shift) {
+    const el = h('div.toast' + (shift ? '.shift' : ''), text);
     $('#layers').appendChild(el);
     setTimeout(() => el.remove(), 2100);
   };
@@ -231,7 +233,7 @@
   // 录屏:16 级领 100 经验后直接到 21 级，且 21 级显示 50/250;战力同时 +889
   game.expNeed = (lv) => (lv < 21 ? 10 : 250);
   game.levelPower = (lv) => Math.round(177.8 * lv);
-  game.powerParts = [() => 20255 + game.levelPower(NL.state.level)];
+  game.powerParts = [() => 12335 + game.levelPower(NL.state.level)]; // 装备等其他来源由各模块追加
   game.power = () => game.powerParts.reduce((s, f) => s + f(), 0);
   // 在改动数值前后对比战力，有变化就弹「战力提升」
   game.withPower = function (fn) {
@@ -296,6 +298,7 @@
       else if (it.id === 'gem') s.gem += n;
       else if (it.id === 'energy') s.energy += n;
       else if (game.grantHooks[it.id]) game.grantHooks[it.id](n, it);
+      else if (NL.data.equips && NL.data.equips[it.id]) game.addGear(it.id, n);
       else s.bag[it.id] = (s.bag[it.id] || 0) + n;
     });
     NL.save();
