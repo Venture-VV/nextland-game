@@ -16,10 +16,7 @@ import numpy as np
 from PIL import Image, ImageFilter
 
 ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_ART_DIR = Path(
-    "/home/antigravity/.gemini/jetski/brain/v1/default/jetski_remote_agents_3p/"
-    "646e8c28-ac27-4b46-86f5-d75d24c4ae53"
-)
+DEFAULT_ART_DIR = ROOT / "assets" / "masters" / "otome"
 OUT_DIR = ROOT / "assets" / "img" / "otome"
 
 MASTERS = {
