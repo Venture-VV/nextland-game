@@ -194,8 +194,7 @@
             root.appendChild(NL.sprite(D.equips[g.id].icon, (ix - 2) / 2, (iy + 6) / 2, 50, 50));
             if (s.iface[sl.id]) root.appendChild(h('div.slot-lv', { style: { left: (ix - 34) / 2 + 2, top: (iy - 24) / 2 + 51 } }, String(s.iface[sl.id])));
           }
-          const first = g ? g.uid : (game.sortedGear().find((x) => D.equips[x.id].type === sl.type && !game.slotOf(x.uid)) || {}).uid;
-          root.appendChild(NL.hit((ix - 30) / 2, (iy - 20) / 2, 68, 70, () => ui.gearWin(first, { slot: sl.id }), { 'data-slot': sl.id }));
+          root.appendChild(NL.hit((ix - 30) / 2, (iy - 20) / 2, 68, 70, () => openSlot(sl), { 'data-slot': sl.id }));
         });
         root.appendChild(NL.hit(285, 584, 60, 16, () => ui.toast('暂无可激活的套装。')));
       } else if (tab === 'enh') {
@@ -203,14 +202,57 @@
         root.appendChild(NL.hit(20, 397, 200, 54, () => ui.toast('种族天赋暂未开放。')));
         root.appendChild(NL.hit(20, 466, 200, 54, () => ui.toast('势力天赋暂未开放。')));
       } else {
-        CHIPS.forEach(([x, y, kind], i) => root.appendChild(NL.hit(x, y, 58, 58, () => ui.win({
-          title: '选择芯片', h: 476,
-          body: h('div.chip-win', h('b', (i + 1) + ' 号槽 · ' + kind), h('span', '没有能放进这个槽的芯片')),
-        }), { 'data-chip': i + 1 })));
+        CHIPS.forEach(([x, y, kind], i) => root.appendChild(NL.hit(x, y, 58, 58, () => chipWin(i, kind), { 'data-chip': i + 1 })));
         root.appendChild(NL.hit(122, 584, 120, 30, () => ui.toast('芯片背包是空的。')));
       }
     },
+    // 表的画法:夜色底 + 主角立绘 + 自己排的面板。页签、装备格、芯片槽、权益加成和里一一对应
+    renderBiao(root) {
+      const s = NL.state;
+      root.classList.add('bp');
+      root.classList.add('br');
+      root.appendChild(h('div.bp-art' + (NL.biaoAssets['partner/art_hero.webp'] ? '' : '.none'), NL.biaoAssets['partner/art_hero.webp'] ? { style: { backgroundImage: NL.bg('partner/art_hero.webp') } } : null));
+      root.appendChild(h('div.bp-name', h('b', s.name), h('i', '改造者'), h('span', '角色档案')));
+      root.appendChild(h('div.br-tabs', [['profile', '档案'], ['equip', '装备'], ['enh', '强化'], ['chip', '芯片']].map(([k, name]) =>
+        h('button' + (tab === k ? '.on' : ''), { 'data-tab': k, onclick: () => { tab = k; NL.refresh(); } }, name))));
+      if (s.guide === 'on') root.appendChild(h('div.guide-arrow', { style: { left: 229, top: 667 } }));
+      const panel = h('div.br-panel');
+      root.appendChild(panel);
+      if (tab === 'profile') {
+        const need = game.expNeed(s.level);
+        panel.appendChild(h('div.br-lv', h('b', 'Lv.' + s.level), h('span', s.exp + '/' + need), h('div.bar', h('i', { style: { width: Math.min(100, (s.exp / need) * 100) + '%' } }))));
+        panel.appendChild(h('div.br-rows',
+          h('button', { onclick: () => NL.go('faction') }, h('span', '势力'), '查看'),
+          h('button', { onclick: () => ui.toast('种族：改造者') }, h('span', '种族'), '改造者')));
+      } else if (tab === 'equip') {
+        panel.appendChild(h('div.br-slots', D.slots.map((sl) => {
+          const g = game.gear(s.equipped[sl.id]);
+          return h('button' + (g ? '.has' : ''), { 'data-slot': sl.id, onclick: () => openSlot(sl) },
+            g ? h('img', { src: NL.img(D.equips[g.id].icon), draggable: 'false' }) : null, h('span', sl.name), s.iface[sl.id] ? h('u', '+' + s.iface[sl.id]) : null);
+        })));
+        panel.appendChild(h('button.br-link', { onclick: () => ui.toast('暂无可激活的套装。') }, '全部套装 ›'));
+      } else if (tab === 'enh') {
+        panel.appendChild(h('div.br-list',
+          h('button', { 'data-act': 'iface', onclick: () => NL.go('iface') }, h('b', '接口升级'), h('span', '提高每个装备格的加成')),
+          h('button', { onclick: () => ui.toast('种族天赋暂未开放。') }, h('b', '种族天赋'), h('span', '暂未开放')),
+          h('button', { onclick: () => ui.toast('势力天赋暂未开放。') }, h('b', '势力天赋'), h('span', '暂未开放'))));
+      } else {
+        panel.appendChild(h('div.br-chips', CHIPS.map(([, , kind], i) => h('button', { 'data-chip': i + 1, onclick: () => chipWin(i, kind) }, h('b', kind), h('span', String(i + 1))))));
+        panel.appendChild(h('button.br-link', { onclick: () => ui.toast('芯片背包是空的。') }, '芯片背包 ›'));
+      }
+      root.appendChild(h('div.br-power', h('span', '战力'), h('b', NL.fmt.power(game.power())),
+        h('button', { 'data-act': 'perks', onclick: perkWin }, '权益加成')));
+    },
   };
+  // 点装备格:穿着的看详情,空的列出能穿的
+  function openSlot(sl) {
+    const g = game.gear(NL.state.equipped[sl.id]);
+    const first = g ? g.uid : (game.sortedGear().find((x) => D.equips[x.id].type === sl.type && !game.slotOf(x.uid)) || {}).uid;
+    ui.gearWin(first, { slot: sl.id });
+  }
+  function chipWin(i, kind) {
+    ui.win({ title: '选择芯片', h: 476, body: h('div.chip-win', h('b', (i + 1) + ' 号槽 · ' + kind), h('span', '没有能放进这个槽的芯片')) });
+  }
 
   /* ---------- 接口升级 ---------- */
   const IF_ICON = { head: 'head', neck: 'neck', weapon: 'weapon', hand: 'hand', armor: 'armor', pants: 'pants', shoes: 'shoes' };

@@ -116,3 +116,40 @@ html[data-skin=biao] #screen.bp::after { display: none; }
 .bp-pic.none, .bp-art.none { display: flex; align-items: center; justify-content: center; }
 .bp-pic.none span, .bp-art.none span { color: rgba(232, 207, 154, .45); font-size: 9px; letter-spacing: 2px; }
 .bp-art.none span { font-size: 13px; margin-top: -60px; }
+
+/* ---------- 角色页的表画法(js/screens/role.js 里的 renderBiao) ---------- */
+#screen.br .bp-art { top: 66px; height: 364px; background-size: 360px 526px; }
+#screen.br .bp-name { top: 38px; }
+#screen.br .bp-name b { font-size: 20px; letter-spacing: 4px; display: inline-block; margin-right: 8px; }
+#screen.br .bp-name i { margin-top: 0; vertical-align: 4px; }
+#screen.br .bp-name span { display: none; }
+.br-tabs { position: absolute; left: 0; top: 196px; display: flex; flex-direction: column; gap: 9px; }
+.br-tabs button { width: 62px; height: 28px; border-radius: 0 14px 14px 0; background: var(--b-glass); border: 1px solid rgba(232, 207, 154, .5); border-left: 0; color: var(--b-gold); font-size: 11.5px; letter-spacing: 2px; }
+.br-tabs button.on { background: linear-gradient(100deg, var(--b-rose), #a23cff); border-color: transparent; color: #fff; box-shadow: 0 0 10px rgba(255, 61, 127, .55); }
+.br-panel { position: absolute; left: 14px; top: 420px; width: 332px; height: 224px; border-radius: 14px; background: var(--b-glass); border: 1px solid rgba(232, 207, 154, .45); box-shadow: 0 0 18px rgba(255, 61, 127, .18); }
+.br-lv { position: absolute; left: 18px; right: 18px; top: 22px; color: #fff; }
+.br-lv b { font-size: 22px; color: var(--b-gold); letter-spacing: 1px; }
+.br-lv span { position: absolute; right: 0; top: 10px; font-size: 10px; color: #d9d6e8; }
+.br-lv .bar { margin-top: 8px; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .14); overflow: hidden; }
+.br-lv .bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--b-rose), var(--b-ice)); }
+.br-rows { position: absolute; left: 18px; right: 18px; top: 104px; display: flex; gap: 12px; }
+.br-rows button { flex: 1; height: 60px; border-radius: 12px; border: 1px solid rgba(125, 232, 255, .5); color: #fff; font-size: 14px; letter-spacing: 2px; }
+.br-rows span { display: block; margin-bottom: 4px; color: var(--b-ice); font-size: 9px; letter-spacing: 3px; }
+.br-slots { position: absolute; left: 14px; top: 16px; width: 304px; display: grid; grid-template-columns: repeat(5, 54px); gap: 12px 8.500px; }
+.br-slots button, .br-chips button { position: relative; height: 76px; border-radius: 10px; background: rgba(255, 255, 255, .05); border: 1px dashed rgba(232, 207, 154, .4); color: #d9d6e8; }
+.br-slots button.has { border: 1px solid var(--b-rose); box-shadow: 0 0 8px rgba(255, 61, 127, .35); }
+.br-slots img { position: absolute; left: 4px; top: 4px; width: 44px; height: 44px; border-radius: 6px; }
+.br-slots span { position: absolute; left: 0; right: 0; bottom: 5px; font-size: 9px; text-align: center; }
+.br-slots u { position: absolute; right: 3px; top: 2px; padding: 0 4px; border-radius: 6px; background: var(--b-rose); color: #fff; font-size: 8px; text-decoration: none; }
+.br-link { position: absolute; right: 16px; bottom: 10px; color: var(--b-ice); font-size: 10px; }
+.br-list { position: absolute; left: 16px; right: 16px; top: 16px; display: flex; flex-direction: column; gap: 10px; }
+.br-list button { height: 56px; padding: 0 16px; border-radius: 12px; background: rgba(255, 255, 255, .05); border: 1px solid rgba(232, 207, 154, .4); color: #fff; text-align: left; }
+.br-list b { display: block; font-size: 13.5px; color: var(--b-gold); letter-spacing: 2px; }
+.br-list span { font-size: 9.5px; color: #b9b6cc; }
+.br-chips { position: absolute; left: 14px; top: 16px; width: 304px; display: grid; grid-template-columns: repeat(5, 54px); gap: 12px 8.500px; }
+.br-chips b { display: block; font-size: 13px; color: var(--b-ice); }
+.br-chips span { font-size: 8.5px; color: #8f8ca8; }
+.br-power { position: absolute; left: 14px; top: 654px; width: 332px; height: 36px; display: flex; align-items: center; gap: 10px; padding-left: 16px; border-radius: 18px; background: var(--b-glass); border: 1px solid rgba(232, 207, 154, .45); color: #fff; }
+.br-power span { color: var(--b-rose); font-size: 11px; font-weight: 700; letter-spacing: 2px; }
+.br-power b { flex: 1; font-size: 16px; }
+.br-power button { width: 96px; height: 28px; margin-right: 4px; border-radius: 14px; background: linear-gradient(100deg, #f3dfb0, #cfa860); color: #2a2010; font-size: 11px; font-weight: 700; }
