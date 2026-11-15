@@ -177,13 +177,17 @@
 
   /* ---------- 设置、兑换码 ---------- */
   ui.settings = function () {
-    ui.win({ title: '设置', dark: true, top: 284, hintTop: 690, body(b, w) {
+    ui.win({ title: '设置', dark: true, top: 262, hintTop: 690, body(b, w) {
       b.classList.add('set-win');
       const btn = (t, fn) => b.appendChild(h('button.btn.purple', { onclick: fn }, t));
       btn('扫码', () => { w.close(); const input = h('input.nl-input', { placeholder: '点击输入兑换码' });
         ui.dialog({ extra: input, buttons: [{ text: '取消', cls: 'pink' }, { text: '确认', cls: 'purple', onClick: () => ui.toast(input.value ? '兑换码无效。' : '请输入兑换码。') }] }); });
       btn('切换账号', () => ui.toast('演示版只有一个本机存档。'));
       btn('退出登录', () => { w.close(); NL.go('login'); });
+      const sw = h('button.set-switch', { 'data-act': 'set-sound', onclick: () => { NL.audio.toggle(); paint(); } });
+      const paint = () => { sw.classList.toggle('on', NL.audio.on()); sw.textContent = NL.audio.on() ? '开' : '关'; };
+      paint();
+      b.appendChild(h('div.set-row', '背景音乐', sw));
       b.appendChild(h('div.set-id', '玩家编号:' + NL.state.uid));
     } });
   };

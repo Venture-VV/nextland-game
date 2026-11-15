@@ -1,7 +1,7 @@
 /* 核心:DOM 工具、存档、页面切换、通用弹窗。所有模块挂在全局 NL 上。 */
 (function () {
   'use strict';
-  const NL = (window.NL = { screens: {}, data: {}, ui: {}, game: {}, fmt: {}, defaults: [], scale: 1 });
+  const NL = (window.NL = { screens: {}, data: {}, ui: {}, game: {}, fmt: {}, defaults: [], bootHooks: [], scale: 1 });
   const $ = (s) => document.querySelector(s);
 
   /* ---------- DOM ---------- */
@@ -331,6 +331,7 @@
     window.addEventListener('resize', fit);
     fit();
     if (/[?&]reset\b/.test(location.search)) NL.reset(); else NL.load();
+    NL.bootHooks.forEach((f) => f()); // 各模块在存档读好之后要做的初始化
     const nav = $('#nav');
     ['role', 'bag', 'home', 'mission', 'partner'].forEach((n) => nav.appendChild(h('button', { 'data-nav': n, onclick: () => NL.go(n) })));
     setInterval(game.tickEnergy, 1000);

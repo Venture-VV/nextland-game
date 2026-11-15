@@ -5,7 +5,7 @@
   let noticeShown = false;
 
   NL.screens.login = {
-    title: '', back: false, root: true,
+    title: '', back: false, root: true, plate: true,
     render(root) {
       root.appendChild(NL.sprite('login/bg.jpg', 0, 0, 360, 781));
       root.appendChild(NL.hit(82, 610, 196, 54, enter, { 'data-act': 'enter' }));

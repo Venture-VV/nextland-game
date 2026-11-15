@@ -6,7 +6,7 @@
  * 截图默认存到 .work/shots/,视口 360x781、2 倍像素,可以直接和录屏同一画面并排比。
  *
  * 每一步可以有:goto(打开 index.html 并附加这段地址)、click(选择器)、clickXY、drag、
- * eval(在页面里执行)、wait(毫秒)、shot(截图名)。
+ * eval(在页面里执行,抛错即算失败)、clock(把战斗时钟拨到第几秒)、wait(毫秒)、shot(截图名)。
  */
 const path = require('path');
 const fs = require('fs');
@@ -19,6 +19,11 @@ const FLOWS = [
   ["登录与主页", [
     {"goto": "?reset", "shot": "c1_notice"},
     {"click": "[data-act=notice-ok]", "wait": 200, "shot": "c1_login"},
+    {"eval": "if(!NL.audio.playing())throw new Error('第一次点击后背景音乐没有开始播放')"},
+    {"click": "[data-act=sound]", "wait": 150},
+    {"eval": "if(NL.audio.on()||NL.audio.playing())throw new Error('点了开关,背景音乐没有停')"},
+    {"click": "[data-act=sound]", "wait": 300},
+    {"eval": "if(!NL.audio.playing())throw new Error('再点开关,背景音乐没有恢复')"},
     {"click": "[data-act=enter]", "wait": 300, "shot": "c1_loading"},
     {"wait": 2200, "shot": "c1_home_prompt"},
     {"click": ".dlg-btns .btn.purple", "wait": 300, "shot": "c1_home_guide"},
@@ -106,7 +111,7 @@ const FLOWS = [
     {"click": "[data-stage='5']", "wait": 300, "shot": "c4_stagewin"},
     {"click": "[data-act=fight]", "wait": 500, "shot": "c4_bt_start"},
     {"wait": 1300, "shot": "c4_bt_mid"},
-    {"click": "[data-act=skip]", "wait": 500, "shot": "c4_bt_win"},
+    {"eval": "document.querySelector('[data-act=skip]').click()", "wait": 700, "shot": "c4_bt_win"},
     {"clickXY": [180, 500], "wait": 300, "shot": "c4_after"},
     {"click": ".back-btn", "wait": 200},
     {"click": "[data-act=quick]", "wait": 100},
@@ -117,7 +122,7 @@ const FLOWS = [
     {"eval": "document.querySelector('.md-list').scrollTop=500", "wait": 200},
     {"click": "[data-mode=gorge]", "wait": 300, "shot": "c4_train"},
     {"click": "[data-train='2']", "wait": 1400},
-    {"click": "[data-act=skip]", "wait": 500, "shot": "c4_train_win"},
+    {"eval": "document.querySelector('[data-act=skip]').click()", "wait": 700, "shot": "c4_train_win"},
     {"clickXY": [180, 500], "wait": 300},
     {"eval": "NL.go('rank')", "wait": 300, "shot": "c4_rank"},
     {"click": "[data-act=rk-info]", "wait": 300, "shot": "c4_rank_info"},
@@ -125,7 +130,7 @@ const FLOWS = [
     {"click": "[data-act=rk-idle]", "wait": 400, "shot": "c4_rank_idle"},
     {"click": ".reward-ok", "wait": 300},
     {"click": "[data-act=rk-fight]", "wait": 1300},
-    {"click": "[data-act=skip]", "wait": 500},
+    {"eval": "document.querySelector('[data-act=skip]').click()", "wait": 700},
     {"clickXY": [180, 500], "wait": 400, "shot": "c4_rank_after"},
     {"eval": "NL.go('shop')", "wait": 300, "shot": "c4_shop"},
     {"click": "[data-cat=mat]", "wait": 300, "shot": "c4_shop_mat"},
@@ -159,7 +164,7 @@ const FLOWS = [
     {"click": "[data-tab=add]", "wait": 200, "shot": "c5_fr_add"},
     {"click": "[data-tab=list]", "wait": 200, "shot": "c5_fr_list"},
     {"click": "[data-fight='Yi']", "wait": 1300},
-    {"click": "[data-act=skip]", "wait": 400},
+    {"eval": "document.querySelector('[data-act=skip]').click()", "wait": 700},
     {"clickXY": [180, 500], "wait": 300},
     {"click": ".back-btn", "wait": 200},
     {"click": "[data-act=profile]", "wait": 300, "shot": "c5_profile"},
@@ -190,6 +195,43 @@ const FLOWS = [
     {"click": "[data-tab=task]", "wait": 300, "shot": "c5_mission_after_bind"},
     {"eval": "JSON.stringify([NL.state.bound,NL.state.friends,NL.state.mails.length,NL.state.tasks])", "log": "state"},
   ]],
+  ["3D 战斗:格挡、爆发、击破、结算", [
+    {"goto": "?reset#home", "wait": 300},
+    {"click": ".dlg-btns .btn.pink", "wait": 200},
+    {"click": "[data-act=mail]", "wait": 200},
+    {"eval": "NL.loadThree().then(function(){NL.testClock=0;window.__bt=null;NL.ui.battle({enemy:{name:'林然',lv:5,power:9000},rewards:[{id:'exp',n:100},{id:'crystal',n:10}],onEnd:function(w){window.__bt=w;}});})", "wait": 1500},
+    {"eval": "if(document.querySelector('.battle').dataset.renderer!=='3d')throw new Error('没有用上 3D 画面')"},
+    {"eval": "if(NL.audio.playing())throw new Error('战斗中背景音乐应该暂停')"},
+    {"clock": 1.0, "shot": "bt_intro"},
+    {"clock": 2.6, "shot": "bt_windup"},
+    {"clock": 2.87, "shot": "bt_hit"},
+    {"clock": 3.55, "shot": "bt_cue"},
+    {"clock": 3.7},
+    {"click": "[data-act=block]"},
+    {"clock": 3.8, "shot": "bt_block"},
+    {"eval": "var hp=document.querySelector('.bt-card.me u').textContent;if(hp!=='94%')throw new Error('格挡后我方血量应为 94%(不格挡是 92%),实际 '+hp)"},
+    {"clock": 5.8},
+    {"eval": "var b=document.querySelector('[data-act=burst]');if(!b.classList.contains('ready'))throw new Error('能量应该已经攒满');b.click();if(!b.classList.contains('armed'))throw new Error('点了爆发没有生效')"},
+    {"clock": 6.35, "shot": "bt_charge"},
+    {"clock": 6.58, "shot": "bt_burst"},
+    {"eval": "var hp=document.querySelector('.bt-card.foe u').textContent;if(hp!=='0%')throw new Error('爆发后对手应被击破,实际血量 '+hp)"},
+    {"clock": 7.3, "shot": "bt_ko"},
+    {"clock": 7.78, "shot": "bt_shatter"},
+    {"clock": 8.6, "wait": 400, "shot": "bt_result"},
+    {"clickXY": [180, 500], "wait": 400},
+    {"eval": "NL.testClock=null;if(window.__bt!==true)throw new Error('战斗应该获胜');if(!NL.audio.playing())throw new Error('战斗结束后背景音乐没有接着放')"},
+  ]],
+  ["没有 WebGL 时退回 2D 战斗", [
+    {"goto": "?reset#home", "wait": 300},
+    {"click": ".dlg-btns .btn.pink", "wait": 200},
+    {"eval": "NL.loadThree=function(){return Promise.resolve(false)};NL.testClock=0;window.__bt=null;NL.ui.battle({enemy:{name:'林然',lv:5,power:60000},onEnd:function(w){window.__bt=w;}})", "wait": 800},
+    {"eval": "if(document.querySelector('.battle').dataset.renderer!=='2d')throw new Error('应该退回 2D 画面')"},
+    {"clock": 2.8, "shot": "bt2d_dash"},
+    {"clock": 3.2, "shot": "bt2d_after"},
+    {"eval": "document.querySelector('[data-act=skip]').click()", "wait": 700, "shot": "bt2d_lose"},
+    {"clickXY": [180, 500], "wait": 400},
+    {"eval": "NL.testClock=null;if(window.__bt!==false)throw new Error('战力远低于对手,应该失败')"},
+  ]],
 ];
 
 (async () => {
@@ -208,6 +250,10 @@ const FLOWS = [
       if (s.clickXY) await page.mouse.click(s.clickXY[0], s.clickXY[1]);
       if (s.drag) { await page.mouse.move(s.drag[0], s.drag[1]); await page.mouse.down(); await page.mouse.move(s.drag[2], s.drag[3], { steps: 6 }); await page.mouse.up(); }
       if (s.eval) await page.evaluate(s.eval).catch((e) => errs.push('执行失败: ' + e.message));
+      if (s.clock != null) { // 每次拨 1/30 秒并等一帧,特效才会跟着走
+        let cur = await page.evaluate(() => NL.testClock || 0);
+        while (cur < s.clock - 1e-6) { cur = Math.min(s.clock, cur + 1 / 30); await page.evaluate((t) => new Promise((r) => { NL.testClock = t; requestAnimationFrame(() => requestAnimationFrame(r)); }), cur); }
+      }
       if (s.wait) await page.waitForTimeout(s.wait);
       if (s.shot) await page.screenshot({ path: path.join(SHOTS, s.shot + '.png') });
     }
