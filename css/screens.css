@@ -1,0 +1,20 @@
+/* 各页面样式。坐标用设计尺寸 360x781。 */
+
+/* ---------- 登录 ---------- */
+.load-bar { position: absolute; left: 30px; top: 676px; width: 300px; height: 15px; background: #170b26; border: 1px solid #3b1d5c; overflow: hidden; clip-path: polygon(0 0, 100% 0, 97% 100%, 0 100%); }
+.load-bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: linear-gradient(90deg, #c010c8, #f414dc); transition: width .06s linear; }
+.load-bar b { position: absolute; inset: 0; text-align: center; font-size: 9px; line-height: 13px; font-style: italic; color: #fff; text-shadow: 0 0 2px #000; }
+
+/* ---------- 主页 ---------- */
+.park-map { position: absolute; left: 0; top: 0; background-size: 100% 100%; background-color: #281737; touch-action: none; cursor: grab; will-change: transform; image-rendering: auto; }
+.park-map:active { cursor: grabbing; }
+.hud { position: absolute; inset: 0; pointer-events: none; }
+.hud > * { pointer-events: auto; }
+.hud img { pointer-events: none; }
+.hud .pill img.plus { pointer-events: auto; cursor: pointer; }
+.lv-tag { position: absolute; left: 30px; top: 180px; height: 14px; padding: 0 5px; border-radius: 7px; background: #17141d; color: #fff; font-size: 9.5px; font-weight: 700; line-height: 14px; min-width: 50px; text-align: center; pointer-events: none; }
+.float { animation: floaty 1.6s ease-in-out infinite alternate; }
+@keyframes floaty { from { transform: translateY(-2px); } to { transform: translateY(3px); } }
+.energy-tip { position: absolute; width: 70px; padding: 5px 4px 6px; background: rgba(16, 12, 24, .92); border-radius: 4px; font-size: 9.5px; line-height: 1.5; text-align: center; color: #fff; }
+.energy-tip i { display: block; font-style: normal; }
+.energy-tip b { display: block; font-size: 10.5px; }
