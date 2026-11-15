@@ -158,3 +158,8 @@ input { font: inherit; }
 #sound-btn svg { width: 15px; height: 15px; }
 #sound-btn.off { color: rgba(255, 255, 255, .55); }
 #sound-btn:active { transform: scale(.92); }
+
+/* 表 / 里翻面按钮(主页左侧,原版没有) */
+.skin-flip { position: absolute; left: 9px; top: 278px; width: 44px; height: 44px; border-radius: 50%; z-index: 4; color: #fff; background: conic-gradient(from 135deg, #0b0d1a 0 50%, #6c16ff 50% 100%); border: 1.5px solid rgba(255, 255, 255, .7); box-shadow: 0 0 10px rgba(200, 120, 255, .7); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; }
+.skin-flip b { font-size: 17px; font-weight: 900; text-shadow: 0 0 4px #000; }
+.skin-flip i { margin-top: 2px; font-size: 7.5px; font-style: normal; opacity: .9; text-shadow: 0 0 3px #000; }

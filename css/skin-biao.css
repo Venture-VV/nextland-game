@@ -1,0 +1,82 @@
+/* 「表」的界面配色层。只在 html[data-skin=biao] 下生效,「里」完全不受影响。
+ *
+ * 方向:夜色玻璃 + 玫红霓虹 + 冰青,配香槟金的细线。成熟、利落,不甜。
+ * 这一层先把所有用样式画出来的部件(按钮、弹窗、对话框、提示、页签、卡片)换掉;
+ * 整页的底图和立绘还是借用里的,等 PR4、PR5 画好后放进 assets/biao/ 就会自动换上。
+ * 规矩:这里只改颜色、圆角、描边、阴影、字体,不改位置和尺寸,不藏任何按钮——两面的操作必须一样。 */
+html[data-skin=biao] {
+  --b-night: #0b0d1a; --b-glass: rgba(18, 22, 44, .92); --b-rose: #ff3d7f; --b-rose2: #c2185b; --b-ice: #7de8ff; --b-gold: #e8cf9a; --b-paper: #f4f1f6; --b-ink: #1c1d2b;
+}
+html[data-skin=biao] body { font-family: "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", "Noto Sans SC", sans-serif; }
+html[data-skin=biao] #stage { background: var(--b-night); box-shadow: 0 0 60px rgba(255, 61, 127, .22); }
+
+/* 页面名、返回、资源栏 */
+html[data-skin=biao] #title-tag { background: linear-gradient(90deg, rgba(11, 13, 26, .95), rgba(40, 20, 60, .9)); color: var(--b-gold); border-left: 2px solid var(--b-rose); letter-spacing: 2px; clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%); }
+html[data-skin=biao] .back-btn { background: var(--b-glass); color: var(--b-gold); border: 1px solid var(--b-gold); box-shadow: 0 0 8px rgba(232, 207, 154, .35); }
+html[data-skin=biao] .back-btn svg path { stroke: var(--b-gold); }
+html[data-skin=biao] .back-btn svg path + path { fill: var(--b-gold); }
+html[data-skin=biao] .pill { background: var(--b-glass); border-color: var(--b-ice); box-shadow: 0 0 6px rgba(125, 232, 255, .35); }
+html[data-skin=biao] .pill.energy { border-color: transparent; }
+
+/* 按钮:主按钮玫红渐变,次按钮夜色描边,确认类的黄色换成香槟金 */
+html[data-skin=biao] .btn { border-radius: 15px; box-shadow: 0 2px 10px rgba(0, 0, 0, .35); letter-spacing: 1px; }
+html[data-skin=biao] .btn.purple { background: linear-gradient(100deg, var(--b-rose), #a23cff); box-shadow: 0 0 12px rgba(255, 61, 127, .5); }
+html[data-skin=biao] .btn.pink { background: var(--b-glass); border: 1px solid var(--b-rose); color: #ffd6e4; }
+html[data-skin=biao] .btn.dark { background: #1a1d33; border: 1px solid rgba(232, 207, 154, .5); color: var(--b-gold); }
+html[data-skin=biao] .btn.yellow { background: linear-gradient(100deg, #f3dfb0, #cfa860); color: #2a2010; }
+html[data-skin=biao] .tk-btn { background: #1a1d33; border: 1px solid rgba(232, 207, 154, .55); color: var(--b-gold); }
+html[data-skin=biao] .tk-btn.pink { background: linear-gradient(100deg, var(--b-rose), #a23cff); border: 0; color: #fff; box-shadow: 0 0 10px rgba(255, 61, 127, .55); }
+
+/* 遮罩、弹窗、对话框 */
+html[data-skin=biao] .mask { background: rgba(8, 9, 22, .8); }
+html[data-skin=biao] .win { border-radius: 14px; background: linear-gradient(160deg, var(--b-rose) 0, #5b2bd6 45%, var(--b-ice) 100%); box-shadow: 0 0 24px rgba(255, 61, 127, .35); padding: 0 1.5px 1.5px; }
+html[data-skin=biao] .win-head { color: var(--b-gold); letter-spacing: 3px; background: linear-gradient(90deg, #0b0d1a, #2a1440 50%, #0b0d1a); border-radius: 13px 13px 0 0; margin: 1.5px 0 0; height: 26.5px; line-height: 26px; }
+html[data-skin=biao] .win-close::before, html[data-skin=biao] .win-close::after { background: var(--b-gold); height: 2px; }
+html[data-skin=biao] .win-body { border-radius: 0 0 12.5px 12.5px; background: linear-gradient(135deg, var(--b-rose) 5px, transparent 5.5px) 3px 3px / 12px 12px no-repeat, linear-gradient(315deg, var(--b-ice) 5px, transparent 5.5px) calc(100% - 3px) calc(100% - 3px) / 12px 12px no-repeat, var(--b-paper); }
+html[data-skin=biao] .win.dark { background: none; box-shadow: none; padding: 0; }
+html[data-skin=biao] .win.dark .win-head { margin: 0; height: 30px; line-height: 30px; border-radius: 12px 12px 0 0; background: linear-gradient(90deg, #0b0d1a, #2a1440 50%, #0b0d1a); border: 1.5px solid var(--b-rose); border-bottom: 0; }
+html[data-skin=biao] .win.dark .win-close { opacity: 1; }
+html[data-skin=biao] .win.dark .win-body { border-color: var(--b-rose); background: var(--b-glass); border-radius: 0; }
+html[data-skin=biao] .win.dark .win-foot { background: var(--b-glass); border: 1.5px solid var(--b-rose); border-top: 0; border-radius: 0 0 12px 12px; }
+html[data-skin=biao] .dlg-head { background: linear-gradient(90deg, transparent, var(--b-rose) 20%, var(--b-ice) 80%, transparent); height: 3px; margin-top: 17px; }
+html[data-skin=biao] .dlg-body { background: var(--b-glass); color: #f4eefc; border-top: 1px solid rgba(232, 207, 154, .35); border-bottom: 1px solid rgba(232, 207, 154, .35); }
+html[data-skin=biao] .dlg-body em { color: var(--b-rose); }
+html[data-skin=biao] .reward-head { background: linear-gradient(90deg, #0b0d1a, #3a1450 50%, #0b0d1a); color: var(--b-gold); letter-spacing: 4px; border-top: 1.5px solid var(--b-rose); }
+html[data-skin=biao] .reward-body { background: var(--b-glass); border-bottom: 1.5px solid var(--b-ice); }
+html[data-skin=biao] .reward-ok { background: linear-gradient(100deg, var(--b-rose), #a23cff); box-shadow: 0 0 12px rgba(255, 61, 127, .5); }
+html[data-skin=biao] .info-head { background: linear-gradient(90deg, var(--b-rose), #a23cff); }
+html[data-skin=biao] .info-name { border-left-color: var(--b-rose); }
+html[data-skin=biao] .sec-label span { background: var(--b-ink); color: var(--b-gold); }
+
+/* 提示、战力提升、引导 */
+html[data-skin=biao] .toast { background: var(--b-glass); border: 1px solid rgba(125, 232, 255, .5); border-left: 0; }
+html[data-skin=biao] .toast::before { border-color: var(--b-ice); color: var(--b-ice); }
+html[data-skin=biao] .powerup .p-box { background: var(--b-glass); border-color: var(--b-rose); }
+html[data-skin=biao] .powerup .p-txt { color: var(--b-gold); }
+html[data-skin=biao] .powerup .p-top { color: var(--b-rose); }
+html[data-skin=biao] .guide-arrow { border-top-color: var(--b-ice); filter: drop-shadow(0 0 4px rgba(125, 232, 255, .8)); }
+html[data-skin=biao] .guide-tip { border-color: var(--b-ice); background: var(--b-glass); }
+
+/* 任务、列表、页签 */
+html[data-skin=biao] .tabs2 { background: var(--b-night); border-bottom-color: var(--b-rose); }
+html[data-skin=biao] .tabs2 button.on { background: var(--b-paper); border-top-color: var(--b-rose); border-radius: 10px 10px 0 0; }
+html[data-skin=biao] .tk-list { background: #ece8f2; background-image: radial-gradient(rgba(255, 61, 127, .18) .6px, transparent .7px); background-size: 9px 9px; }
+html[data-skin=biao] .tk-sec { background: linear-gradient(90deg, #0b0d1a, #2a1440); color: var(--b-gold); clip-path: none; border-radius: 8px; }
+html[data-skin=biao] .tk-card { border-radius: 12px; box-shadow: 0 2px 8px rgba(40, 20, 60, .18); }
+html[data-skin=biao] .tk-card.glow { box-shadow: 0 0 0 1.5px #ffb3cc, 0 0 10px 2px rgba(255, 61, 127, .6); }
+html[data-skin=biao] .tk-card::after { background: repeating-linear-gradient(var(--b-rose) 0 1.5px, transparent 1.5px 3px); }
+html[data-skin=biao] .tag-blue { color: #2a8fd8; } html[data-skin=biao] .tag-red { color: var(--b-rose2); }
+html[data-skin=biao] .tk-goal em, html[data-skin=biao] .tk-pill em { color: var(--b-rose2); }
+html[data-skin=biao] .seg { border-color: var(--b-rose); }
+html[data-skin=biao] .seg button.on { background: linear-gradient(100deg, var(--b-rose), #a23cff); }
+html[data-skin=biao] .set-switch.on { background: linear-gradient(100deg, var(--b-rose), #a23cff); }
+html[data-skin=biao] .ml-row { border-color: var(--b-rose); border-radius: 12px; }
+html[data-skin=biao] .ml-row.read { border-color: #3a2a55; }
+html[data-skin=biao] .tr-row { border-color: var(--b-rose); }
+html[data-skin=biao] .tr-go, html[data-skin=biao] .flt-grid button.on, html[data-skin=biao] .cal-week button.on, html[data-skin=biao] .bd-code button { background: linear-gradient(100deg, var(--b-rose), #a23cff); }
+
+/* 翻面按钮:在表这一面显示成「回到里」的样子 */
+html[data-skin=biao] .skin-flip { background: conic-gradient(from 135deg, #6c16ff 0 50%, var(--b-night) 50% 100%); border-color: var(--b-gold); box-shadow: 0 0 10px rgba(255, 61, 127, .7); }
+
+/* 借用里的整页底图时,先压上一层夜色和玫红的调子,免得和新的部件太不搭(等表的底图画好后这一条就不起作用了) */
+html[data-skin=biao] #screen::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 3; background: linear-gradient(180deg, rgba(255, 61, 127, .07), rgba(11, 13, 26, .12) 60%, rgba(125, 232, 255, .06)); mix-blend-mode: soft-light; }

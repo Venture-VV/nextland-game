@@ -307,7 +307,7 @@
       NL.hit(128, 420, 190, 48, () => {
         if (!game.useEnergy(D.stageCost)) return;
         m.close();
-        const drop = Math.random() < 0.5 ? D.stageDrop : [];
+        const drop = NL.rand() < 0.5 ? D.stageDrop : [];
         ui.battle({ enemy: { name: z.enemy, lv: n, power }, rewards: D.stageRewards.concat(drop), onEnd(win) {
           if (win && NL.state.stages[zid] < n) { NL.state.stages[zid] = n; NL.save(); NL.refresh(); }
         } });

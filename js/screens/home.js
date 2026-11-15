@@ -112,6 +112,9 @@
       btn('home/btn_mail.webp', 275, 140, 31, 38, () => NL.go('mail'), 'mail');
       btn('home/btn_setting.webp', 314, 140, 34, 38, () => (NL.ui.settings ? NL.ui.settings() : NL.ui.toast('敬请期待。')), 'settings');
       btn('home/btn_faction.webp', 9, 217, 44, 45, () => NL.go('faction'), 'faction');
+      // 表 / 里一键翻面(原版没有):显示的是点了之后会去的那一面
+      const other = NL.skin() === 'biao' ? 'li' : 'biao';
+      root.appendChild(h('button.skin-flip', { 'data-act': 'skin', title: '表 / 里', onclick: () => NL.setSkin(other, 31, 300) }, h('b', other === 'biao' ? '表' : '里'), h('i', '翻面')));
       btn('home/btn_calendar.webp', 54, 217, 45, 45, () => (NL.ui.calendar ? NL.ui.calendar() : NL.ui.toast('敬请期待。')), 'calendar');
       const float = (img, x, y, w, hh, name, i) => {
         const el = NL.sprite(img, x, y, w, hh, { cls: 'float', style: 'animation-delay:' + -i * 0.5 + 's' });

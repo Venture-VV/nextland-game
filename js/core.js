@@ -47,7 +47,29 @@
   }
   // 给由脚本按需加载的文件带上版本号(版本号由 tools/stamp.py 写进页面)
   NL.ver = (path) => { const v = window.NL_VER && window.NL_VER.files[path]; return v ? path + '?v=' + v : path; };
-  NL.img = (p) => 'assets/img/' + p;
+  /* 表 / 里:皮肤只决定「画成什么样」,规则和存档是同一份。
+   * 里(li)是照录屏复刻的原样;表(biao)是重画的女性向美术。
+   * 表的图放在 assets/biao/ 下,和里的图同名同路径;js/skin_assets.js 里记着已经画好了哪些。
+   * 表还没画的图先借用里的,并记进 NL.skinMiss,走查会把这份欠账打印出来。 */
+  NL.rand = () => Math.random(); // 规则用的随机数(掉落、抽卡、委托);特效的随机不走这里
+  NL.skin = () => (NL.state && NL.state.skin === 'biao' ? 'biao' : 'li');
+  NL.biaoAssets = NL.biaoAssets || {};
+  NL.skinMiss = {};
+  NL.img = function (p) {
+    if (NL.skin() === 'biao') {
+      if (NL.biaoAssets[p]) return 'assets/biao/' + p;
+      NL.skinMiss[p] = true;
+    }
+    return 'assets/img/' + p;
+  };
+  NL.applySkin = () => { document.documentElement.dataset.skin = NL.skin(); };
+  // 一键翻面:像素块盖住画面,盖满时换皮肤,再揭开。x、y 是翻面从哪里扩散开(舞台坐标)
+  NL.setSkin = function (name, x, y) {
+    if (name !== 'biao' && name !== 'li') return;
+    if (name === NL.skin()) return;
+    NL.motion.pixels({ mode: x == null ? 'dither' : 'radial', x, y, ms: 900, colors: name === 'biao' ? ['#0b0d1a', '#0b0d1a', '#151a33', '#ff3d7f', '#7de8ff', '#e8cf9a'] : null,
+      onMid() { NL.state.skin = name; NL.save(); NL.applySkin(); NL.refresh(); } });
+  };
   NL.bg = (p) => 'url(' + NL.img(p) + ')';
   // 绝对定位的图片;x/y/w/h 用设计尺寸（录屏像素的一半）
   NL.sprite = function (p, x, y, w, h, attrs) {
@@ -80,7 +102,7 @@
     name: '热心市民VV', uid: 'NLWEB0001',
     level: 16, exp: 0, gem: 100000, credit: 99504,
     energy: 60, energyMax: 60, energyAt: 0,
-    bag: {}, guide: null, guideStep: 0,
+    bag: {}, guide: null, guideStep: 0, skin: 'li',
   }));
   NL.load = function () {
     let saved = {};
@@ -125,7 +147,8 @@
     const nav = $('#nav');
     nav.classList.toggle('off', !scr.nav);
     if (scr.nav) nav.style.backgroundImage = NL.bg('nav/' + scr.nav + '.jpg');
-    scr.render(root, top.params || {});
+    // 页面可以给表单独写一种画法(renderBiao);没写的就共用同一种,只是素材和样式换了
+    (NL.skin() === 'biao' && scr.renderBiao ? scr.renderBiao : scr.render).call(scr, root, top.params || {});
     if (scr.back !== false && !scr.nav) root.appendChild(NL.ui.backBtn());
     if (keepScroll) root.querySelectorAll('[data-keep]').forEach((e) => {
       const k = kept[e.dataset.keep];
@@ -378,6 +401,9 @@
     if (/[?&]reset\b/.test(location.search)) NL.reset(); else NL.load();
     const mo = /[?&]motion=(plus|orig)\b/.exec(location.search); // 地址里可以直接指定动效档
     if (mo) NL.state.motion = mo[1];
+    const sk = /[?&]skin=(biao|li)\b/.exec(location.search); // 也可以直接指定皮肤
+    if (sk) NL.state.skin = sk[1];
+    NL.applySkin();
     NL.bootHooks.forEach((f) => f()); // 各模块在存档读好之后要做的初始化
     const nav = $('#nav');
     ['role', 'bag', 'home', 'mission', 'partner'].forEach((n) => nav.appendChild(h('button', { 'data-nav': n, onclick: () => NL.go(n) })));

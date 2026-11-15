@@ -6,7 +6,7 @@
   const CATS = [['all', '全部'], ['head', '头盔'], ['neck', '项链'], ['weapon', '武器'], ['hand', '手饰'], ['armor', '护甲'], ['pants', '裤子'], ['shoes', '鞋子']];
   let tab = 'item', cat = 'all';
 
-  const pick = (list) => list[Math.floor(Math.random() * list.length)];
+  const pick = (list) => list[Math.floor(NL.rand() * list.length)];
   function useBox(id) {
     if (!game.spend(id, 1)) return;
     const got = D.boxPools[id] ? pick(D.boxPools[id]) : pick(D.giftPools[id]);

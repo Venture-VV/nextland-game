@@ -260,6 +260,27 @@ const FLOWS = [
     {"clickXY": [20, 770], "wait": 300},
     {"eval": "NL.testReduced=null;NL.motion.apply();1"},
   ]],
+  ["表里切换:主页一键翻面、设置里翻回来", [
+    {"goto": "?reset#home", "wait": 400},
+    {"click": ".dlg-btns .btn.pink", "wait": 300},
+    {"eval": "if(document.documentElement.dataset.skin!=='li')throw new Error('默认应该是里')"},
+    {"eval": "window.__save0=JSON.stringify(Object.assign({},NL.state,{skin:0}))"},
+    {"click": "[data-act=skin]", "wait": 400, "shot": "c10_flip"},
+    {"eval": "if(!document.querySelector('.m-pixels'))throw new Error('翻面时应该有像素块转场')"},
+    {"wait": 1100, "shot": "c10_biao_home"},
+    {"eval": "if(NL.state.skin!=='biao'||document.documentElement.dataset.skin!=='biao')throw new Error('点翻面按钮后应该到表');if(document.querySelector('.m-pixels'))throw new Error('转场结束后像素块没有清掉')"},
+    {"eval": "if(JSON.stringify(Object.assign({},NL.state,{skin:0}))!==window.__save0)throw new Error('翻面只应该改皮肤,存档里别的不能变')"},
+    {"click": "[data-nav=mission]", "wait": 400},
+    {"click": "[data-tab=task]", "wait": 300, "shot": "c10_biao_mission"},
+    {"click": "[data-task=g1] .tk-title", "wait": 500, "shot": "c10_biao_win"},
+    {"clickXY": [20, 770], "wait": 300},
+    {"click": "[data-nav=role]", "wait": 400, "shot": "c10_biao_role"},
+    {"eval": "var n=Object.keys(NL.skinMiss).length;if(!n)throw new Error('表还没有画好的图,应该记下借用了里的哪些');'表借用里的图 '+n+' 张'", "log": "skin"},
+    {"click": "[data-nav=home]", "wait": 400},
+    {"click": "[data-act=settings]", "wait": 400, "shot": "c10_biao_settings"},
+    {"click": "[data-act=set-skin]", "wait": 1500},
+    {"eval": "if(NL.state.skin!=='li'||document.documentElement.dataset.skin!=='li')throw new Error('设置里应该能翻回里')"},
+  ]],
   ["3D 战斗:格挡、爆发、击破、结算", [
     {"goto": "?reset#home", "wait": 300},
     {"click": ".dlg-btns .btn.pink", "wait": 200},
@@ -328,6 +349,34 @@ const FLOWS = [
     console.log((errs.length ? '✗ ' : '✓ ') + title + (errs.length ? '\n  ' + errs.join('\n  ') : ''));
     bad += errs.length;
     await page.close();
+  }
+  // 表和里共用一份规则:把同一组步骤在两种皮肤下各跑一遍,规则用的随机数换成同一个固定序列,跑完的存档必须逐项相同
+  {
+    const steps = FLOWS.find((f) => f[0].startsWith('冒险'))[1];
+    const saves = {};
+    for (const skin of ['li', 'biao']) {
+      const page = await browser.newPage({ viewport: { width: 360, height: 781 } });
+      const errs = [];
+      page.on('pageerror', (e) => errs.push(e.message));
+      for (const s of steps) {
+        if (s.goto !== undefined) {
+          await page.goto(base + s.goto.replace(/^(\?[^#]*)?/, (q) => (q ? q + '&' : '?') + 'skin=' + skin));
+          await page.waitForTimeout(350);
+          await page.evaluate(() => { let a = 20261115; NL.rand = () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; });
+        }
+        if (s.click) await page.click(s.click, { timeout: 3000 }).catch(() => errs.push('点不到: ' + s.click));
+        if (s.clickXY) await page.mouse.click(s.clickXY[0], s.clickXY[1]);
+        if (s.eval) await page.evaluate(s.eval).catch((e) => errs.push(e.message.split('\n')[0]));
+        if (s.wait) await page.waitForTimeout(s.wait);
+      }
+      // 时间戳和皮肤本身不比
+      saves[skin] = await page.evaluate(() => { const o = JSON.parse(JSON.stringify(NL.state)); delete o.skin; delete o.energyAt; if (o.rank) delete o.rank.idleAt; return o; });
+      if (errs.length) { bad += errs.length; console.log('✗ 两种皮肤对比(' + skin + ')\n  ' + errs.join('\n  ')); }
+      await page.close();
+    }
+    const diff = Object.keys(saves.li).filter((k) => JSON.stringify(saves.li[k]) !== JSON.stringify(saves.biao[k]));
+    if (diff.length) { bad++; console.log('✗ 两种皮肤跑完同样的步骤,存档不一样: ' + diff.map((k) => k + ' 里=' + JSON.stringify(saves.li[k]).slice(0, 80) + ' 表=' + JSON.stringify(saves.biao[k]).slice(0, 80)).join('; ')); }
+    else console.log('✓ 两种皮肤跑完同样的步骤,存档逐项相同(' + Object.keys(saves.li).length + ' 项)');
   }
   await browser.close();
   console.log(bad ? '共 ' + bad + ' 个问题' : '全部通过,截图在 ' + SHOTS);
