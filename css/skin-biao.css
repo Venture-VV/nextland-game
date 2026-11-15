@@ -80,3 +80,39 @@ html[data-skin=biao] .skin-flip { background: conic-gradient(from 135deg, #6c16f
 
 /* 借用里的整页底图时,先压上一层夜色和玫红的调子,免得和新的部件太不搭(等表的底图画好后这一条就不起作用了) */
 html[data-skin=biao] #screen::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 3; background: linear-gradient(180deg, rgba(255, 61, 127, .07), rgba(11, 13, 26, .12) 60%, rgba(125, 232, 255, .06)); mix-blend-mode: soft-light; }
+
+/* ---------- 伙伴页的表画法(js/screens/partner.js 里的 renderBiao) ---------- */
+#screen.bp { background: radial-gradient(120% 70% at 70% 28%, #2a1440 0, #12152c 45%, var(--b-night) 78%); }
+#screen.bp::before { content: ""; position: absolute; left: -40px; top: 70px; width: 440px; height: 440px; border-radius: 50%; border: 1px solid rgba(255, 61, 127, .28); box-shadow: 0 0 0 26px rgba(125, 232, 255, .04), 0 0 0 27px rgba(125, 232, 255, .16), inset 0 0 60px rgba(255, 61, 127, .12); pointer-events: none; }
+html[data-skin=biao] #screen.bp::after { display: none; }
+.bp-title { position: absolute; left: 18px; top: 84px; color: var(--b-gold); font-size: 22px; font-weight: 800; letter-spacing: 6px; }
+.bp-title i { display: block; margin-top: 3px; color: var(--b-rose); font-size: 8px; font-style: normal; font-weight: 400; letter-spacing: 3px; }
+.bp-sort { position: absolute; left: 266px; top: 94px; width: 80px; height: 24px; border: 1px solid var(--b-gold); border-radius: 12px; color: var(--b-gold); font-size: 10.5px; }
+.bp-grid { position: absolute; left: 22px; top: 142px; width: 316px; display: grid; grid-template-columns: repeat(3, 96px); gap: 16px 14px; }
+.bp-card { position: relative; height: 164px; border-radius: 10px; overflow: hidden; background: var(--b-glass); border: 1px solid rgba(232, 207, 154, .55); box-shadow: 0 4px 14px rgba(0, 0, 0, .5); color: #fff; text-align: left; }
+.bp-pic { position: absolute; inset: 0 0 34px; background: #1a1d33 center top / cover no-repeat; }
+.bp-pic::after { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 60%, rgba(11, 13, 26, .9)); }
+.bp-card b { position: absolute; left: 8px; bottom: 15px; font-size: 13px; letter-spacing: 2px; }
+.bp-card span { position: absolute; left: 8px; bottom: 3px; color: var(--b-rose); font-size: 8.5px; }
+.bp-card u { position: absolute; right: 7px; bottom: 6px; padding: 1px 6px; border-radius: 7px; background: linear-gradient(100deg, var(--b-rose), #a23cff); font-size: 8.5px; font-weight: 700; text-decoration: none; }
+.bp-art { position: absolute; left: 0; top: 52px; width: 360px; height: 526px; background: center top / 360px 526px no-repeat; pointer-events: none; }
+.bp-name { position: absolute; left: 18px; top: 86px; color: #fff; pointer-events: none; text-shadow: 0 2px 8px #000; }
+.bp-name b { display: block; font-size: 30px; font-weight: 800; letter-spacing: 6px; color: var(--b-gold); }
+.bp-name i { display: inline-block; margin-top: 6px; padding: 1px 8px; border: 1px solid var(--b-ice); border-radius: 9px; color: var(--b-ice); font-size: 9.5px; font-style: normal; }
+.bp-name span { display: block; margin-top: 6px; color: rgba(255, 255, 255, .6); font-size: 8px; letter-spacing: 4px; }
+.bp-side { position: absolute; left: 286px; width: 66px; height: 26px; border-radius: 13px 0 0 13px; background: var(--b-glass); border: 1px solid rgba(232, 207, 154, .6); border-right: 0; color: var(--b-gold); font-size: 10px; letter-spacing: 1px; }
+.bp-like { position: absolute; left: 14px; top: 480px; width: 48px; height: 50px; border-radius: 12px; background: var(--b-glass); border: 1px solid var(--b-rose); color: var(--b-rose); font-size: 18px; line-height: 1; }
+.bp-like b { display: block; margin-top: 3px; color: #fff; font-size: 10px; }
+.bp-panel { position: absolute; left: 14px; top: 548px; width: 332px; height: 172px; border-radius: 14px; background: var(--b-glass); border: 1px solid rgba(232, 207, 154, .45); box-shadow: 0 0 18px rgba(255, 61, 127, .18); }
+.bp-trust { position: absolute; left: 0; top: 0; width: 332px; height: 96px; }
+.bp-trust .trust { background: none; box-shadow: none; }
+.bp-trust .trust span { color: var(--b-gold); } .bp-trust .trust em { color: #fff; }
+.bp-gift { position: absolute; left: 224px; top: 62px; width: 94px; min-width: 0; height: 28px; font-size: 11.5px; }
+.bp-row { position: absolute; left: 14px; right: 12px; height: 22px; display: flex; align-items: center; gap: 10px; font-size: 10px; color: #fff; }
+.bp-row:nth-of-type(2) { top: 116px; } .bp-row:nth-of-type(3) { top: 140px; }
+.bp-row span { flex: none; width: 48px; color: var(--b-gold); font-weight: 700; }
+.bp-row em { flex: 1; font-style: normal; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #d9d6e8; }
+.bp-row button { flex: none; width: 70px; height: 20px; border-radius: 10px; border: 1px solid rgba(125, 232, 255, .6); color: var(--b-ice); font-size: 9px; }
+.bp-pic.none, .bp-art.none { display: flex; align-items: center; justify-content: center; }
+.bp-pic.none span, .bp-art.none span { color: rgba(232, 207, 154, .45); font-size: 9px; letter-spacing: 2px; }
+.bp-art.none span { font-size: 13px; margin-top: -60px; }

@@ -142,24 +142,31 @@
   D.perks = [['装备', '获得阪神信用点增加', '10%', '永久'], ['装备', '获得装备晶片增加', '10%', '永久']];
 
   /* ---------- 伙伴 ---------- */
+  // 档案里的年龄、生日、喜好、讨厌:冀光的出现在录屏里,其余五位取自策划文档(业主同意写进来)。
+  // 星座文档里没有,是按生日推算的。顾轩的「特点」录屏和文档都没有原话,是按文档里的人物描述概括的。
   D.partners = [
     { id: 'jiguang', name: '冀光', race: '人类', art: 'jiguang', likes: 5, trust: 6, place: '新生乐园L2-01', trait: '威严的外表与阴鸷的内心', love: ['geiger', 'rouge'],
       file: { years: '30', birth: '新纪元 1月1日', star: '摩羯座', like: '教义', hate: '无信仰者' } },
-    { id: 'ling', name: '凌', race: '人类', art: 'ling', likes: 0, trust: 0, place: '新生乐园L2-02', trait: '既有市侩、奸诈的一面，也有热心的一面。', love: ['papers', 'holo'] },
-    { id: 'maguangyao', name: '麻光耀', race: '人类', art: 'maguangyao', likes: 0, trust: 0, place: '新生乐园L2-03', trait: '热心但暗中抵抗阪神的科学家', love: ['holo', 'geiger'] },
-    { id: 'linxiao', name: '林鸮', race: '改造者', art: 'linxiao', likes: 1, trust: 0, place: '新生乐园L2-04', trait: '希望建立自己势力，但又温和', love: ['can', 'perfume'] },
-    { id: 'guxuan', name: '顾轩', race: '人类', art: 'maguangyao', blank: true, likes: 1, trust: 0, place: '新生乐园L2-05', trait: '???', love: ['papers', 'can'] },
-    { id: 'yinsha', name: '银砂', race: '仿生人', art: 'yinsha', likes: 0, trust: 0, place: '新生乐园L2-06', trait: '职业化的状态与觉醒后自身思维的冲突', love: ['rouge', 'perfume'] },
+    { id: 'ling', name: '凌', race: '人类', art: 'ling', likes: 0, trust: 0, place: '新生乐园L2-02', trait: '既有市侩、奸诈的一面，也有热心的一面。', love: ['papers', 'holo'],
+      file: { years: '24', birth: '新纪元 11月28日', star: '射手座', like: '货币、交易', hate: '阪神军警的管控' } },
+    { id: 'maguangyao', name: '麻光耀', race: '人类', art: 'maguangyao', likes: 0, trust: 0, place: '新生乐园L2-03', trait: '热心但暗中抵抗阪神的科学家', love: ['holo', 'geiger'],
+      file: { years: '35', birth: '新纪元 5月22日', star: '双子座', like: '电子设备研究', hate: '不做研究的学生' } },
+    { id: 'linxiao', name: '林鸮', race: '改造者', art: 'linxiao', likes: 1, trust: 0, place: '新生乐园L2-04', trait: '希望建立自己势力，但又温和', love: ['can', 'perfume'],
+      file: { years: '27', birth: '新纪元 11月20日', star: '天蝎座', like: '听取倾诉', hate: '阪神军警' } },
+    { id: 'guxuan', name: '顾轩', race: '人类', art: 'maguangyao', blank: true, likes: 1, trust: 0, place: '新生乐园L2-05', trait: '聪明安静的研究员', love: ['papers', 'can'],
+      file: { years: '22', birth: '新纪元 7月30日', star: '狮子座', like: '旧时代爱情电影', hate: '阪神无处不在的触手' } },
+    { id: 'yinsha', name: '银砂', race: '仿生人', art: 'yinsha', likes: 0, trust: 0, place: '新生乐园L2-06', trait: '职业化的状态与觉醒后自身思维的冲突', love: ['rouge', 'perfume'],
+      file: { years: '20', birth: '新纪元 10月1日', star: '天秤座', like: '心理医生', hate: '阪神公司的一切' } },
   ];
-  // 礼物:只有「便携式盖革计数器」「旧时代气味罐头」的名字和说明出现在录屏里,其余是补的
+  // 礼物:「便携式盖革计数器」「旧时代气味罐头」的名字和说明出现在录屏里;另外四件的名字取自策划文档(对照图标确定的),说明文字仍是补的
   const G = (name, rare, base, icon, desc) => ({ name, kind: '情感礼物', rare, base, gift: true, icon: 'gift/' + icon + '.webp', desc });
   Object.assign(D.items, {
     geiger: G('便携式盖革计数器', 'blue', 10, 'geiger', '战前的古董。巴掌大小，能实时显示当前辐射值。地下城有些区域辐射忽高忽低，带一个能保命。'),
     can: G('旧时代气味罐头', 'purple', 20, 'can', '战前一家公司生产的气味保留装置。是一罐可以喷出“雨后柏油路”“地铁站烤红薯”等旧时代气味的喷雾。'),
-    rouge: G('复古胭脂盒', 'blue', 10, 'rouge', '旧时代的手工胭脂，颜色依然鲜亮。'),
-    papers: G('旧时代报纸', 'orange', 30, 'papers', '一叠泛黄的战前报纸，记录着已经消失的日常。'),
-    holo: G('全息留影匣', 'orange', 30, 'holo', '能循环播放一段全息影像的小匣子。'),
-    perfume: G('手工香水', 'orange', 30, 'perfume', '玻璃瓶装的手工香水，在地下城是稀罕物。'),
+    rouge: G('指纹印章', 'blue', 10, 'rouge', '一盒红色印泥，配一枚按指纹用的印章。签契约的时候用得上。'),
+    papers: G('旧世界明信片套装', 'orange', 30, 'papers', '一叠印着战前城市风景的明信片，记录着已经消失的日常。'),
+    holo: G('全息八音盒', 'orange', 30, 'holo', '打开就会循环播放一段全息影像和旋律的小匣子。'),
+    perfume: G('嘉年华定制香水', 'orange', 30, 'perfume', '嘉年华上限量调制的香水，玻璃瓶装，在地下城是稀罕物。'),
   });
   D.giftPools = { gift_green: ['geiger', 'rouge'], gift_blue: ['geiger', 'rouge'], gift_purple: ['can'], gift_orange: ['papers', 'holo', 'perfume'] };
   D.boxPools = { box_white: ['pistol', 'vest', 'chain'], box_green: ['helmet_brown', 'helmet_grey', 'chain', 'rifle', 'pistol_color', 'vest_green'], box_blue: ['choker', 'armor_pink', 'bracelet', 'gauntlet', 'boots'] };
