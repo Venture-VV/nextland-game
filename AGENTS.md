@@ -1,6 +1,6 @@
 # 给接手的 AI
 
-动手前先读 [`docs/PLAN.md`](docs/PLAN.md):目标、已经定下的事、六个 PR 的范围和验收、进度板都在里面。
+动手前先读 [`docs/PLAN.md`](docs/PLAN.md):目标、已经定下的事、六个 PR 的范围和验收、进度板都在里面。做动效先读 [`docs/MOTION.md`](docs/MOTION.md)。
 
 硬规矩(详见计划文档第 10 节):
 
@@ -10,6 +10,7 @@
 4. 不改 `js/data.js` 里已有的名字、ID、数值。
 5. 不合并 `feat/deepspace-wonderland-theme` 分支。
 6. 表和里两套皮肤共用一份逻辑,皮肤只决定画成什么样。
-7. 做完一项,在 `docs/PLAN.md` 的进度板打勾并写上是谁做的。
+7. 策划文档是内部资料,只导出到 `.work/planning/`(用 `tools/feishu_export.py`),原文和整段摘录不提交进这个公开仓库。
+8. 做完一项,在 `docs/PLAN.md` 的进度板打勾并写上是谁做的。
 
 项目怎么跑、目录结构、素材怎么来的,见 [`README.md`](README.md)。
