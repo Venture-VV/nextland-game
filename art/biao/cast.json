@@ -6,6 +6,6 @@
   "linxiao": {"master": "linxiao.webp", "face": [394, 422, 520], "card": [96, 40, 696, 840]},
   "yinsha": {"master": "yinsha.webp", "face": [357, 433, 560], "card": [56, 60, 656, 860]},
   "hero": {"master": "hero.webp", "face": [416, 168, 250], "card": [166, 20, 666, 687]},
-  "rival": {"master": "rival.webp", "face": [412, 500, 620], "card": [116, 60, 716, 860]},
+  "rival": {"master": "rival.webp", "face": [422, 330, 600], "card": [116, 20, 716, 820]},
   "_backgrounds": {"home/bg.webp": "home_bg.webp"}
 }

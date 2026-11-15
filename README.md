@@ -130,7 +130,7 @@ js/motion.js        动效套件(css/motion.css 是它的样式部分)
 js/skin_assets.js   生成的文件:表已经画好了哪些图
 css/skin-biao.css   表的界面配色层
 assets/biao/        表的图(和 assets/img/ 同名同路径)
-art/biao/           表的母版和裁切清单(页面不直接加载)
+art/biao/           表的母版、高清版、分层矢量源文件和裁切清单(页面不直接加载;说明见 docs/ART_VECTOR.md)
 js/battle_classic.js 原版战斗
 js/battle3d.js      3D 节拍对决的画面(默认的战斗)
 js/embed.js         生成的文件:3D 战斗用的头像贴图和战斗音乐(base64)
