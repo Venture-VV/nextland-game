@@ -146,3 +146,9 @@ input { font: inherit; }
 .toast.shift { padding-left: 168px; max-width: 360px; }
 .nl-input { display: block; width: 210px; height: 26px; margin: 10px auto 0; border: 0; border-radius: 13px; outline: none; background: #1b1a20; color: #fff; font-size: 11px; text-align: center; user-select: text; -webkit-user-select: text; touch-action: auto; }
 .nl-input::placeholder { color: #9a99a3; }
+
+/* 声音开关:固定在右上角,任何页面(包括战斗和剧情)都能点到 */
+#sound-btn { position: absolute; left: 329px; top: 20px; width: 26px; height: 26px; border-radius: 50%; z-index: 60; background: rgba(0, 0, 0, .34); border: .5px solid rgba(255, 255, 255, .3); color: #fff; display: flex; align-items: center; justify-content: center; }
+#sound-btn svg { width: 15px; height: 15px; }
+#sound-btn.off { color: rgba(255, 255, 255, .55); }
+#sound-btn:active { transform: scale(.92); }
