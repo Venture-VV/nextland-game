@@ -70,7 +70,7 @@
   }
 
   /* ---------- 补给 ---------- */
-  const pick = (list) => list[Math.floor(Math.random() * list.length)];
+  const pick = (list) => list[Math.floor(NL.rand() * list.length)];
   function pull(n) {
     const sp = D.supply[page], cost = sp.cost * n;
     const run = () => {

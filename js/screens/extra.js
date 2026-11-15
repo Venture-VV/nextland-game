@@ -199,6 +199,8 @@
     m.el.appendChild(h('div.set-row', '背景音乐', sw));
     m.el.appendChild(h('div.set-row.two', h('span', '3D 节拍对决', h('small', '关掉就是原版战斗:自动对撞,只能看')), sw2));
     m.el.appendChild(h('div.set-row.three', h('span', '升级动效', h('small', '关掉就照原版:弹窗和页面直接出现')), sw3));
+    const sw4 = h('button.set-switch' + (NL.skin() === 'biao' ? '.on' : ''), { 'data-act': 'set-skin', onclick: () => { m.close(); NL.setSkin(NL.skin() === 'biao' ? 'li' : 'biao'); } }, NL.skin() === 'biao' ? '表' : '里');
+    m.el.appendChild(h('div.set-row.four', h('span', '表 / 里', h('small', '表是重画的美术,里是原版;规则和存档是同一份')), sw4));
     m.el.appendChild(h('div.close-hint.abs', { style: { left: 0, width: 360, top: 686, textAlign: 'center', margin: 0 } }, '点击空白处关闭。'));
   };
 

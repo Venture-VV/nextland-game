@@ -206,7 +206,7 @@
       root.appendChild(h('button.btn.purple.pd-refresh', { 'data-act': 'pd-refresh', onclick: () => {
         if (!game.spend('credit', cost)) return ui.toast('阪神信用点不足。');
         d.refresh++;
-        const pool = D.commissions.map((c) => c.id).sort(() => Math.random() - 0.5);
+        const pool = D.commissions.map((c) => c.id).sort(() => NL.rand() - 0.5);
         d.tasks = d.refresh === 1 ? ['credit', 'supply2', 'white'] : pool.slice(0, 3); // 第一次刷新照录屏里的结果
         d.done = {}; d.base = {};
         d.tasks.forEach((id, i) => { const t = D.commissions.find((c) => c.id === id); if (t.ev && t.ev !== 'credit_gain') d.base[i] = game.daily().c[t.ev] || 0; });
