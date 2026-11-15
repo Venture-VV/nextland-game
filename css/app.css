@@ -110,9 +110,10 @@ input { font: inherit; }
 
 /* 获得物品 */
 .reward { position: absolute; left: 0; top: 307px; width: 360px; animation: pop .18s ease-out; }
-.reward-head { height: 29px; background: url(../assets/img/ui/reward_head.jpg) center/360px 29px; }
-.reward-body { background: #f3f2f4; min-height: 150px; padding: 26px 20px 34px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center; position: relative; }
-.reward-ok { display: flex; margin: -16px auto 0; position: relative; width: 124px; height: 28px; border-radius: 14px; background: #1b1a20; color: #fff; font-size: 11px; align-items: center; justify-content: center; box-shadow: 3px 3px 0 #55545c; }
+.reward-head { height: 29px; background: url(../assets/img/ui/reward_head.jpg) center/360px 29px; color: #fff; font-size: 12.5px; line-height: 29px; text-align: center; letter-spacing: .5px; }
+.reward-head::after { content: "获得物品"; }
+.reward-body { background: #f1f0f3; min-height: 167px; padding: 26px 20px 34px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center; position: relative; }
+.reward-ok { display: flex; margin: -8px auto 0; position: relative; width: 130px; height: 30px; border-radius: 15px; background: #1b1a20; color: #fff; font-size: 11px; align-items: center; justify-content: center; box-shadow: 3px 3px 0 #55545c; }
 .reward-ok::before { content: "✓"; position: absolute; left: 12px; font-weight: 900; }
 
 /* 物品格 */
@@ -139,3 +140,6 @@ input { font: inherit; }
 @keyframes bob { to { transform: translateY(8px); } }
 .guide-tip { position: absolute; padding: 6px 10px; background: #0c0a10; border: 1.5px solid #f414dc; color: #fff; font-size: 14px; z-index: 8; pointer-events: none; max-width: 250px; line-height: 1.25; }
 .guide-dim { position: absolute; inset: 0; background: rgba(14, 8, 24, .45); pointer-events: none; z-index: 7; }
+.reward-body .item { width: 50px; height: 50px; }
+.reward-body .item b { font-size: 8.5px; right: 2px; bottom: 1px; }
+.btn.abs { position: absolute; }

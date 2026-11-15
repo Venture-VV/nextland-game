@@ -1,13 +1,13 @@
-/* 主页:可拖动的园区地图 + HUD */
+/* 主页：可拖动的园区地图 + HUD */
 (function () {
   'use strict';
   const h = NL.h;
   const D = NL.data;
   const VW = 360, VH = 781;
-  let pos = null; // 地图偏移,切走再回来时保留
+  let pos = null; // 地图偏移，切走再回来时保留
   let timer = 0;
 
-  // 可拖动地图;返回 {el, setPos}。onBuilding(id) 在点到建筑牌子时触发
+  // 可拖动地图；返回 {el, setPos}。onBuilding(id) 在点到建筑牌子时触发
   NL.ui.parkMap = function (onBuilding) {
     const mw = D.map.w / 2, mh = D.map.h / 2;
     if (!pos) pos = D.map.start.slice();
@@ -47,7 +47,7 @@
     };
   };
 
-  // 顶部三枚资源胶囊(主页和若干子页面共用)
+  // 顶部三枚资源胶囊（主页和若干子页面共用）
   NL.ui.energyPill = function (x, y) {
     const s = NL.state;
     return NL.ui.pill('home/ico_bolt.webp', s.energy + '/' + s.energyMax, x, y, { cls: 'energy', plus: true, w: 91, onclick: (e) => {
@@ -81,7 +81,7 @@
       hud.appendChild(NL.ui.energyPill(215, 99));
 
       hud.appendChild(NL.sprite('home/card.webp', 14, 129, 230, 85));
-      if (s.level !== 21) hud.appendChild(h('div.lv-tag', '等级:' + s.level)); // 底图里烙着「等级:21」,其他等级盖一个小牌
+      if (s.level !== 21) hud.appendChild(h('div.lv-tag', '等级:' + s.level)); // 底图里烙着「等级:21」，其他等级盖一个小牌
       hud.appendChild(NL.hit(22, 132, 190, 70, () => NL.go('profile'), { 'data-act': 'profile' }));
       hud.appendChild(NL.hit(100, 177, 120, 20, () => NL.go('parkmap')));
 
@@ -110,7 +110,7 @@
       // 线下引导
       if (s.guide == null) {
         NL.ui.dialog({
-          html: '你现在在新生乐园园区里吗?<br>开启线下引导后,会一直提示你去「任务」里<br>看下一步做什么。',
+          html: '你现在在新生乐园园区里吗？<br>开启线下引导后，会一直提示你去「任务」里<br>看下一步做什么。',
           buttons: [
             { text: '不需要', cls: 'pink', onClick: () => { s.guide = 'off'; NL.save(); } },
             { text: '开启引导', cls: 'purple', onClick: () => { s.guide = 'on'; s.guideStep = 0; NL.save(); NL.refresh(); } },

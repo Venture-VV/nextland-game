@@ -1,4 +1,4 @@
-/* 登录页:防沉迷公告 → 进入游戏 → 加载条 → 主页 */
+/* 登录页：防沉迷公告 → 进入游戏 → 加载条 → 主页 */
 (function () {
   'use strict';
   const h = NL.h;
@@ -9,7 +9,7 @@
     render(root) {
       root.appendChild(NL.sprite('login/bg.jpg', 0, 0, 360, 781));
       root.appendChild(NL.hit(82, 610, 196, 54, enter, { 'data-act': 'enter' }));
-      root.appendChild(NL.hit(300, 126, 48, 44, () => NL.ui.confirm('确定要退出登录并清空本机存档吗?', () => { NL.reset(); NL.ui.toast('存档已清空。'); })));
+      root.appendChild(NL.hit(300, 126, 48, 44, () => NL.ui.confirm('确定要退出登录并清空本机存档吗？', () => { NL.reset(); NL.ui.toast('存档已清空。'); })));
       if (!noticeShown) { noticeShown = true; notice(); }
     },
   };

@@ -18,3 +18,84 @@
 .energy-tip { position: absolute; width: 70px; padding: 5px 4px 6px; background: rgba(16, 12, 24, .92); border-radius: 4px; font-size: 9.5px; line-height: 1.5; text-align: center; color: #fff; }
 .energy-tip i { display: block; font-style: normal; }
 .energy-tip b { display: block; font-size: 10.5px; }
+
+/* ---------- 任务 ---------- */
+.tabs2 { position: absolute; left: 0; top: 104px; width: 360px; height: 40px; background: #1b1a20; display: flex; align-items: flex-end; border-bottom: 2.5px solid #f8d824; }
+.tabs2 button { flex: 1; height: 100%; color: #fff; font-size: 11.5px; padding-top: 6px; }
+.tabs2 button.on { height: 35px; margin: 0 7px -2.5px 0; background: #ebeaee; color: #222; border-top: 2.5px solid #f8d824; border-radius: 6px 6px 0 0; padding-top: 0; }
+.tabs2 button.on:first-child { margin: 0 0 -2.5px 5px; }
+.tk-list { position: absolute; left: 0; top: 144px; width: 360px; bottom: 81px; background: #e8e7eb; background-image: radial-gradient(#cfced6 .6px, transparent .7px); background-size: 9px 9px; padding-bottom: 14px; }
+.tk-sec { display: block; position: relative; margin: 5px 12px 0 18px; width: 330px; height: 30px; background: #2b2a33; color: #fff; font-size: 11.5px; clip-path: polygon(0 0, 100% 0, 100% 72%, 97.500% 100%, 0 100%); }
+.tk-sec i { position: absolute; right: 22px; top: 9px; width: 9px; height: 9px; border-right: 3px solid #9a99a3; border-bottom: 3px solid #9a99a3; transform: rotate(-45deg); }
+.tk-sec.open i { transform: rotate(45deg); top: 6px; border-color: #fff; }
+.tk-card { position: relative; margin: 6px 12px 0 18px; width: 330px; height: 89px; background: linear-gradient(100deg, #fff 55%, #f1f0f4); border-radius: 5px; box-shadow: 0 1.5px 0 #cdccd4; cursor: pointer; }
+.tk-card.glow { box-shadow: 0 0 0 1.5px #f6b1f1, 0 0 9px 2px #ee5fe4; }
+.tk-card::after { content: ""; position: absolute; right: 2px; top: 14px; width: 4px; height: 44px; background: repeating-linear-gradient(#8fb2e8 0 1.5px, transparent 1.5px 3px); opacity: .8; }
+.tk-ico { position: absolute; left: -6px; top: 15px; width: 56px; height: 64px; }
+.tk-title { position: absolute; left: 62px; top: 9px; font-size: 11px; font-weight: 500; color: #222; white-space: nowrap; }
+.tk-title i { font-style: normal; font-size: 8px; margin-right: 6px; vertical-align: 1px; }
+.tag-blue { color: #1d8fe0; } .tag-red { color: #e03a1e; }
+.tk-goal { position: absolute; left: 71px; top: 29px; width: 155px; height: 15px; background: #dddce1; font-size: 9.5px; line-height: 15px; color: #666; padding: 0 4px 0 2px; display: flex; justify-content: space-between; white-space: nowrap; overflow: hidden; }
+.tk-goal em, .tk-pill em { font-style: normal; color: #f07818; font-weight: 700; }
+.tk-goal b { color: #777; }
+.tk-rewards { position: absolute; left: 76px; top: 51px; display: flex; gap: 2px; align-items: center; }
+.item.sm31 { width: 31px; height: 31px; } .item.sm31 b { font-size: 6px; right: 2px; bottom: 1px; }
+.tk-btn { position: absolute; right: 21px; top: 37px; width: 61px; height: 22px; border-radius: 11px; background: #26252b; color: #fff; font-size: 9.5px; font-weight: 700; }
+.tk-btn.pink { background: linear-gradient(90deg, #d82ca0, #ef3fbe); box-shadow: 0 0 0 1px #f6b1f1; }
+.tk-status { position: absolute; right: 22px; top: 42px; width: 58px; text-align: center; font-size: 10px; font-weight: 800; color: #333; text-shadow: 0 0 2px #fff; }
+.tk-card.daily { margin-left: 15px; cursor: default; }
+.tk-card.daily .tk-ico { left: -4px; top: 13px; }
+.tk-card.daily .tk-title { left: 66px; }
+.tk-card.daily .tk-goal { left: 71px; }
+.dp-ico { width: 24px; height: 24px; mix-blend-mode: multiply; } .dp-n { font-size: 7px; color: #333; margin: 14px 0 0 -6px; }
+.dp-bar { position: relative; margin: 11px 0 0 15px; width: 330px; height: 68px; background: #2a2932; clip-path: polygon(0 0, 100% 0, 100% 70%, 96% 100%, 0 100%); }
+.dp-track { position: absolute; left: 15px; top: 16px; width: 300px; height: 22px; border-radius: 11px; background: #47464f; }
+.dp-track > img { position: absolute; left: 16px; top: -1px; width: 24px; height: 24px; filter: invert(1) sepia(1) saturate(6) hue-rotate(5deg); mix-blend-mode: screen; }
+.dp-track > b { position: absolute; left: 46px; top: 0; font-size: 16px; line-height: 22px; color: #fff; }
+.dp-gift { position: absolute; top: 2px; width: 18px; height: 18px; border-radius: 50%; background: #2a2932; color: #fff; font-size: 10px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+.dp-gift svg { width: 12px; height: 12px; }
+.dp-gift.can { background: #f8d824; color: #222; animation: bob .6s ease-in-out infinite alternate; }
+.dp-gift.got { background: #f8d824; color: #222; }
+.dp-labels { position: absolute; left: 0; right: 0; top: 46px; font-size: 8.5px; color: #8c8b95; }
+.dp-labels span { position: absolute; top: 0; }
+.dp-labels span:nth-child(1) { left: 56px; } .dp-labels span:nth-child(2) { left: 160px; } .dp-labels span:nth-child(3) { left: 224px; } .dp-labels span:nth-child(4) { left: 288px; }
+.dp-clock { margin: 6px 0 4px 15px; width: 330px; height: 22px; border-radius: 11px; background: #fff; color: #222; font-size: 11.5px; display: flex; align-items: center; justify-content: center; gap: 12px; }
+.dp-clock i { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #222; border-right-color: transparent; background: radial-gradient(#222 2px, transparent 2.5px); }
+
+/* 任务详情与物品说明 */
+.tk-detail { min-height: 417px; padding-bottom: 12px; }
+.tk-big { text-align: center; padding-top: 28px; font-size: 15px; color: #333; }
+.tk-pill { position: relative; margin: 24px auto 0; width: 268px; height: 30px; border-radius: 15px; background: #2b2a33; border: 2.5px solid #2b2a33; font-size: 11px; line-height: 25px; color: #f07818; padding-left: 46px; overflow: hidden; font-weight: 700; }
+.tk-pill .star { position: absolute; left: 20px; top: 4px; width: 17px; height: 17px; background: #a76cf5; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); }
+.tk-pill b { position: absolute; right: 0; top: 0; bottom: 0; width: 62px; background: #8d8c96; color: #fff; text-align: center; font-weight: 400; }
+.sec-label { margin: 24px 14px 0; height: 14px; border-bottom: 1px solid #9c9ba3; }
+.sec-label span { display: inline-block; height: 14px; padding: 0 7px; background: #2b2a33; color: #fff; font-size: 9px; line-height: 14px; vertical-align: top; }
+.tk-desc { margin: 8px 26px 0; font-size: 9px; line-height: 1.3; color: #555; min-height: 38px; }
+.tk-reward-box { margin: 8px 12px 0; height: 84px; background: #fff; display: flex; align-items: center; justify-content: center; gap: 4px; }
+.tk-reward-box .item { cursor: pointer; }
+.info-pop { position: absolute; left: 25px; top: 320px; width: 310px; animation: pop .15s ease-out; box-shadow: 0 4px 16px rgba(0, 0, 0, .5); }
+.info-head { height: 13px; background: #e8121e; color: #fff; font-size: 8px; line-height: 13px; padding-left: 6px; letter-spacing: .5px; }
+.info-body { position: relative; background: #f1f0f2; padding: 14px 16px 18px; min-height: 150px; color: #333; }
+.info-name { font-size: 15px; font-weight: 700; padding-left: 9px; border-left: 4px solid #e8121e; line-height: 1.1; padding-top: 2px; padding-bottom: 12px; margin-right: 80px; }
+.info-kind { position: absolute; left: 29px; top: 36px; font-size: 8.5px; color: #999; border: 1px solid #bbb; border-radius: 2px; padding: 0 4px; }
+.info-ico { position: absolute; right: 14px; top: 12px; width: 66px; height: 66px; background: #1c1a22 center/cover; }
+.info-body .sec-label { margin: 34px 0 0; }
+.info-desc { font-size: 9px; line-height: 1.3; color: #555; margin-top: 7px; }
+
+/* ---------- 剧情 ---------- */
+.story { position: absolute; inset: 0; background: #141318; z-index: 30; cursor: pointer; animation: fade .2s ease-out; }
+.story-top { position: absolute; left: 0; top: 0; width: 360px; height: 82px; background-size: 360px 104px; background-position: 0 0; }
+.story-plate { position: absolute; left: 0; top: 102px; width: 360px; height: 536px; }
+.story-skip { position: absolute; left: 286px; top: 127px; width: 59px; height: 14px; border-radius: 7px; background: #26252b; color: #fff; font-size: 8.5px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.story-skip i { width: 0; height: 0; border: 3.5px solid transparent; border-left: 6px solid #fff; border-right: 0; box-shadow: 2px 0 0 -0.5px #fff; }
+.story-name { position: absolute; top: 622px; height: 24px; min-width: 92px; padding: 0 14px; background: #2f2e37; border-radius: 4px; color: #fff; font-size: 13.5px; font-weight: 700; line-height: 24px; text-align: center; z-index: 2; }
+.story-name.l { left: 28px; } .story-name.r { right: 28px; }
+.story-box { position: absolute; left: 15px; top: 637px; width: 329px; height: 105px; background: #ebebed; border-radius: 4px; }
+.story-text { padding: 24px 28px 0 30px; font-size: 10.5px; line-height: 1.3; color: #333; font-weight: 500; }
+.story-more { position: absolute; right: 14px; bottom: 8px; font-size: 14px; color: #222; }
+.story-title { position: absolute; left: 15px; top: 300px; width: 330px; height: 264px; background: linear-gradient(#f5f4f7 20%, #b8b5c4); border-top: 3px solid #6c16ff; border-bottom: 3px solid #6c16ff; animation: pop .2s ease-out; }
+.story-title b { display: block; margin-top: 56px; text-align: center; font-size: 13px; color: #333; }
+.story-title i { position: absolute; right: 12px; bottom: 8px; font-style: normal; font-weight: 900; font-size: 11px; letter-spacing: -.5px; color: #a09dab; }
+.story-choice { position: absolute; inset: 0; background: rgba(20, 20, 24, .55); cursor: default; }
+.story-choice button { position: absolute; left: 28px; width: 304px; height: 30px; border-radius: 15px; background: #e9e9ec; color: #333; font-size: 11.5px; font-weight: 700; }
+.story-choice button:nth-child(1) { top: 381px; } .story-choice button:nth-child(2) { top: 427px; }

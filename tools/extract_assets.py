@@ -76,6 +76,19 @@ def main():
             # 抹掉混进来的其他元素(坐标是裁剪后的)
             im = im.copy()
             im.paste((0, 0, 0, 0), (x0, y0, x1, y1))
+        for x0, y0, x1, y1, color in e.get("fill", []):
+            # 用纯色盖掉一块(坐标是裁剪后的)
+            im = im.copy()
+            im.paste(tuple(color), (x0, y0, x1, y1))
+        if e.get("mirror_br"):
+            # 图标右下角烙着数量(x1、100 等):用左下角镜像盖掉,数量改由页面来画
+            fw, fh = e["mirror_br"]
+            im = im.copy()
+            w, h = im.size
+            pw, ph = round(w * fw), round(h * fh)
+            y0 = h - ph - round(h * e.get("mirror_up", 0.0))
+            patch = im.crop((0, y0, pw, y0 + ph)).transpose(Image.FLIP_LEFT_RIGHT)
+            im.paste(patch, (w - pw, y0))
         if e.get("scale"):
             im = im.resize((round(im.width * e["scale"]), round(im.height * e["scale"])), Image.LANCZOS)
         save(im, os.path.join(ROOT, "assets", "img", out), e.get("q", 86))

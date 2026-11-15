@@ -47,7 +47,7 @@
   }
   NL.img = (p) => 'assets/img/' + p;
   NL.bg = (p) => 'url(' + NL.img(p) + ')';
-  // 绝对定位的图片;x/y/w/h 用设计尺寸(录屏像素的一半)
+  // 绝对定位的图片;x/y/w/h 用设计尺寸（录屏像素的一半）
   NL.sprite = function (p, x, y, w, h, attrs) {
     return NL.h('img.abs', Object.assign({ src: NL.img(p), draggable: 'false', style: { left: x, top: y, width: w, height: h } }, attrs || {}));
   };
@@ -63,7 +63,7 @@
     const p = (n) => String(n).padStart(2, '0');
     return p(Math.floor(sec / 3600)) + ':' + p(Math.floor((sec % 3600) / 60)) + ':' + p(sec % 60);
   };
-  // 到次日 8 点的倒计时(录屏里各处「xx:xx:xx 后刷新」)
+  // 到次日 8 点的倒计时（录屏里各处「xx:xx:xx 后刷新」）
   NL.fmt.untilReset = function () {
     const now = new Date();
     const t = new Date(now);
@@ -216,7 +216,7 @@
     if (!delta) return;
     const el = h('div.powerup',
       h('div.p-box'), h('div.p-top', '战力'), h('div.p-flame', '💥'),
-      h('div.p-num', (delta > 0 ? '+' : '') + Math.round(delta)), h('div.p-txt', delta > 0 ? '战力提升!' : '战力下降'));
+      h('div.p-num', (delta > 0 ? '+' : '') + Math.round(delta)), h('div.p-txt', delta > 0 ? '战力提升！' : '战力下降'));
     $('#layers').appendChild(el);
     setTimeout(() => el.remove(), 2300);
   };
@@ -228,12 +228,12 @@
 
   /* ---------- 数值 ---------- */
   const game = NL.game;
-  // 录屏:16 级领 100 经验后直接到 21 级,且 21 级显示 50/250;战力同时 +889
+  // 录屏:16 级领 100 经验后直接到 21 级，且 21 级显示 50/250;战力同时 +889
   game.expNeed = (lv) => (lv < 21 ? 10 : 250);
   game.levelPower = (lv) => Math.round(177.8 * lv);
   game.powerParts = [() => 20255 + game.levelPower(NL.state.level)];
   game.power = () => game.powerParts.reduce((s, f) => s + f(), 0);
-  // 在改动数值前后对比战力,有变化就弹「战力提升」
+  // 在改动数值前后对比战力，有变化就弹「战力提升」
   game.withPower = function (fn) {
     const before = game.power();
     const r = fn();
@@ -246,7 +246,7 @@
     s.exp += n;
     while (s.exp >= game.expNeed(s.level)) { s.exp -= game.expNeed(s.level); s.level++; }
   };
-  const ENERGY_SEC = 20 * 60; // 录屏:差 6 点时「全部恢复 01:58:42」,即每 20 分钟 1 点
+  const ENERGY_SEC = 20 * 60; // 录屏：差 6 点时「全部恢复 01:58:42」，即每 20 分钟 1 点
   game.tickEnergy = function () {
     const s = NL.state;
     const now = Date.now();
@@ -277,34 +277,35 @@
   game.buyEnergy = function () {
     const s = NL.state;
     if (s.energy >= s.energyMax) { ui.toast('体力已满。'); return; }
-    ui.confirm('是否消耗<em>50储值</em>补满体力?', () => {
+    ui.confirm('是否消耗<em>50储值</em>补满体力？', () => {
       if (s.gem < 50) { ui.toast('储值不足。'); return; }
       s.gem -= 50; s.energy = s.energyMax; s.energyAt = 0;
       NL.save(); NL.refresh();
     });
   };
-  // 发放奖励:exp / credit / gem / energy 直接进数值,其他进仓库
+  // 发放奖励:exp / credit / gem / energy 直接进数值，其他进仓库
   game.grantHooks = {};
+  // 返回发放前后的战力差
   game.grant = function (items) {
     const s = NL.state;
-    game.withPower(() => {
-      items.forEach((it) => {
-        const n = it.n == null ? 1 : it.n;
-        if (it.id === 'exp') game.addExp(n);
-        else if (it.id === 'credit') s.credit += n;
-        else if (it.id === 'gem') s.gem += n;
-        else if (it.id === 'energy') s.energy += n;
-        else if (game.grantHooks[it.id]) game.grantHooks[it.id](n, it);
-        else s.bag[it.id] = (s.bag[it.id] || 0) + n;
-      });
+    const before = game.power();
+    items.forEach((it) => {
+      const n = it.n == null ? 1 : it.n;
+      if (it.id === 'exp') game.addExp(n);
+      else if (it.id === 'credit') s.credit += n;
+      else if (it.id === 'gem') s.gem += n;
+      else if (it.id === 'energy') s.energy += n;
+      else if (game.grantHooks[it.id]) game.grantHooks[it.id](n, it);
+      else s.bag[it.id] = (s.bag[it.id] || 0) + n;
     });
     NL.save();
     if (NL.onGrant) NL.onGrant(items);
+    return game.power() - before;
   };
-  // 发奖并弹「获得物品」
+  // 发奖并弹「获得物品」;关掉弹窗后如果战力变了再弹「战力提升」(录屏里也是这个顺序)
   game.award = function (items, onDone) {
-    game.grant(items);
-    ui.reward(items, () => { NL.refresh(); if (onDone) onDone(); });
+    const delta = game.grant(items);
+    ui.reward(items, () => { NL.refresh(); ui.powerUp(delta); if (onDone) onDone(); });
   };
   game.count = (id) => (id === 'credit' ? NL.state.credit : id === 'gem' ? NL.state.gem : NL.state.bag[id] || 0);
   game.spend = function (id, n) {
