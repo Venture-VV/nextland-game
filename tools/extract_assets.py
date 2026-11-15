@@ -44,6 +44,35 @@ def save(im, out, quality):
         im.save(out, optimize=True)
 
 
+def remove_role_arrow(im):
+    """角色页底图上烙着一个粉色引导箭头(指向底部导航的「任务」)。
+    录屏里每一帧都有它,没有干净的帧可以借,所以把它盖住的三样东西重画出来:
+    深色战力条的斜边、黄色「权益加成」按钮的左端、两者之间的浅色背景。
+    只改偏粉的像素,别的地方不动。箭头改由页面在引导开着时画。坐标是录屏像素。
+    """
+    import numpy as np
+    from PIL import ImageDraw, ImageFilter
+    im = im.convert("RGB")
+    x0, y0, x1, y1 = 452, 1318, 524, 1400
+    a = np.asarray(im).astype(int)
+    r, g, b = a[..., 0], a[..., 1], a[..., 2]
+    pink = (r - g > 45) & (b - g > 30)  # 品红和它半透明压在别的颜色上的样子;黄、灰、黑都不满足
+    m = np.zeros(pink.shape, bool)
+    m[y0:y1, x0:x1] = pink[y0:y1, x0:x1]
+    mask = Image.fromarray((m * 255).astype("uint8")).filter(ImageFilter.MaxFilter(7)).filter(ImageFilter.GaussianBlur(0.8))
+    light_top, light_bot = im.getpixel((500, 1316)), im.getpixel((440, 1394))
+    bar, yellow = im.getpixel((430, 1350)), im.getpixel((566, 1350))
+    fix = im.copy()
+    d = ImageDraw.Draw(fix)
+    d.rectangle([x0, y0, x1, 1378], fill=light_top)
+    d.rectangle([x0, 1378, x1, y1], fill=light_bot)
+    d.polygon([(x0, 1326), (482, 1326), (455, 1378), (x0, 1378)], fill=bar)      # 战力条右端的斜边
+    d.ellipse([507, 1342, 553, 1388], fill=yellow)                               # 按钮的左端
+    d.ellipse([511, 1348, 546, 1384], fill=bar)                                  # 皇冠图标的圆底(和战力条同色)
+    d.rectangle([x0, 1326, x1, 1330], fill=bar)                                  # 战力条顶边向右延伸的细线
+    return Image.composite(fix, im, mask)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("video", nargs="?", default=None)
@@ -85,6 +114,8 @@ def main():
             # 用纯色盖掉一块(坐标是裁剪后的)
             im = im.copy()
             im.paste(tuple(color), (x0, y0, x1, y1))
+        if e.get("role_arrow"):
+            im = remove_role_arrow(im)
         if e.get("mirror_br"):
             # 图标右下角烙着数量(x1、100 等):用左下角镜像盖掉,数量改由页面来画
             fw, fh = e["mirror_br"]

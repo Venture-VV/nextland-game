@@ -155,6 +155,8 @@
       const s = NL.state;
       root.appendChild(NL.sprite('role/' + tab + '.jpg', 0, 0, 360, 700));
       TABS.forEach(([k, y]) => root.appendChild(NL.hit(0, y - 2, 80, 32, () => { tab = k; NL.refresh(); }, { 'data-tab': k })));
+      // 引导开着时,原版在底部导航的「任务」上方一直有个箭头(以前是烙在底图上的)
+      if (s.guide === 'on') root.appendChild(h('div.guide-arrow', { style: { left: 229, top: 667 } }));
       if (tab !== 'enh' || true) {
         root.appendChild(h('div.role-power', NL.fmt.power(game.power())));
         root.appendChild(NL.hit(250, 666, 100, 30, perkWin, { 'data-act': 'perks' }));

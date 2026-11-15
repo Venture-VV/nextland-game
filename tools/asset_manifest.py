@@ -76,10 +76,10 @@ MANIFEST = [
 
     # ---------- 角色 ----------
     # 每个页签一张整幅底图,会变的数字由页面盖在上面
-    {"out": "role/profile.jpg", "frame": 379, "box": [0, 0, 720, 1400], "q": 84},
-    {"out": "role/equip.jpg", "frame": 401, "box": [0, 0, 720, 1400], "q": 84},
-    {"out": "role/enh.jpg", "frame": 425, "box": [0, 0, 720, 1400], "q": 84},
-    {"out": "role/chip.jpg", "frame": 470, "box": [0, 0, 720, 1400], "q": 84},
+    {"out": "role/profile.jpg", "frame": 379, "box": [0, 0, 720, 1400], "role_arrow": True, "q": 84},
+    {"out": "role/equip.jpg", "frame": 401, "box": [0, 0, 720, 1400], "role_arrow": True, "q": 84},
+    {"out": "role/enh.jpg", "frame": 425, "box": [0, 0, 720, 1400], "role_arrow": True, "q": 84},
+    {"out": "role/chip.jpg", "frame": 470, "box": [0, 0, 720, 1400], "role_arrow": True, "q": 84},
     {"out": "role/iface_bg.jpg", "frame": 427, "box": [0, 0, 720, 240], "q": 84},
     {"out": "role/slot_head.jpg", "frame": 422, "box": [126, 672, 272, 822], "q": 88},
     {"out": "role/slot_neck.jpg", "frame": 422, "box": [296, 672, 442, 822], "q": 88},
