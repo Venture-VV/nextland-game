@@ -12,6 +12,20 @@
       root.appendChild(NL.hit(300, 126, 48, 44, () => NL.ui.confirm('确定要退出登录并清空本机存档吗？', () => { NL.reset(); NL.ui.toast('存档已清空。'); })));
       if (!noticeShown) { noticeShown = true; notice(); }
     },
+    // 表的画法:三位伙伴的立绘叠成主视觉,标题和按钮自己排。能点的地方和里一样
+    renderBiao(root) {
+      root.classList.add('bp');
+      root.classList.add('bl');
+      [['ling', -96, 150, 0.82], ['guxuan', 104, 150, 0.82], ['jiguang', 0, 96, 1]].forEach(([id, x, y, k]) => {
+        const path = 'partner/art_' + id + '.webp';
+        if (NL.biaoAssets[path]) root.appendChild(h('div.bl-art' + (k === 1 ? '.main' : ''), { style: { left: x, top: y, width: 360 * k, height: 526 * k, backgroundImage: NL.bg(path), backgroundSize: 360 * k + 'px ' + 526 * k + 'px' } }));
+      });
+      root.appendChild(h('div.bl-title', h('i', 'NEXTLAND'), h('b', '新生乐园世界'), h('span', '表 · 契约之夜')));
+      root.appendChild(h('button.btn.purple.bl-enter', { 'data-act': 'enter', onclick: enter }, '进入游戏'));
+      root.appendChild(h('button.bl-out', { onclick: () => NL.ui.confirm('确定要退出登录并清空本机存档吗？', () => { NL.reset(); NL.ui.toast('存档已清空。'); }) }, '退出登录'));
+      root.appendChild(h('div.bl-age', '16+'));
+      if (!noticeShown) { noticeShown = true; notice(); }
+    },
   };
 
   NL.ui.notice = notice; // 个人页的「公告」也用它

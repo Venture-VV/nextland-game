@@ -10,6 +10,7 @@ art/biao/cast.json 记着每个角色用哪张母版、脸在哪、卡面裁哪�
     partner/art_<id>.webp   立绘,720×1052。下沿和四周融进夜色底,所以不用抠图
     partner/card_<id>.webp  列表里的卡面,276×368
     partner/face_<id>.webp  头像,160×160
+    battle/me.jpg、battle/enemy.jpg  战斗里的头像(和里的同名),另有 js/embed_biao.js 给 3D 战斗用
 然后自动更新 js/skin_assets.js。改完记得再跑 tools/stamp.py。
 """
 import json
@@ -56,6 +57,24 @@ def main():
         im.crop((cx - s // 2, cy - s // 2, cx + s // 2, cy + s // 2)).resize((160, 160), Image.LANCZOS).save(os.path.join(OUT, "partner", "face_%s.webp" % cid), quality=86, method=6)
         n += 1
     print("裁好了 %d 个角色" % n)
+    # 战斗里的头像:我方用主角的脸,对手用 rival。原版战斗直接读图片;3D 战斗要把图内嵌成 data: 地址
+    # (双击打开时浏览器不让本地图片当贴图),所以另写一份 js/embed_biao.js
+    import base64
+    os.makedirs(os.path.join(OUT, "battle"), exist_ok=True)
+    emb = {}
+    for key, cid, name in (("avatarMe", "hero", "me.jpg"), ("avatarFoe", "rival", "enemy.jpg")):
+        c = cast.get(cid)
+        path = c and os.path.join(SRC, "masters", c["master"])
+        if not path or not os.path.exists(path):
+            print("缺母版,战斗头像跳过:", cid)
+            continue
+        cx, cy, s = c["face"]
+        dst = os.path.join(OUT, "battle", name)
+        Image.open(path).convert("RGB").crop((cx - s // 2, cy - s // 2, cx + s // 2, cy + s // 2)).resize((228, 228), Image.LANCZOS).save(dst, quality=88)
+        emb[key] = "data:image/jpeg;base64," + base64.b64encode(open(dst, "rb").read()).decode("ascii")
+    with open(os.path.join(ROOT, "js", "embed_biao.js"), "w", encoding="utf-8") as f:
+        f.write("/* 由 tools/build_biao_assets.py 生成,不要手改:表的 3D 战斗头像贴图 */\n")
+        f.write("NL.embedBiao = %s;\n" % (json.dumps(emb) if len(emb) == 2 else "null"))
     subprocess.check_call([sys.executable, os.path.join(ROOT, "tools", "skin_assets.py")])
 
 

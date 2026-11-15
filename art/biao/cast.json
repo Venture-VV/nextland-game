@@ -5,5 +5,6 @@
   "guxuan": {"master": "guxuan.webp", "face": [416, 412, 520], "card": [116, 40, 716, 840]},
   "linxiao": {"master": "linxiao.webp", "face": [394, 422, 520], "card": [96, 40, 696, 840]},
   "yinsha": {"master": "yinsha.webp", "face": [357, 433, 560], "card": [56, 60, 656, 860]},
-  "hero": {"master": "hero.webp", "face": [416, 168, 250], "card": [166, 20, 666, 687]}
+  "hero": {"master": "hero.webp", "face": [416, 168, 250], "card": [166, 20, 666, 687]},
+  "rival": {"master": "rival.webp", "face": [412, 500, 620], "card": [116, 60, 716, 860]}
 }

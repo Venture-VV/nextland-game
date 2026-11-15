@@ -58,7 +58,8 @@
       g.fillStyle = r; g.fillRect(0, 0, 256, 256);
     }));
     const loader = new T.TextureLoader();
-    const face = [NL.embed.avatarMe, NL.embed.avatarFoe].map((src) => {
+    const emb = NL.skin() === 'biao' && NL.embedBiao ? NL.embedBiao : NL.embed; // 表有自己的头像贴图
+    const face = [emb.avatarMe, emb.avatarFoe].map((src) => {
       const t = keep(loader.load(src));
       t.colorSpace = T.SRGBColorSpace;
       const f = 0.76; // 原图里头像外面还有一圈边框,只取里面的头像

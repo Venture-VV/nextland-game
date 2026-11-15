@@ -306,6 +306,21 @@ const FLOWS = [
     {"click": "[data-act=set-skin]", "wait": 1500},
     {"eval": "if(NL.state.skin!=='li'||document.documentElement.dataset.skin!=='li')throw new Error('设置里应该能翻回里')"},
   ]],
+  ["表的登录页与战斗头像", [
+    {"goto": "?reset&skin=biao", "wait": 400},
+    {"click": "[data-act=notice-ok]", "wait": 400, "shot": "c11_biao_login"},
+    {"eval": "if(!document.querySelector('.bl-title'))throw new Error('表的登录页应该用自己的画法');if(document.querySelectorAll('.bl-art').length!==3)throw new Error('表的登录页应该有三位伙伴的立绘')"},
+    {"click": "[data-act=enter]", "wait": 3600},
+    {"eval": "if(NL.current().name!=='home')throw new Error('表的登录页点「进入游戏」应该到主页')"},
+    {"click": ".dlg-btns .btn.pink", "wait": 300},
+    {"eval": "NL.state.beat=false;NL.testClock=0;NL.ui.battle({enemy:{name:'林然',lv:5,power:1900},onEnd:function(){}});1", "wait": 900},
+    {"clock": 3.6, "wait": 100, "shot": "c11_biao_battle"},
+    {"eval": "var a=document.querySelectorAll('.btc-av');if(a[0].style.backgroundImage.indexOf('assets/biao/battle/me')<0||a[1].style.backgroundImage.indexOf('assets/biao/battle/enemy')<0)throw new Error('表的战斗应该用表的头像')"},
+    {"eval": "if(!NL.embedBiao||!NL.embedBiao.avatarMe||!NL.embedBiao.avatarFoe)throw new Error('表的 3D 战斗头像没有内嵌')"},
+    {"eval": "document.querySelector('[data-act=skip]').click()", "wait": 700},
+    {"clickXY": [180, 520], "wait": 400},
+    {"eval": "NL.testClock=null;1"},
+  ]],
   ["3D 战斗:格挡、爆发、击破、结算", [
     {"goto": "?reset#home", "wait": 300},
     {"click": ".dlg-btns .btn.pink", "wait": 200},
@@ -396,6 +411,7 @@ const FLOWS = [
       }
       // 时间戳和皮肤本身不比
       saves[skin] = await page.evaluate(() => { const o = JSON.parse(JSON.stringify(NL.state)); delete o.skin; delete o.energyAt; if (o.rank) delete o.rank.idleAt; return o; });
+      if (skin === 'biao') { const miss = await page.evaluate(() => Object.keys(NL.skinMiss).sort()); console.log('- 表在这组流程里还借用里的图 ' + miss.length + ' 张(画好一张少一张),例如: ' + miss.slice(0, 6).join('、')); }
       if (errs.length) { bad += errs.length; console.log('✗ 两种皮肤对比(' + skin + ')\n  ' + errs.join('\n  ')); }
       await page.close();
     }

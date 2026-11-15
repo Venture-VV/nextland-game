@@ -153,3 +153,18 @@ html[data-skin=biao] #screen.bp::after { display: none; }
 .br-power span { color: var(--b-rose); font-size: 11px; font-weight: 700; letter-spacing: 2px; }
 .br-power b { flex: 1; font-size: 16px; }
 .br-power button { width: 96px; height: 28px; margin-right: 4px; border-radius: 14px; background: linear-gradient(100deg, #f3dfb0, #cfa860); color: #2a2010; font-size: 11px; font-weight: 700; }
+
+/* ---------- 登录页的表画法 ---------- */
+.bl-art { position: absolute; background-repeat: no-repeat; pointer-events: none; -webkit-mask-image: linear-gradient(#000 62%, transparent 96%); mask-image: linear-gradient(#000 62%, transparent 96%); }
+.bl-art:not(.main) { opacity: .7; filter: saturate(.85) brightness(.9); }
+/* 中间这张左右两边也渐隐,让两侧的人露出来(立绘是不透明的夜色底,不这样会整张盖住) */
+.bl-art.main { -webkit-mask-image: linear-gradient(90deg, transparent 3%, #000 30%, #000 70%, transparent 97%), linear-gradient(#000 62%, transparent 96%); -webkit-mask-composite: source-in; mask-image: linear-gradient(90deg, transparent 3%, #000 30%, #000 70%, transparent 97%), linear-gradient(#000 62%, transparent 96%); mask-composite: intersect; }
+.bl-title { position: absolute; left: 0; right: 0; top: 52px; text-align: center; pointer-events: none; text-shadow: 0 2px 10px #000; }
+.bl-title i { display: block; color: var(--b-rose); font-size: 10px; font-style: normal; letter-spacing: 9px; }
+.bl-title b { display: block; margin-top: 4px; color: var(--b-gold); font-size: 30px; font-weight: 800; letter-spacing: 6px; }
+.bl-title span { display: block; margin-top: 6px; color: var(--b-ice); font-size: 10px; letter-spacing: 5px; }
+.bl-enter { position: absolute; left: 82px; top: 618px; width: 196px; min-width: 0; height: 44px; border-radius: 22px; font-size: 16px; letter-spacing: 6px; }
+.bl-out { position: absolute; left: 296px; top: 130px; width: 56px; height: 24px; border-radius: 12px; border: 1px solid rgba(232, 207, 154, .5); color: var(--b-gold); font-size: 9px; }
+.bl-age { position: absolute; left: 14px; top: 130px; width: 34px; height: 34px; border-radius: 6px; border: 1.5px solid var(--b-ice); color: var(--b-ice); font-size: 12px; font-weight: 800; line-height: 31px; text-align: center; }
+/* 战斗里的头像:表的图没有烙着的圆环,用样式补一圈 */
+html[data-skin=biao] .btc-av, html[data-skin=biao] .bt2-av { box-shadow: 0 0 0 3px #e8cf9a, 0 0 0 5px #7a2cf0, 0 0 14px 4px rgba(255, 61, 127, .5); }
