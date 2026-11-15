@@ -79,7 +79,9 @@
     level: 16, exp: 0, gem: 100000, credit: 99504,
     energy: 60, energyMax: 60, energyAt: 0,
     bag: {}, guide: null, guideStep: 0,
+    heroGender: 'f', homePartner: 'jiguang',
   }));
+  NL.heroKey = () => (NL.state && NL.state.heroGender === 'm' ? 'hero_male' : 'heroine');
   NL.load = function () {
     let saved = {};
     try { saved = JSON.parse(localStorage.getItem(SAVE_KEY) || '{}'); } catch (e) { saved = {}; }
@@ -120,7 +122,9 @@
     $('#capsule').classList.toggle('hidden', scr.plate === 'cap');
     const nav = $('#nav');
     nav.classList.toggle('off', !scr.nav);
-    if (scr.nav) nav.style.backgroundImage = NL.bg('nav/' + scr.nav + '.jpg');
+    if (scr.nav) {
+      nav.querySelectorAll('button[data-nav]').forEach((b) => b.classList.toggle('on', b.dataset.nav === scr.nav));
+    }
     scr.render(root, top.params || {});
     if (scr.back !== false && !scr.nav) root.appendChild(NL.ui.backBtn());
     if (keepScroll) root.querySelectorAll('[data-keep]').forEach((e) => {
@@ -146,7 +150,7 @@
   /* ---------- 通用界面 ---------- */
   const ui = NL.ui;
   const h = NL.h;
-  const BACK_SVG = '<svg viewBox="0 0 38 34"><path d="M17 3 3 15l14 12v-7h10V4h8v24H17" fill="none" stroke="#111" stroke-width="6" stroke-linejoin="miter"/><path d="M17 3 3 15l14 12z" fill="#111"/></svg>';
+  const BACK_SVG = '<svg viewBox="0 0 20 20"><path d="M12.5 4.5 7 10l5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   ui.backBtn = function (fn) {
     return h('button.back-btn', { onclick: fn || (() => NL.back()), html: BACK_SVG + '<span>返回</span>' });
   };
@@ -165,28 +169,28 @@
     $('#layers').appendChild(el);
     return api;
   };
-  // 白底「提示」对话框
+  // 珠光毛玻璃「提示」对话框
   ui.dialog = function (opts) {
     const m = ui.mask({ dismiss: !!opts.dismiss, onClose: opts.onClose });
     const body = h('div.dlg-body', h('div', opts.html ? { html: opts.html } : null, opts.text || null), opts.extra || null);
     const btns = h('div.dlg-btns', (opts.buttons || [{ text: '确认', cls: 'purple' }]).map((b) =>
       h('button.btn.' + (b.cls || 'purple'), { onclick: () => { m.close(); if (b.onClick) b.onClick(); } }, b.text)));
-    m.el.appendChild(h('div.dlg', { style: { top: opts.top == null ? 320 : opts.top } }, h('div.dlg-head'), body, btns));
+    m.el.appendChild(h('div.dlg', { style: { top: opts.top == null ? 296 : opts.top } }, h('div.dlg-head'), body, btns));
     return m;
   };
   ui.confirm = function (html, onOk, o) {
     o = o || {};
     return ui.dialog({ html, buttons: [{ text: o.cancelText || '取消', cls: 'pink', onClick: o.onCancel }, { text: o.okText || '确认', cls: 'purple', onClick: onOk }] });
   };
-  // 紫色标题弹窗
+  // 珠光毛玻璃标题弹窗
   ui.win = function (opts) {
     const m = ui.mask({ onClose: opts.onClose, dismiss: opts.dismiss });
     const body = h('div.win-body', opts.bodyAttrs || null);
-    const win = h('div.win' + (opts.dark ? '.dark' : ''), { style: { top: opts.top == null ? 165 : opts.top } },
+    const win = h('div.win' + (opts.dark ? '.dark' : ''), { style: { top: opts.top == null ? 155 : opts.top } },
       h('div.win-head', opts.title || '', h('button.win-close', { onclick: () => m.close() })), body);
     if (opts.cls) win.classList.add(opts.cls);
     m.el.appendChild(win);
-    if (opts.hint !== false) m.el.appendChild(h('div.close-hint.abs', { style: { left: 0, width: 360, top: opts.hintTop || 618, textAlign: 'center', margin: 0 } }, '点击空白处关闭。'));
+    if (opts.hint !== false) m.el.appendChild(h('div.close-hint.abs', { style: { left: 0, width: 360, top: opts.hintTop || 624, textAlign: 'center', margin: 0 } }, '点击空白处关闭'));
     m.body = body;
     m.win = win;
     if (opts.body) typeof opts.body === 'function' ? opts.body(body, m) : body.appendChild(opts.body);
@@ -207,7 +211,7 @@
       h('div.reward-head'),
       h('div.reward-body', items.map((it) => ui.itemEl(it.id, it.n))),
       h('button.reward-ok', { onclick: () => m.close() }, '确认')));
-    m.el.appendChild(h('div.close-hint.abs', { style: { left: 0, width: 360, top: 628, textAlign: 'center', margin: 0 } }, '点击空白处关闭。'));
+    m.el.appendChild(h('div.close-hint.abs', { style: { left: 0, width: 360, top: 628, textAlign: 'center', margin: 0 } }, '点击空白处关闭'));
     return m;
   };
   // shift: 和「战力提升」同时出现时把字往右挪,免得被挡住
@@ -219,8 +223,8 @@
   ui.powerUp = function (delta) {
     if (!delta) return;
     const el = h('div.powerup',
-      h('div.p-box'), h('div.p-top', '战力'), h('div.p-flame', '💥'),
-      h('div.p-num', (delta > 0 ? '+' : '') + Math.round(delta)), h('div.p-txt', delta > 0 ? '战力提升！' : '战力下降'));
+      h('div.p-box'), h('div.p-top', '星芒共鸣'), h('div.p-flame', '✦'),
+      h('div.p-num', (delta > 0 ? '+' : '') + Math.round(delta)), h('div.p-txt', delta > 0 ? '共鸣提升' : '共鸣变动'));
     $('#layers').appendChild(el);
     setTimeout(() => el.remove(), 2300);
   };
@@ -228,6 +232,47 @@
     return h('div.pill' + (extra && extra.cls ? '.' + extra.cls : ''), { style: { left: x, top: y, minWidth: (extra && extra.w) || 92 }, onclick: extra && extra.onclick },
       h('img', { src: NL.img(icon), draggable: 'false' }), h('span', String(value)),
       extra && extra.plus ? h('img.plus', { src: NL.img('home/ico_plus.webp'), draggable: 'false' }) : null);
+  };
+  // 女性向立绘呼吸舞台（otome-ui-motion 规范：分层呼吸微动效 + 星芒散景 + 点击心动气泡 + LivePortrait 视频扩展槽）
+  const MOTES = [
+    [14, 78, 5, 0], [32, 64, 3.5, 1.1], [78, 72, 4.5, 0.6], [88, 52, 3, 2.1],
+    [22, 38, 4, 1.7], [68, 30, 5.5, 2.8], [48, 84, 3.5, 0.9], [84, 82, 4, 1.5],
+  ];
+  ui.charStage = function (charKey, opts) {
+    opts = opts || {};
+    const stage = h('div.char-stage' + (opts.cls ? '.' + opts.cls : ''));
+    const breather = h('div.char-breathe');
+    if (opts.liveSrc) {
+      breather.appendChild(h('video.char-live', { src: opts.liveSrc, autoplay: 'autoplay', loop: 'loop', muted: 'muted', playsinline: 'playsinline' }));
+    }
+    breather.appendChild(h('img.char-art', { src: NL.img('otome/chars/' + charKey + '.webp'), draggable: 'false', alt: opts.name || charKey }));
+    stage.appendChild(breather);
+    stage.appendChild(h('div.starlight-layer', MOTES.map(([lx, ty, sz, dl]) =>
+      h('i.starlight-mote', { style: `left:${lx}%;top:${ty}%;width:${sz}px;height:${sz}px;animation-delay:-${dl}s` }))));
+    if (opts.vignette !== false) stage.appendChild(h('div.char-vignette'));
+
+    let qIdx = 0, qTimer = 0, bubble = null;
+    stage.say = function (txt) {
+      if (!txt) return;
+      if (bubble) bubble.remove();
+      clearTimeout(qTimer);
+      bubble = h('div.char-quote-bubble', txt);
+      stage.appendChild(bubble);
+      qTimer = setTimeout(() => { if (bubble) { bubble.remove(); bubble = null; } }, 2800);
+    };
+    if (opts.interactive !== false && opts.quotes && opts.quotes.length) {
+      stage.addEventListener('click', (e) => {
+        const rect = stage.getBoundingClientRect();
+        const rx = (e.clientX - rect.left) / (NL.scale || 1);
+        const ry = (e.clientY - rect.top) / (NL.scale || 1);
+        const rip = h('span.heart-ripple', { style: { left: rx, top: ry } }, '♥');
+        stage.appendChild(rip);
+        setTimeout(() => rip.remove(), 900);
+        stage.say(opts.quotes[qIdx % opts.quotes.length]);
+        qIdx++;
+      });
+    }
+    return stage;
   };
 
   /* ---------- 数值 ---------- */
@@ -332,7 +377,16 @@
     fit();
     if (/[?&]reset\b/.test(location.search)) NL.reset(); else NL.load();
     const nav = $('#nav');
-    ['role', 'bag', 'home', 'mission', 'partner'].forEach((n) => nav.appendChild(h('button', { 'data-nav': n, onclick: () => NL.go(n) })));
+    const NAV_DEFS = [
+      ['role', '角色', '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5.5 19.5c1.4-3.2 3.8-4.8 6.5-4.8s5.1 1.6 6.5 4.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>'],
+      ['bag', '行囊', '<svg viewBox="0 0 24 24"><rect x="4.5" y="7.5" width="15" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 7.5V6a3 3 0 0 1 6 0v1.5M4.5 12h15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>'],
+      ['home', '乐园', '<svg viewBox="0 0 24 24"><path d="M12 3.2 14.3 9l5.8.5-4.4 3.8 1.3 5.7-5-3-5 3 1.3-5.7-4.4-3.8 5.8-.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>'],
+      ['mission', '委托', '<svg viewBox="0 0 24 24"><rect x="5.5" y="4.5" width="13" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 9.5h6M9 13h6M9 16.5h3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>'],
+      ['partner', '伙伴', '<svg viewBox="0 0 24 24"><path d="M12 19.6s-6.5-4.1-6.5-8.7A3.8 3.8 0 0 1 12 8.2a3.8 3.8 0 0 1 6.5 2.7c0 4.6-6.5 8.7-6.5 8.7z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>'],
+    ];
+    NAV_DEFS.forEach(([n, label, svg]) => {
+      nav.appendChild(h('button', { 'data-nav': n, onclick: () => NL.go(n), html: `<i class="nav-ico">${svg}</i><span>${label}</span>` }));
+    });
     setInterval(game.tickEnergy, 1000);
     game.tickEnergy();
     const start = location.hash.slice(1);

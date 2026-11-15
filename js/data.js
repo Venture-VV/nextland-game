@@ -95,7 +95,11 @@
     ying: [{ text: '【加入反抗军势力后，你收到了“莺”的加密通讯，她建议你来找反抗军，认为以你的才能，可以在反抗军中大展拳脚。】' }],
     noname: [{ text: '【增益市场的义体贩子收了你的好处，但却没有按照约定将你带到旧时代自由人身前，正在你觉得被骗之时，你收到一条来自陌生终端的定位信息，附言只有四个字：“不问姓名”。】' }],
   };
-  D.storyPlates = { 熊杰: ['story/xiong.jpg', 'l'], 吴谩: ['story/wu.jpg', 'r'], 银砂: ['story/yin.jpg', 'r'] };
+  D.storyPlates = {
+    熊杰: ['otome/chars/xiongjie.webp', 'l'],
+    吴谩: ['otome/chars/wuman.webp', 'r'],
+    银砂: ['otome/chars/yinsha.webp', 'r'],
+  };
 
   /* ---------- 装备 ---------- */
   // 录屏里看得到名字和数值的只有 4 件(金链、白手套、粉色护手、高地守卫上衣),其余按同样风格补
@@ -141,13 +145,66 @@
 
   /* ---------- 伙伴 ---------- */
   D.partners = [
-    { id: 'jiguang', name: '冀光', race: '人类', art: 'jiguang', likes: 5, trust: 6, place: '新生乐园L2-01', trait: '威严的外表与阴鸷的内心', love: ['geiger', 'rouge'],
-      file: { years: '30', birth: '新纪元 1月1日', star: '摩羯座', like: '教义', hate: '无信仰者' } },
-    { id: 'ling', name: '凌', race: '人类', art: 'ling', likes: 0, trust: 0, place: '新生乐园L2-02', trait: '既有市侩、奸诈的一面，也有热心的一面。', love: ['papers', 'holo'] },
-    { id: 'maguangyao', name: '麻光耀', race: '人类', art: 'maguangyao', likes: 0, trust: 0, place: '新生乐园L2-03', trait: '热心但暗中抵抗阪神的科学家', love: ['holo', 'geiger'] },
-    { id: 'linxiao', name: '林鸮', race: '改造者', art: 'linxiao', likes: 1, trust: 0, place: '新生乐园L2-04', trait: '希望建立自己势力，但又温和', love: ['can', 'perfume'] },
-    { id: 'guxuan', name: '顾轩', race: '人类', art: 'maguangyao', blank: true, likes: 1, trust: 0, place: '新生乐园L2-05', trait: '???', love: ['papers', 'can'] },
-    { id: 'yinsha', name: '银砂', race: '仿生人', art: 'yinsha', likes: 0, trust: 0, place: '新生乐园L2-06', trait: '职业化的状态与觉醒后自身思维的冲突', love: ['rouge', 'perfume'] },
+    {
+      id: 'jiguang', name: '冀光', race: '人类', art: 'jiguang', title: '圣礼司铎 · 晨曦审视者',
+      likes: 5, trust: 6, place: '新生乐园L2-01', trait: '威严的外表与阴鸷的内心', love: ['geiger', 'rouge'],
+      file: { years: '30', birth: '新纪元 1月1日', star: '摩羯座', like: '教义、晨祷圣咏', hate: '无信仰者、失序喧嚣' },
+      quotes: [
+        '“晨曦会照亮每一寸迷途……包括你望向我的眼神。”',
+        '“不必拘谨，在我面前，你可以卸下猎人的防备。”',
+        '“信仰偶尔也会偏心，比如此刻，它替我留住了你。”',
+      ],
+    },
+    {
+      id: 'ling', name: '凌', race: '人类', art: 'ling', title: '暗夜行者 · 雾街潜影',
+      likes: 0, trust: 0, place: '新生乐园L2-02', trait: '既有市侩、奸诈的一面，也有热心的一面。', love: ['papers', 'holo'],
+      file: { years: '24', birth: '新纪元 11月7日', star: '天蝎座', like: '旧时代情报、夜风天台', hate: '虚伪契约、无聊说教' },
+      quotes: [
+        '“离我这么近？行啊，这趟夜路我免费替你护航。”',
+        '“别听外头怎么传我，至少对你……我从不漫天要价。”',
+        '“兜帽摘一半够不够？想看清我，得拿你的真心来换。”',
+      ],
+    },
+    {
+      id: 'maguangyao', name: '麻光耀', race: '人类', art: 'maguangyao', title: '首席学者 · 逆光棱镜',
+      likes: 0, trust: 0, place: '新生乐园L2-03', trait: '热心但暗中抵抗阪神的科学家', love: ['holo', 'geiger'],
+      file: { years: '27', birth: '新纪元 9月15日', star: '处女座', like: '全息棱镜推演、手冲黑咖', hate: '数据篡改、阪神监控令' },
+      quotes: [
+        '“心跳频率比平时快了 12%……是你靠近引起的观测误差吗？”',
+        '“这枚棱镜里封存着旧时代真正的星空，只展示给你看。”',
+        '“实验室夜里风凉，把我的外袍披上吧。”',
+      ],
+    },
+    {
+      id: 'linxiao', name: '林鸮', race: '改造者', art: 'linxiao', title: '智库顾问 · 温柔野心家',
+      likes: 1, trust: 0, place: '新生乐园L2-04', trait: '希望建立自己势力，但又温和', love: ['can', 'perfume'],
+      file: { years: '26', birth: '新纪元 10月19日', star: '天秤座', like: '白茶香氛、高空落地窗', hate: '盲目服从、粗劣改装' },
+      quotes: [
+        '“想要在这座乐园立足，温柔和锋芒缺一不可——就像你一样。”',
+        '“我的蓝图里一直留着最核心的席位，在等你点头。”',
+        '“累了就靠一会儿吧，接下来的棋局交给我。”',
+      ],
+    },
+    {
+      id: 'guxuan', name: '顾轩', race: '人类', art: 'guxuan', title: '天才少年 · 温室守望',
+      likes: 1, trust: 0, place: '新生乐园L2-05', trait: '萌点：天才少年，奶狗恋爱', love: ['papers', 'can'],
+      file: { years: '20', birth: '新纪元 5月21日', star: '双子座', like: '阳光花房、和你并肩散步', hate: '独自留守、苦味药剂' },
+      quotes: [
+        '“我算准了你今天会路过花房！手给我，带你去看新开的星芒花。”',
+        '“别人叫我天才研究员，可我只想做你一个人的专属搭档。”',
+        '“再多待五分钟好不好？就五分钟……”',
+      ],
+    },
+    {
+      id: 'yinsha', name: '银砂', race: '仿生人', art: 'yinsha', title: '银伶歌姬 · 星海缪斯',
+      likes: 0, trust: 0, place: '新生乐园L2-06', trait: '职业化的状态与觉醒后自身思维的冲突', love: ['rouge', 'perfume'],
+      file: { years: '???', birth: '出厂日 2月19日', star: '双鱼座', like: '星芒舞台、旧时代黑胶咏叹', hate: '格式化指令、冰冷橱窗' },
+      quotes: [
+        '“程序教我完美微笑，可只有看见你时，胸口才会泛起陌生的温度。”',
+        '“今夜的安可曲没有写进剧本，是我私心唱给你一个人的。”',
+        '“如果仿生人也会做梦，那一定长着暮光和你的模样。”',
+      ],
+    },
   ];
   // 礼物:只有「便携式盖革计数器」「旧时代气味罐头」的名字和说明出现在录屏里,其余是补的
   const G = (name, rare, base, icon, desc) => ({ name, kind: '情感礼物', rare, base, gift: true, icon: 'gift/' + icon + '.webp', desc });
