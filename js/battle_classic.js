@@ -25,10 +25,14 @@
     const RINGS = 17, SEG = 8, GROW = 1.21, BASE = 76;
     return function draw(t, sx, sy) {
       g.setTransform(2, 0, 0, 2, 0, 0);
-      g.fillStyle = '#0b0911';
+      const isBiao = NL.skin && NL.skin() === 'biao';
+      g.fillStyle = isBiao ? '#090b17' : '#0b0911';
       g.fillRect(0, 0, 360, 781);
       const grad = g.createLinearGradient(0, 0, 0, 781);
-      [[0, '#ff3a1a'], [0.1, '#ff3a1a'], [0.17, '#b01ae8'], [0.5, '#7d3df2'], [0.83, '#b01ae8'], [0.9, '#ff3a1a'], [1, '#ff3a1a']].forEach(([p, c]) => grad.addColorStop(p, c));
+      const stops = isBiao
+        ? [[0, '#ff3d7f'], [0.15, '#c2185b'], [0.5, '#7de8ff'], [0.85, '#c2185b'], [1, '#ff3d7f']]
+        : [[0, '#ff3a1a'], [0.1, '#ff3a1a'], [0.17, '#b01ae8'], [0.5, '#7d3df2'], [0.83, '#b01ae8'], [0.9, '#ff3a1a'], [1, '#ff3a1a']];
+      stops.forEach(([p, c]) => grad.addColorStop(p, c));
       g.translate(MID[0] + sx, MID[1] + sy);
       const flow = (t * 0.3) % 1, rot = 0.13 + Math.sin(t * 0.45) * 0.09;
       const ring = (k) => { const kk = k + flow; return [BASE * Math.pow(GROW, kk), rot + kk * 0.026]; };

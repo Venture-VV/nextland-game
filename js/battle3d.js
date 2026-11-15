@@ -7,8 +7,8 @@
 (function () {
   'use strict';
   const W = 360, H = 781;
-  const TEAM = [0x34f0e0, 0xff5a26];      // 我方青、对手橙
-  const TEAM_HOT = [0xc8fff8, 0xffd0a0];
+  const TEAM_LI = [0x34f0e0, 0xff5a26];      // 里:我方青、对手橙
+  const TEAM_HOT_LI = [0xc8fff8, 0xffd0a0];
 
   function canvasTex(T, w, h, draw) {
     const c = document.createElement('canvas');
@@ -22,6 +22,9 @@
   NL.battle3d = function (mount) {
     const T = window.THREE;
     if (!T) return null;
+    const isBiao = NL.skin && NL.skin() === 'biao';
+    const TEAM = isBiao ? [0x7de8ff, 0xff3d7f] : TEAM_LI;
+    const TEAM_HOT = isBiao ? [0xdaf9ff, 0xffc2da] : TEAM_HOT_LI;
     let renderer;
     try { renderer = new T.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' }); } catch (e) { return null; }
     renderer.setPixelRatio(Math.min(3, (window.devicePixelRatio || 1) * Math.max(1, NL.scale)));
@@ -41,7 +44,7 @@
     }));
     const skyTex = keep(canvasTex(T, 8, 256, (g, w, h) => {
       const r = g.createLinearGradient(0, 0, 0, h);
-      r.addColorStop(0, '#1a0b3c'); r.addColorStop(0.35, '#12082a'); r.addColorStop(1, '#090514');
+      r.addColorStop(0, isBiao ? '#1c0f38' : '#1a0b3c'); r.addColorStop(0.35, isBiao ? '#0e1026' : '#12082a'); r.addColorStop(1, '#070814');
       g.fillStyle = r; g.fillRect(0, 0, w, h);
     }));
     const hexTex = keep(canvasTex(T, 256, 256, (g) => { // 护盾上的蜂窝纹
@@ -58,10 +61,11 @@
       g.fillStyle = r; g.fillRect(0, 0, 256, 256);
     }));
     const loader = new T.TextureLoader();
-    const face = [NL.embed.avatarMe, NL.embed.avatarFoe].map((src) => {
+    const faceSrc = isBiao && NL.embed.avatarMeBiao ? [NL.embed.avatarMeBiao, NL.embed.avatarFoeBiao] : [NL.embed.avatarMe, NL.embed.avatarFoe];
+    const face = faceSrc.map((src) => {
       const t = keep(loader.load(src));
       t.colorSpace = T.SRGBColorSpace;
-      const f = 0.76; // 原图里头像外面还有一圈边框,只取里面的头像
+      const f = isBiao ? 0.90 : 0.76; // 原图里头像外面还有一圈边框,只取里面的头像
       t.repeat.set(f, f); t.offset.set((1 - f) / 2, (1 - f) / 2);
       return t;
     });
@@ -69,7 +73,7 @@
     /* ---------- 场景 ---------- */
     const scene = new T.Scene();
     scene.background = skyTex;
-    scene.fog = new T.Fog(0x12082a, 16, 58);
+    scene.fog = new T.Fog(isBiao ? 0x0b0d1a : 0x12082a, 16, 58);
     const FOV = 42;
     const cam = new T.PerspectiveCamera(FOV, W / H, 0.1, 160);
     const CAM = new T.Vector3(0.15, 6.6, 12.6), LOOK = new T.Vector3(0.1, 0.85, -0.3); // 俯视约 25 度,竖屏里两边一上一下
@@ -81,6 +85,9 @@
     const additive = (color, opacity) => basic({ color, opacity, transparent: true, blending: T.AdditiveBlending, depthWrite: false, side: T.DoubleSide });
 
     // 地面:一个着色器平面,画霓虹网格、擂台、警戒环和跟着节拍扩散的光环
+    const rimCol = isBiao ? 'vec3(0.91,0.81,0.60)' : 'vec3(1.0,0.80,0.16)';
+    const bandCol = isBiao ? 'vec3(1.0,0.24,0.50)' : 'vec3(1.0,0.27,0.07)';
+    const bGlowCol = isBiao ? 'vec3(1.0,0.24,0.50)' : 'vec3(1.0,0.35,0.15)';
     const floorMat = keep(new T.ShaderMaterial({
       transparent: true, depthWrite: false, premultipliedAlpha: true, extensions: { derivatives: true },
       uniforms: { uTime: { value: 0 }, uPulse: { value: 0 }, uA: { value: new T.Vector3() }, uB: { value: new T.Vector3() } },
@@ -93,17 +100,17 @@
         '  float inside = smoothstep(4.42, 4.26, r);',
         '  float fade = exp(-r * 0.06);',
         '  float g1 = grid(vP, 1.5, 1.3), g2 = grid(vP, 6.0, 1.8);',
-        '  vec3 col = mix(vec3(0.34,0.13,0.95), vec3(0.95,0.16,0.82), g2) * (g1 * 0.5 + g2 * 0.55) * fade * mix(1.0, 0.3, inside);',
-        '  col += vec3(1.0,0.80,0.16) * smoothstep(0.05, 0.0, abs(r - 4.34)) * 0.95;',                         // 擂台边
+        '  vec3 col = mix(vec3(0.34,0.13,0.95), vec3(0.95,0.16,0.62), g2) * (g1 * 0.5 + g2 * 0.55) * fade * mix(1.0, 0.3, inside);',
+        '  col += ' + rimCol + ' * smoothstep(0.05, 0.0, abs(r - 4.34)) * 0.95;',                                 // 擂台边
         '  float band = smoothstep(4.52, 4.56, r) * smoothstep(4.86, 4.82, r);',
-        '  col += vec3(1.0,0.27,0.07) * band * step(0.5, fract(ang * 4.456 + (r - 4.5) * 1.3 - uTime * 0.05)) * 0.8;', // 警戒条纹
+        '  col += ' + bandCol + ' * band * step(0.5, fract(ang * 4.456 + (r - 4.5) * 1.3 - uTime * 0.05)) * 0.72;',
         '  col += vec3(0.50,0.24,1.0) * (smoothstep(0.03, 0.0, abs(r - 2.25)) * 0.42 + smoothstep(0.02, 0.0, abs(r - 3.35)) * 0.26);',
         '  float tick = step(0.94, fract(ang * 7.639)) * smoothstep(0.12, 0.0, abs(r - 3.35)) * 0.4;',          // 刻度
         '  col += vec3(0.62,0.34,1.0) * tick;',
         '  float pr = 0.5 + (1.0 - uPulse) * 4.0;',                                                             // 节拍光环
         '  col += vec3(0.86,0.30,1.0) * smoothstep(0.16, 0.0, abs(r - pr)) * uPulse * inside * 0.7;',
         '  vec2 da = vP - uA.xy, db = vP - uB.xy;',                                                             // 两边脚下的光
-        '  col += vec3(0.20,0.94,0.88) * exp(-dot(da, da) * 1.5) * uA.z + vec3(1.0,0.35,0.15) * exp(-dot(db, db) * 1.5) * uB.z;',
+        '  col += vec3(0.49,0.91,1.0) * exp(-dot(da, da) * 1.5) * uA.z + ' + bGlowCol + ' * exp(-dot(db, db) * 1.5) * uB.z;',
         '  gl_FragColor = vec4(col, inside * 0.62);',
         '}',
       ].join('\n'),
@@ -121,10 +128,12 @@
     }
     for (let i = 0; i < 13; i++) {
       const a = -Math.PI / 2 + (i - 6) * 0.19, rad = 9.5 + (i % 2) * 3.2, hgt = 7 + ((i * 5) % 4) * 2.4;
-      const mat = additive(i % 3 === 1 ? 0xff4a1c : 0x8a3dff, 0.75); mat.vertexColors = true;
+      const pCol = isBiao ? (i % 3 === 1 ? 0xff3d7f : 0x7de8ff) : (i % 3 === 1 ? 0xff4a1c : 0x8a3dff);
+      const cCol = isBiao ? (i % 3 === 1 ? 0xff7eb0 : 0xaef2ff) : (i % 3 === 1 ? 0xff6a2c : 0xa860ff);
+      const mat = additive(pCol, 0.75); mat.vertexColors = true;
       const m = add(new T.Mesh(pylonGeo, mat));
       m.scale.y = hgt; m.position.set(Math.cos(a) * rad + 0.3, hgt / 2, Math.sin(a) * rad);
-      const cap = add(new T.Sprite(glowMat(i % 3 === 1 ? 0xff6a2c : 0xa860ff, 0.7))); cap.scale.setScalar(1.6); cap.position.set(m.position.x, 0.15, m.position.z);
+      const cap = add(new T.Sprite(glowMat(cCol, 0.7))); cap.scale.setScalar(1.6); cap.position.set(m.position.x, 0.15, m.position.z);
       pylons.push(m);
     }
     // 飘浮的光点
