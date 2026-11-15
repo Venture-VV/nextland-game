@@ -105,6 +105,8 @@
   const stack = [];
   let current = null;
   NL.current = () => stack[stack.length - 1];
+  const NAV_ORDER = ['role', 'bag', 'home', 'mission', 'partner'];
+  let lastNav = null;
   function render(keepScroll) {
     const top = NL.current();
     const scr = NL.screens[top.name];
@@ -129,6 +131,11 @@
       const k = kept[e.dataset.keep];
       if (k) { e.scrollTop = k[0]; e.scrollLeft = k[1]; }
     });
+    if (!keepScroll) { // 切换页面(不是原地刷新)时才播进场;底部页签之间按左右方向滑
+      const a = NAV_ORDER.indexOf(lastNav), b = NAV_ORDER.indexOf(scr.nav);
+      NL.motion.page(root, a >= 0 && b >= 0 ? Math.sign(b - a) : 0);
+    }
+    lastNav = scr.nav || null;
     if (NL.afterRender) NL.afterRender(top.name, root);
   }
   NL.go = function (name, params) {
@@ -159,6 +166,8 @@
       el,
       close() {
         if (!el.parentNode) return;
+        if (opts.beforeClose) opts.beforeClose();
+        NL.motion.ghost(el); // 升级动效:留一份不能点的影子播完退场
         el.remove();
         if (opts.onClose) opts.onClose();
       },
@@ -205,11 +214,34 @@
     return el;
   };
   // 获得物品:items = [{id, n}]
+  // 奖励飞到哪:信用点、储值、体力飞向页面上对应的资源栏,其余飞向底部导航的「仓库」
+  const FLY_TO = { credit: 'ico_coin', gem: 'ico_gem', energy: 'ico_bolt' };
+  function flyTarget(id) {
+    const img = FLY_TO[id] && $('#screen .pill img[src*="' + FLY_TO[id] + '"]');
+    if (img) return img.parentNode;
+    const nav = $('#nav');
+    return nav.classList.contains('off') ? null : nav.querySelector('[data-nav=' + (id === 'exp' ? 'role' : 'bag') + ']');
+  }
   ui.reward = function (items, onDone) {
-    const m = ui.mask({ onClose: onDone });
+    let from = [];
+    const cells = items.map((it, i) => { const el = ui.itemEl(it.id, it.n); el.style.setProperty('--i', Math.min(i, 12)); return el; });
+    const m = ui.mask({
+      beforeClose() { from = cells.map((el) => ({ rect: el.getBoundingClientRect(), image: el.style.backgroundImage })); },
+      onClose() {
+        if (onDone) onDone(); // 这里页面已经刷新,资源栏是新的
+        if (!NL.motion.on()) return;
+        const s = $('#stage').getBoundingClientRect(), k = NL.scale || 1;
+        items.slice(0, 8).forEach((it, i) => {
+          const to = flyTarget(it.id), r = from[i].rect;
+          if (to && r.width) NL.motion.fly({ x: (r.left - s.left) / k, y: (r.top - s.top) / k, w: r.width / k, h: r.height / k }, to, { image: from[i].image, delay: i * 45 });
+        });
+      },
+    });
+    const body = h('div.reward-body', cells);
+    body.style.setProperty('--step', Math.max(15, Math.min(80, 600 / Math.max(1, items.length))) + 'ms');
     m.el.appendChild(h('div.reward',
       h('div.reward-head'),
-      h('div.reward-body', items.map((it) => ui.itemEl(it.id, it.n))),
+      body,
       h('button.reward-ok', { onclick: () => m.close() }, '确认')));
     m.el.appendChild(h('div.close-hint.abs', { style: { left: 0, width: 360, top: 628, textAlign: 'center', margin: 0 } }, '点击空白处关闭。'));
     return m;
@@ -224,13 +256,22 @@
     if (!delta) return;
     const el = h('div.powerup',
       h('div.p-box'), h('div.p-top', '战力'), h('div.p-flame', '💥'),
-      h('div.p-num', (delta > 0 ? '+' : '') + Math.round(delta)), h('div.p-txt', delta > 0 ? '战力提升！' : '战力下降'));
+      h('div.p-num'), h('div.p-txt', delta > 0 ? '战力提升！' : '战力下降'));
+    const num = el.querySelector('.p-num'), sign = delta > 0 ? '+' : '-', abs = Math.abs(Math.round(delta));
+    // 原版这个数字是滚动着涨上去的;升级档换成每一位各自滚动的数字
+    if (NL.motion.on()) NL.motion.odometer(num, sign + abs);
+    else NL.motion.count(num, 0, abs, 900, (v) => sign + v);
     $('#layers').appendChild(el);
     setTimeout(() => el.remove(), 2300);
   };
+  function numEl(key, value) { // 资源栏的数字:变了就从旧值滚到新值
+    const el = h('span');
+    NL.motion.number(el, key, value);
+    return el;
+  }
   ui.pill = function (icon, value, x, y, extra) {
     return h('div.pill' + (extra && extra.cls ? '.' + extra.cls : ''), { style: { left: x, top: y, minWidth: (extra && extra.w) || 92 }, onclick: extra && extra.onclick },
-      h('img', { src: NL.img(icon), draggable: 'false' }), h('span', String(value)),
+      h('img', { src: NL.img(icon), draggable: 'false' }), numEl(icon, value),
       extra && extra.plus ? h('img.plus', { src: NL.img('home/ico_plus.webp'), draggable: 'false' }) : null);
   };
 
@@ -335,6 +376,8 @@
     window.addEventListener('resize', fit);
     fit();
     if (/[?&]reset\b/.test(location.search)) NL.reset(); else NL.load();
+    const mo = /[?&]motion=(plus|orig)\b/.exec(location.search); // 地址里可以直接指定动效档
+    if (mo) NL.state.motion = mo[1];
     NL.bootHooks.forEach((f) => f()); // 各模块在存档读好之后要做的初始化
     const nav = $('#nav');
     ['role', 'bag', 'home', 'mission', 'partner'].forEach((n) => nav.appendChild(h('button', { 'data-nav': n, onclick: () => NL.go(n) })));

@@ -1,0 +1,111 @@
+/* 动效的样式部分。做法见 docs/MOTION.md,脚本部分在 js/motion.js。
+ * html[data-motion=plus] 是升级档,[data-motion=orig] 是原版档(照录屏:弹窗和页面直接出现)。
+ * html.reduced 是系统开了「减少动态效果」:只留透明度变化。 */
+:root {
+  --m-fast: 120ms; --m-base: 240ms; --m-slow: 400ms;
+  --m-snap: cubic-bezier(0.2, 0, 0, 1);      /* 利落:大多数进场 */
+  --m-soft: cubic-bezier(0.4, 0, 0.2, 1);    /* 柔和:来回都要顺的移动 */
+  --m-in: cubic-bezier(0, 0, 0.2, 1);        /* 从屏幕外进来 */
+  --m-out: cubic-bezier(0.4, 0, 1, 1);       /* 离开 */
+  --m-back: cubic-bezier(0.34, 1.56, 0.64, 1); /* 回弹:小元素,400ms 以内 */
+}
+
+/* 套件自己放进 #layers 的东西都不能挡住点击 */
+.m-ghost, .m-ghost *, .m-fly, .m-pixels, .m-tap { pointer-events: none !important; }
+.m-ghost { animation: none !important; }
+.m-ghost * { animation: none !important; }
+.m-fly { position: absolute; z-index: 70; background: center/cover no-repeat; border-radius: 3px; will-change: transform, opacity; filter: drop-shadow(0 0 6px rgba(255, 255, 255, .55)); }
+.m-pixels { position: absolute; left: 0; top: 0; width: 360px; height: 781px; z-index: 80; }
+.m-tap { position: absolute; z-index: 90; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; border: 1.5px solid rgba(255, 255, 255, .8); box-shadow: 0 0 8px rgba(200, 120, 255, .8); animation: m-tap .4s var(--m-in) forwards; }
+@keyframes m-tap { from { transform: scale(.25); opacity: .9; } to { transform: scale(1); opacity: 0; } }
+
+/* 滚动数字 */
+.m-odo { display: inline-flex; align-items: flex-start; justify-content: center; line-height: 1; }
+.m-odo .d { display: inline-block; height: 1em; overflow: hidden; }
+.m-odo .d i { display: block; font-style: normal; will-change: transform; }
+.m-odo .d b { display: block; height: 1em; font-weight: inherit; }
+
+/* 倾斜卡片上跟着指针走的高光 */
+.m-tilt { transform-style: preserve-3d; will-change: transform; }
+.m-tilt::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at var(--mx, 50%) var(--my, 30%), rgba(255, 255, 255, .28), transparent 55%); mix-blend-mode: screen; }
+
+/* ---------- 原版档:弹窗、对话框、页面都直接出现 ---------- */
+html[data-motion=orig] .mask, html[data-motion=orig] .win, html[data-motion=orig] .dlg, html[data-motion=orig] .reward,
+html[data-motion=orig] .info-pop, html[data-motion=orig] .buy, html[data-motion=orig] .cal, html[data-motion=orig] .itx,
+html[data-motion=orig] .set-win, html[data-motion=orig] .sr-card { animation: none; }
+html[data-motion=orig] .reward-body .item { animation: m-fade .2s linear both; } /* 录屏:奖励图标约 0.2 秒淡入 */
+@keyframes m-fade { from { opacity: 0; } }
+
+/* ---------- 升级档 ---------- */
+/* 弹窗:带一点回弹地弹出来 */
+html[data-motion=plus] .win, html[data-motion=plus] .dlg, html[data-motion=plus] .reward, html[data-motion=plus] .info-pop,
+html[data-motion=plus] .buy, html[data-motion=plus] .cal, html[data-motion=plus] .itx, html[data-motion=plus] .set-win { animation: m-pop .34s var(--m-back) both; }
+html[data-motion=plus] .mask { animation: m-fade .2s linear both; }
+@keyframes m-pop { from { transform: scale(.9) translateY(10px); opacity: 0; } 60% { opacity: 1; } }
+/* 奖励图标:依次弹出,延迟由脚本按项数给 */
+html[data-motion=plus] .reward-body .item { animation: m-item .42s var(--m-back) both; animation-delay: calc(140ms + var(--i, 0) * var(--step, 60ms)); }
+@keyframes m-item { from { transform: scale(.3) rotate(-12deg); opacity: 0; } }
+html[data-motion=plus] .reward-ok { animation: m-rise .3s var(--m-snap) .25s both; }
+@keyframes m-rise { from { transform: translateY(14px); opacity: 0; } }
+
+/* 按下反馈:缩到 0.97,放开时弹回 */
+html[data-motion=plus] .btn, html[data-motion=plus] .tk-btn, html[data-motion=plus] .back-btn, html[data-motion=plus] .sh-card, html[data-motion=plus] .ml-row,
+html[data-motion=plus] .tk-card, html[data-motion=plus] .item, html[data-motion=plus] #nav button, html[data-motion=plus] .if-btn, html[data-motion=plus] .tr-go,
+html[data-motion=plus] .reward-ok, html[data-motion=plus] .ml-del, html[data-motion=plus] .ml-all, html[data-motion=plus] .sr-card { transition: transform var(--m-base) var(--m-back), filter var(--m-fast) linear; }
+html[data-motion=plus] .btn:active, html[data-motion=plus] .tk-btn:active, html[data-motion=plus] .back-btn:active, html[data-motion=plus] .sh-card:active,
+html[data-motion=plus] .ml-row:active, html[data-motion=plus] .if-btn:active, html[data-motion=plus] .tr-go:active, html[data-motion=plus] .reward-ok:active,
+html[data-motion=plus] .ml-del:active, html[data-motion=plus] .ml-all:active { transform: scale(.96); filter: brightness(1.12); transition-duration: 80ms; }
+html[data-motion=plus] .tk-card:active { transform: scale(.985); transition-duration: 80ms; }
+html[data-motion=plus] .item:active { transform: scale(.93); transition-duration: 80ms; }
+html[data-motion=plus] #nav button:active { transform: scale(.9) translateY(2px); transition-duration: 80ms; }
+
+/* 流光描边:一个亮点沿着轮廓跑,用在「可以领取」的按钮上,代替一直闪 */
+@property --m-a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+html[data-motion=plus] .tk-btn.pink, html[data-motion=plus] .dp-gift.can { position: absolute; isolation: isolate; }
+html[data-motion=plus] .tk-btn.pink::after, html[data-motion=plus] .dp-gift.can::after { content: ""; position: absolute; inset: -2.5px; border-radius: inherit; padding: 2px; pointer-events: none;
+  background: conic-gradient(from var(--m-a), transparent 0 62%, #fff 78%, #ffe21f 86%, transparent 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  animation: m-run 1.6s linear infinite; }
+@keyframes m-run { to { --m-a: 360deg; } }
+html[data-motion=plus] .dp-gift.can { animation: none; }
+
+/* 扫光:一道亮带从左扫到右(战力提升、挑战成功) */
+html[data-motion=plus] .powerup .p-num, html[data-motion=plus] .bt-result { overflow: hidden; }
+html[data-motion=plus] .powerup .p-num::after, html[data-motion=plus] .bt-result::after { content: ""; position: absolute; top: 0; bottom: 0; left: -60%; width: 45%; transform: skewX(-20deg);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .85), transparent); animation: m-sweep .7s var(--m-soft) .25s both; pointer-events: none; }
+@keyframes m-sweep { to { left: 130%; } }
+
+/* 浮动提示和战力提升:从左边带着回弹滑进来 */
+html[data-motion=plus] .toast, html[data-motion=plus] .powerup { animation-timing-function: var(--m-back); }
+
+/* 列表第一次出现时依次上浮(类名由脚本加,刷新时不重播) */
+.m-in { animation: m-rise .32s var(--m-snap) both; animation-delay: calc(var(--i, 0) * var(--step, 40ms)); }
+
+/* 抽卡:发牌、翻面,品质越高效果越多。点任意处直接看结果(脚本加 .skip) */
+html[data-motion=plus] .sr-card { animation: m-deal .62s var(--m-snap) both; animation-delay: calc(350ms + var(--i, 0) * 70ms); backface-visibility: hidden; }
+@keyframes m-deal { 0% { transform: translate(var(--dx, 0), 260px) scale(.5) rotateY(180deg); opacity: 0; } 40% { opacity: 1; } 70% { transform: translate(0, -6px) scale(1.08) rotateY(0); } 100% { transform: none; } }
+html[data-motion=plus] .sr-card.r-blue { box-shadow: 0 0 10px 1px rgba(31, 180, 232, .55); }
+html[data-motion=plus] .sr-card.r-purple, html[data-motion=plus] .sr-card.r-orange { box-shadow: 0 0 14px 2px var(--q); }
+html[data-motion=plus] .sr-card.r-purple > em, html[data-motion=plus] .sr-card.r-orange > em { position: absolute; left: 50%; top: -220px; width: 26px; height: 380px; margin-left: -13px; pointer-events: none;
+  background: linear-gradient(transparent, var(--q) 45%, transparent); filter: blur(5px); mix-blend-mode: screen; opacity: 0; animation: m-beam 1.1s ease-out both; animation-delay: calc(800ms + var(--i, 0) * 70ms); }
+@keyframes m-beam { 20% { opacity: .9; } 100% { opacity: 0; transform: scaleX(.3); } }
+html[data-motion=plus] .sr-flash { position: absolute; inset: 0; z-index: 9; background: #fff; pointer-events: none; animation: m-flash .5s ease-out both; }
+html[data-motion=plus] .sr-flash.orange { background: radial-gradient(circle at 50% 45%, #fff, #ffb04a 40%, rgba(240, 122, 24, 0) 75%); animation-duration: .9s; }
+@keyframes m-flash { from { opacity: .95; } to { opacity: 0; } }
+html[data-motion=plus] .skip .sr-card, html[data-motion=plus] .skip .sr-card > em { animation-delay: 0s !important; animation-duration: .01s !important; }
+
+/* 立绘呼吸(表用) */
+.m-breathe { animation: m-breathe 4.2s ease-in-out infinite alternate; transform-origin: 50% 100%; }
+@keyframes m-breathe { to { transform: scale(1.012) translateY(-2px); } }
+
+/* ---------- 减少动态效果:只留透明度 ---------- */
+html.reduced .win, html.reduced .dlg, html.reduced .reward, html.reduced .info-pop, html.reduced .buy, html.reduced .cal, html.reduced .itx, html.reduced .set-win,
+html.reduced .reward-body .item, html.reduced .reward-ok, html.reduced .sr-card, html.reduced .m-in, html.reduced .toast, html.reduced .powerup,
+html.reduced .bt-start, html.reduced .bt-result, html.reduced .bt-items, html.reduced .bt-hint { animation: m-fade .15s linear both !important; }
+html.reduced .toast, html.reduced .powerup { animation: m-toast-r 2.1s linear forwards !important; }
+@keyframes m-toast-r { 0% { opacity: 0; } 8%, 85% { opacity: 1; } 100% { opacity: 0; } }
+html.reduced .guide-arrow, html.reduced .dp-gift.can, html.reduced .m-breathe, html.reduced .btready, html.reduced .m-tap,
+html.reduced .tk-btn.pink::after, html.reduced .dp-gift.can::after, html.reduced .powerup .p-num::after, html.reduced .bt-result::after,
+html.reduced .sr-card > em, html.reduced .sr-flash { animation: none !important; }
+html.reduced .sr-flash, html.reduced .m-tap { display: none; }
+html.reduced * { transition-property: opacity, color, background-color, filter !important; }

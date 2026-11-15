@@ -5,7 +5,7 @@
 每张图从左到右:录屏、网页版、差异(越亮差得越多)。黄框是不参与比较的区域(倒计时、手机通知);灰块是涂掉的账号信息(互动码、玩家编号)。
 
 - 一共 65 个画面。
-- 平均相似度 97.0%,平均「明显不同的面积」3.7%。
+- 平均相似度 97.0%,平均「明显不同的面积」3.8%。
 - 明显不同的面积在 5% 以内的有 48 个,超过 15% 的有 3 个。
 
 按差得多少排序,最上面的最该修。
@@ -17,7 +17,7 @@
 | 剧情:选项 | 0:36.0 | 90.5% | 15.0% | [08_story_choice](img/08_story_choice.jpg) |
 | 任务:主线与支线 | 1:21.0 | 92.8% | 14.0% | [13_task_sections](img/13_task_sections.jpg) |
 | 赠礼 | 2:10.0 | 94.2% | 12.6% | [25_partner_gift](img/25_partner_gift.jpg) |
-| 补给:结果 | 5:19.5 | 93.5% | 11.5% | [67_supply_result](img/67_supply_result.jpg) |
+| 补给:结果 | 5:19.5 | 93.3% | 11.9% | [67_supply_result](img/67_supply_result.jpg) |
 | 玩法 | 5:47.0 | 94.3% | 10.4% | [70_modes](img/70_modes.jpg) |
 | 每日委托 | 1:59.0 | 94.4% | 10.1% | [24_partner_daily](img/24_partner_daily.jpg) |
 | 关卡列表 | 4:37.0 | 94.1% | 8.8% | [50_stages](img/50_stages.jpg) |
@@ -39,11 +39,11 @@
 | 邮件 | 6:40.5 | 95.4% | 2.8% | [87_mail](img/87_mail.jpg) |
 | 商城:购买窗 | 4:53.5 | 97.6% | 2.8% | [62_shop_buy](img/62_shop_buy.jpg) |
 | 获得物品 | 1:02.0 | 96.4% | 2.4% | [10_reward](img/10_reward.jpg) |
+| 设置 | 6:54.5 | 96.3% | 2.2% | [89_settings](img/89_settings.jpg) |
 | 任务:日常(引导中) | 0:13.5 | 94.2% | 2.0% | [05_mission_daily_guide](img/05_mission_daily_guide.jpg) |
 | 选择芯片 | 3:50.5 | 98.6% | 1.9% | [36_chip_win](img/36_chip_win.jpg) |
 | 主页:引导提示 | 0:12.0 | 95.0% | 1.7% | [04_home_guide](img/04_home_guide.jpg) |
 | 出示互动码 | 1:23.0 | 97.0% | 1.7% | [14_qr](img/14_qr.jpg) |
-| 设置 | 6:54.5 | 96.5% | 1.7% | [89_settings](img/89_settings.jpg) |
 | 仓库:道具 | 3:56.0 | 99.0% | 1.0% | [40_bag_item](img/40_bag_item.jpg) |
 | 绑定会员 | 7:18.5 | 98.6% | 1.0% | [94_bind_win](img/94_bind_win.jpg) |
 | 活动日历 | 6:12.0 | 97.5% | 0.9% | [80_calendar](img/80_calendar.jpg) |

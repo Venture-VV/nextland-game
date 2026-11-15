@@ -12,17 +12,20 @@
     const mw = D.map.w / 2, mh = D.map.h / 2;
     if (!pos) pos = D.map.start.slice();
     const map = h('div.park-map', { style: { width: mw, height: mh, backgroundImage: NL.bg('home/map.webp') } });
+    const MIN = [VW - mw, VH - mh], MAX = [0, 0];
+    const draw = () => { map.style.transform = 'translate3d(' + pos[0] + 'px,' + pos[1] + 'px,0)'; };
     const clamp = () => {
       pos[0] = Math.min(0, Math.max(VW - mw, pos[0]));
       pos[1] = Math.min(0, Math.max(VH - mh, pos[1]));
-      map.style.transform = 'translate3d(' + pos[0] + 'px,' + pos[1] + 'px,0)';
+      draw();
     };
+    let glide = null, vel = [0, 0], lastMove = 0;
     D.buildings.forEach((b) => {
       const [x0, y0, x1, y1] = b.box.map((v) => v / 2);
       map.appendChild(h('button.hit', { 'data-building': b.id, style: { left: x0, top: y0, width: x1 - x0, height: y1 - y0 }, onclick: () => { if (!moved) onBuilding(b.id); } }));
     });
     let drag = null, moved = false;
-    map.addEventListener('pointerdown', (e) => { drag = [e.clientX, e.clientY, pos[0], pos[1]]; moved = false; });
+    map.addEventListener('pointerdown', (e) => { if (glide) glide.stop(); clamp(); drag = [e.clientX, e.clientY, pos[0], pos[1]]; moved = false; vel = [0, 0]; lastMove = performance.now(); });
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
     window.addEventListener('pointercancel', onUp);
@@ -30,14 +33,30 @@
       if (!drag) return;
       const dx = (e.clientX - drag[0]) / NL.scale, dy = (e.clientY - drag[1]) / NL.scale;
       if (Math.abs(dx) + Math.abs(dy) > 5) moved = true;
-      pos[0] = drag[2] + dx; pos[1] = drag[3] + dy;
-      clamp();
+      if (!NL.motion.on()) { pos[0] = drag[2] + dx; pos[1] = drag[3] + dy; clamp(); return; } // 原版:松手就停,到边就卡住
+      // 升级动效:拖过边界时越拖越费劲,松手后带惯性滑一段,出界的弹回来
+      const now = performance.now(), dt = Math.max(1, now - lastMove) / 1000, old = pos.slice();
+      [dx, dy].forEach((d, i) => {
+        const raw = drag[2 + i] + d;
+        pos[i] = raw > MAX[i] ? MAX[i] + NL.motion.rubber(raw - MAX[i], 120) : raw < MIN[i] ? MIN[i] + NL.motion.rubber(raw - MIN[i], 120) : raw;
+        vel[i] = vel[i] * 0.4 + ((pos[i] - old[i]) / dt) * 0.6;
+      });
+      lastMove = now;
+      draw();
     }
-    function onUp() { drag = null; }
+    function onUp() {
+      if (drag && NL.motion.on()) {
+        if (performance.now() - lastMove > 90) vel = [0, 0]; // 停了一会儿才松手,就不滑了
+        glide = NL.motion.glide(pos, vel.map((v) => Math.max(-2600, Math.min(2600, v))), MIN, MAX, draw);
+      }
+      drag = null;
+    }
     clamp();
     return {
       el: map,
       destroy() {
+        if (glide) glide.stop();
+        clamp();
         window.removeEventListener('pointermove', onMove);
         window.removeEventListener('pointerup', onUp);
         window.removeEventListener('pointercancel', onUp);

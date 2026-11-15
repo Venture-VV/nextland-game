@@ -147,7 +147,7 @@
       T.hits.forEach((th, k) => { if (t >= th) once('hit' + k, () => { trauma = Math.min(1, trauma + 0.6); flash(MID[0], MID[1]); spawn('spark', MID[0], MID[1], 16); }); });
       if (t >= T.burst) once('burst', () => { trauma = Math.min(1, trauma + 0.4); spawn('green', MID[0], MID[1], 16); });
       trauma = Math.max(0, trauma - dt * 1.6);
-      const amp = trauma * trauma * 7;
+      const amp = NL.motion.reduced() ? 0 : trauma * trauma * 7;
       draw(t, Math.sin(t * 71) * amp, Math.cos(t * 83) * amp);
       av.forEach((node, i) => {
         const p = pose(i, t);
@@ -206,7 +206,10 @@
     });
   };
 
-  // 默认是原版战斗;设置里打开「扩展玩法」后换成 3D 节拍对决
-  NL.defaults.push(() => ({ battleMode: 'classic' }));
-  ui.battle = (opts) => (NL.state.battleMode === 'beat' ? ui.battleBeat(opts) : ui.battleClassic(opts));
+  // 默认是 3D 节拍对决(业主定的);设置里关掉「3D 节拍对决」就换回原版的自动对撞
+  NL.defaults.push(() => ({ beat: true }));
+  ui.battle = function (opts) {
+    const run = () => (NL.state.beat ? ui.battleBeat(opts) : ui.battleClassic(opts));
+    NL.motion.pixels({ mode: 'radial', ms: 640, onMid: run }); // 原版档或减少动态效果时会直接进
+  };
 })();

@@ -92,7 +92,13 @@
       const list = game.sortedGear().filter((x) => D.equips[x.id].type === type && (!game.slotOf(x.uid) || game.slotOf(x.uid) === opts.slot));
       b.appendChild(ui.sec('可选装备', 252));
       b.appendChild(h('div.gw-grid.scroll', list.map((x) => gearCell(x, { sel: x.uid === cur, onclick: () => pick(x.uid) }))));
-      b.appendChild(h('button.btn.gw-ok.' + (worn ? 'dark' : 'purple'), { 'data-act': 'wear', onclick: () => { m.close(); if (!worn) game.equip(opts.slot, cur); } }, '穿戴'));
+      b.appendChild(h('button.btn.gw-ok.' + (worn ? 'dark' : 'purple'), { 'data-act': 'wear', onclick: () => {
+        const src = b.querySelector('.gw-ico'), rect = src.getBoundingClientRect(), image = src.style.backgroundImage;
+        m.close();
+        if (worn) return;
+        game.equip(opts.slot, cur);
+        flyGear(rect, image, document.querySelector("#screen [data-slot='" + opts.slot + "']"));
+      } }, '穿戴'));
     }
     // 详情:没穿的是「分解 / 穿戴」,穿着的是「卸下 / 替换」
     function detail(cur) {
@@ -111,10 +117,21 @@
         ? [h('button.btn.pink', { 'data-act': 'unwear', onclick: () => { m.close(); game.unequip(worn); } }, '卸下'),
           h('button.btn.dark', { 'data-act': 'swap', onclick: () => { opts.slot = worn; pick(cur); } }, '替换')]
         : [h('button.btn.pink', { onclick: () => { m.close(); game.dismantle([cur]); } }, h('small', '可获 晶片 ' + crystalOf(g.id)), '分解'),
-          h('button.btn.purple', { 'data-act': 'wear', onclick: () => { m.close(); game.equip(opts.slot || slotFor(g.id), cur); } }, '穿戴')]));
+          h('button.btn.purple', { 'data-act': 'wear', onclick: () => {
+            const src = b.querySelector('.gw-ico'), rect = src.getBoundingClientRect(), image = src.style.backgroundImage, slot = opts.slot || slotFor(g.id);
+            m.close();
+            game.equip(slot, cur);
+            flyGear(rect, image, document.querySelector("#screen [data-slot='" + slot + "']") || document.querySelector('#nav [data-nav=role]'));
+          } }, '穿戴')]));
     }
     if (opts.slot && !(game.gear(uid) && game.slotOf(uid))) pick(uid); else detail(uid);
   };
+  // 升级动效:穿戴时,装备图从窗口飞到角色页的装备格;不在角色页就飞向底部导航的「角色」
+  function flyGear(rect, image, to) {
+    if (!to || !rect.width || !NL.motion.on()) return;
+    const s = document.querySelector('#stage').getBoundingClientRect(), k = NL.scale || 1;
+    NL.motion.fly({ x: (rect.left - s.left) / k, y: (rect.top - s.top) / k, w: rect.width / k, h: rect.height / k }, to, { image });
+  }
   function gearCell(g, o) {
     const e = D.equips[g.id];
     return h('div.item.gear' + (o.sel ? '.sel' : ''), { 'data-gear': g.id, style: { backgroundImage: NL.bg(e.icon) }, onclick: o.onclick },
