@@ -16,18 +16,19 @@
     const d = D.items[id];
     const usable = D.boxPools[id] || D.giftPools[id];
     ui.win({
-      title: '道具', top: 190, hintTop: 628,
+      title: '道具', h: 300,
       body(b, m) {
         b.classList.add('gw');
-        b.appendChild(h('div.gw-name', { style: { borderColor: '#b9b8c2' } }, d.name));
-        b.appendChild(h('div.gw-type', d.kind || '道具'));
-        b.appendChild(h('div.gw-power', h('span', '持有'), h('b', String(game.count(id)))));
+        b.appendChild(h('i.gw-bar', { style: { background: '#b9b8c2' } }));
+        b.appendChild(h('div.gw-name', d.name));
+        b.appendChild(h('div.gw-type', h('i'), d.kind || '道具'));
         b.appendChild(h('div.gw-ico', { style: { backgroundImage: NL.bg(d.icon) } }));
-        b.appendChild(ui.sec('描述'));
-        b.appendChild(h('div.gw-desc', d.desc || ''));
-        b.appendChild(h('div.gw-btns', usable
-          ? h('button.btn.purple', { 'data-act': 'use', onclick: () => { m.close(); useBox(id); } }, '使用')
-          : h('button.btn.dark', { onclick: () => m.close() }, '确认')));
+        b.appendChild(h('div.gw-power.plain', h('span', '持有'), h('b', String(game.count(id)))));
+        b.appendChild(ui.sec('描述', 129));
+        b.appendChild(h('div.gw-desc', { style: { top: 152 } }, d.desc || ''));
+        b.appendChild(usable
+          ? h('button.btn.purple.gw-ok', { style: { top: 224 }, 'data-act': 'use', onclick: () => { m.close(); useBox(id); } }, '使用')
+          : h('button.btn.dark.gw-ok', { style: { top: 224 }, onclick: () => m.close() }, '确认'));
       },
     });
   }

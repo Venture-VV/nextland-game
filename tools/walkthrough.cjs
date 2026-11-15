@@ -134,8 +134,11 @@ const FLOWS = [
     {"clickXY": [180, 500], "wait": 400, "shot": "c4_rank_after"},
     {"eval": "NL.go('shop')", "wait": 300, "shot": "c4_shop"},
     {"click": "[data-cat=mat]", "wait": 300, "shot": "c4_shop_mat"},
-    {"click": "[data-buy=supply_card]", "wait": 300, "shot": "c4_shop_confirm"},
-    {"click": ".dlg-btns .btn.purple", "wait": 400},
+    {"click": "[data-buy=supply_card]", "wait": 300, "shot": "c4_shop_buy"},
+    {"click": "[data-act=buy-plus]", "wait": 150},
+    {"eval": "if(document.querySelector('.buy-bar b').textContent!=='800')throw new Error('买 2 份应该共花费 800')"},
+    {"click": "[data-act=buy-ok]", "wait": 400},
+    {"eval": "if(NL.game.count('supply_card')!==20)throw new Error('买 2 份补给卡*10 应该到手 20 张')"},
     {"click": ".reward-ok", "wait": 300},
     {"eval": "NL.go('supply')", "wait": 300, "shot": "c4_supply1"},
     {"click": "[data-act=sp-next]", "wait": 200},
@@ -179,6 +182,10 @@ const FLOWS = [
     {"click": "[data-act=ticketShop]", "wait": 300},
     {"click": ".back-btn", "wait": 200},
     {"click": "[data-act=pf-settings]", "wait": 300, "shot": "c5_settings"},
+    {"click": "[data-act=set-beat]", "wait": 150},
+    {"eval": "if(NL.state.battleMode!=='beat')throw new Error('扩展玩法开关没有打开')"},
+    {"click": "[data-act=set-beat]", "wait": 150},
+    {"eval": "if(NL.state.battleMode!=='classic')throw new Error('扩展玩法开关没有关上')"},
     {"clickXY": [20, 770], "wait": 200},
     {"click": ".back-btn", "wait": 300},
     {"click": "[data-act=calendar]", "wait": 300, "shot": "c5_calendar"},
@@ -195,11 +202,38 @@ const FLOWS = [
     {"click": "[data-tab=task]", "wait": 300, "shot": "c5_mission_after_bind"},
     {"eval": "JSON.stringify([NL.state.bound,NL.state.friends,NL.state.mails.length,NL.state.tasks])", "log": "state"},
   ]],
+  ["原版战斗:自动对撞、击破、结算;卸下与替换装备", [
+    {"goto": "?reset#home", "wait": 300},
+    {"click": ".dlg-btns .btn.pink", "wait": 200},
+    {"eval": "NL.testClock=0;window.__bt=null;NL.ui.battle({enemy:{name:'林然',lv:5,power:1900},rewards:[{id:'exp',n:100},{id:'crystal',n:10}],onEnd:function(w){window.__bt=w}});1", "wait": 600},
+    {"eval": "if(document.querySelector('.battle').dataset.renderer!=='classic')throw new Error('默认应该是原版战斗')"},
+    {"clock": 1.0, "wait": 100, "shot": "c8_classic_banner"},
+    {"clock": 3.3, "wait": 100, "shot": "c8_classic_appear"},
+    {"clock": 3.75, "wait": 100, "shot": "c8_classic_hit"},
+    {"clock": 5.9, "wait": 100, "shot": "c8_classic_glow"},
+    {"clock": 6.5, "wait": 100, "shot": "c8_classic_burst"},
+    {"clock": 8.1, "wait": 500, "shot": "c8_classic_result"},
+    {"eval": "if(!document.querySelector('.bt-result'))throw new Error('8 秒后应该出结算')"},
+    {"clickXY": [180, 520], "wait": 400},
+    {"eval": "NL.testClock=null;if(window.__bt!==true)throw new Error('战力高于对手,应该获胜');if(document.querySelector('.battle'))throw new Error('战斗画面没有关掉')"},
+    {"eval": "window.__bt=null;NL.ui.battle({enemy:{name:'林然',lv:5,power:900000},onEnd:function(w){window.__bt=w}});1", "wait": 500},
+    {"eval": "document.querySelector('[data-act=skip]').click()", "wait": 700, "shot": "c8_classic_lose"},
+    {"clickXY": [180, 520], "wait": 400},
+    {"eval": "if(window.__bt!==false)throw new Error('战力远低于对手,应该失败')"},
+    {"eval": "NL.go('role')", "wait": 300},
+    {"click": "[data-tab=equip]", "wait": 300},
+    {"click": "[data-slot=armor]", "wait": 300, "shot": "c8_worn_detail"},
+    {"click": "[data-act=unwear]", "wait": 400},
+    {"eval": "if(NL.state.equipped.armor)throw new Error('卸下后护甲格应该是空的')"},
+    {"click": "[data-slot=armor]", "wait": 300, "shot": "c8_pick"},
+    {"click": "[data-act=wear]", "wait": 400},
+    {"eval": "if(!NL.state.equipped.armor)throw new Error('重新穿戴后护甲格应该有装备')"},
+  ]],
   ["3D 战斗:格挡、爆发、击破、结算", [
     {"goto": "?reset#home", "wait": 300},
     {"click": ".dlg-btns .btn.pink", "wait": 200},
     {"click": "[data-act=mail]", "wait": 200},
-    {"eval": "NL.loadThree().then(function(){NL.testClock=0;window.__bt=null;NL.ui.battle({enemy:{name:'林然',lv:5,power:9000},rewards:[{id:'exp',n:100},{id:'crystal',n:10}],onEnd:function(w){window.__bt=w;}});})", "wait": 1500},
+    {"eval": "NL.loadThree().then(function(){NL.testClock=0;window.__bt=null;NL.ui.battleBeat({enemy:{name:'林然',lv:5,power:9000},rewards:[{id:'exp',n:100},{id:'crystal',n:10}],onEnd:function(w){window.__bt=w;}});})", "wait": 1500},
     {"eval": "if(document.querySelector('.battle').dataset.renderer!=='3d')throw new Error('没有用上 3D 画面')"},
     {"eval": "if(NL.audio.playing())throw new Error('战斗中背景音乐应该暂停')"},
     {"clock": 1.0, "shot": "bt_intro"},
@@ -224,7 +258,7 @@ const FLOWS = [
   ["没有 WebGL 时退回 2D 战斗", [
     {"goto": "?reset#home", "wait": 300},
     {"click": ".dlg-btns .btn.pink", "wait": 200},
-    {"eval": "NL.loadThree=function(){return Promise.resolve(false)};NL.testClock=0;window.__bt=null;NL.ui.battle({enemy:{name:'林然',lv:5,power:60000},onEnd:function(w){window.__bt=w;}})", "wait": 800},
+    {"eval": "NL.loadThree=function(){return Promise.resolve(false)};NL.testClock=0;window.__bt=null;NL.ui.battleBeat({enemy:{name:'林然',lv:5,power:60000},onEnd:function(w){window.__bt=w;}})", "wait": 800},
     {"eval": "if(document.querySelector('.battle').dataset.renderer!=='2d')throw new Error('应该退回 2D 画面')"},
     {"clock": 2.8, "shot": "bt2d_dash"},
     {"clock": 3.2, "shot": "bt2d_after"},
@@ -235,10 +269,13 @@ const FLOWS = [
 ];
 
 (async () => {
+  // 版本号过期会让线上的老访客看到新旧混杂的页面,所以先查这个
+  let bad = 0;
+  try { require('child_process').execFileSync('python3', [path.join(__dirname, 'stamp.py'), '--check'], { stdio: 'pipe' }); console.log('✓ 版本号是最新的'); }
+  catch (e) { if (e.status === 1) { bad++; console.log('✗ ' + String(e.stdout).trim()); } else console.log('- 跳过版本号检查(没有 python3)'); }
   fs.mkdirSync(SHOTS, { recursive: true });
   const browser = await chromium.launch();
   const base = 'file://' + path.join(ROOT, 'index.html');
-  let bad = 0;
   for (const [title, steps] of FLOWS) {
     const page = await browser.newPage({ viewport: { width: 360, height: 781 }, deviceScaleFactor: 2 });
     const errs = [];

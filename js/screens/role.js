@@ -18,7 +18,7 @@
   game.gear = (uid) => NL.state.gear.find((g) => g.uid === uid);
   game.slotOf = (uid) => Object.keys(NL.state.equipped).find((k) => NL.state.equipped[k] === uid);
   // 录屏:面板战力 485 的项链穿上后战力 +535,约 1.1 倍;接口每级再加 1%
-  game.gearPower = (id, slot) => Math.round(D.equips[id].power * 1.1 * (1 + (NL.state.iface[slot] || 0) * 0.01));
+  game.gearPower = (id, slot) => Math.round((D.equips[id].eff || D.equips[id].power) * 1.1 * (1 + (NL.state.iface[slot] || 0) * 0.01));
   game.powerParts.push(() => Object.entries(NL.state.equipped).reduce((sum, [slot, uid]) => {
     const g = game.gear(uid);
     return g ? sum + game.gearPower(g.id, slot) : sum;
@@ -34,6 +34,13 @@
     game.gear(uid).isNew = false;
     NL.save(); NL.refresh();
     ui.toast('穿戴成功。', true);
+    ui.powerUp(game.power() - before);
+  };
+  game.unequip = function (slot) {
+    const before = game.power();
+    delete NL.state.equipped[slot];
+    NL.save(); NL.refresh();
+    ui.toast('卸下成功。', true);
     ui.powerUp(game.power() - before);
   };
   game.sortedGear = function () {
@@ -58,39 +65,55 @@
   ui.gearWin = function (uid, opts) {
     opts = opts || {};
     let m = null;
-    function draw(cur) {
-      if (m) m.close();
-      const g = game.gear(cur), e = g && D.equips[g.id];
-      m = ui.win({ title: '装备', top: opts.slot ? 62 : 108, hintTop: 628 });
-      const b = m.body;
+    // 上半部分:名字、部位、图、战力、套装、属性(详情和选装备两种窗口共用,坐标量自录屏 4:03 和 3:21)
+    function head(b, e, worn) {
       b.classList.add('gw');
-      if (!e) { b.appendChild(h('div.gw-none', '这个格子还没有可穿戴的装备')); return; }
-      const worn = game.slotOf(cur);
-      b.appendChild(h('div.gw-name', { style: { borderColor: D.rarity[e.rare][1] } }, e.name));
-      b.appendChild(h('div.gw-type', D.slotTypes[e.type]));
-      b.appendChild(h('div.gw-power', h('i', '💥'), h('span', '战力'), h('b', String(e.power)), h('u', '▲')));
-      b.appendChild(h('div.gw-ico', { style: { backgroundImage: NL.bg(e.icon) } }));
+      b.appendChild(h('i.gw-bar', { style: { background: D.rarity[e.rare][1] } }));
+      b.appendChild(h('div.gw-name', e.name));
+      b.appendChild(h('div.gw-type', h('i'), D.slotTypes[e.type]));
+      b.appendChild(h('div.gw-ico', { style: { backgroundImage: NL.bg(e.icon) } }, worn ? h('span', '已装备') : null, h('u')));
+      b.appendChild(h('div.gw-power', h('i'), h('span', '战力'), h('b', String(e.power), h('u', '▲'))));
+      b.appendChild(h('div.gw-dots'));
       b.appendChild(h('div.gw-set', '⊘ 无套装效果'));
       b.appendChild(h('div.gw-attrs',
         e.attr ? h('div', h('i.blue', '属性'), h('span', { html: e.attr.replace(/(\+.+)$/, '<em>$1</em>') })) : null,
         e.perk ? h('div', h('i', '权益'), h('span', { html: mark(e.perk) })) : null));
-      if (opts.slot) {
-        const type = D.slots.find((s) => s.id === opts.slot).type;
-        const list = game.sortedGear().filter((x) => D.equips[x.id].type === type && (!game.slotOf(x.uid) || game.slotOf(x.uid) === opts.slot));
-        b.appendChild(ui.sec('可选装备'));
-        b.appendChild(h('div.gw-grid.scroll', list.map((x) => gearCell(x, { sel: x.uid === cur, onclick: () => draw(x.uid) }))));
-        b.appendChild(h('button.btn.gw-ok.' + (worn ? 'dark' : 'purple'), { 'data-act': 'wear', onclick: () => { m.close(); if (!worn) game.equip(opts.slot, cur); } }, '穿戴'));
-      } else {
-        b.appendChild(ui.sec('描述'));
-        b.appendChild(h('div.gw-desc', e.desc));
-        b.appendChild(ui.sec('获取来源'));
-        e.src.forEach((t) => b.appendChild(h('div.gw-src', t, h('i'))));
-        b.appendChild(h('div.gw-btns',
-          h('button.btn.pink', { disabled: worn ? '' : null, onclick: () => { m.close(); game.dismantle([cur]); } }, h('small', '可获 晶片 ' + crystalOf(g.id)), '分解'),
-          h('button.btn.purple', { 'data-act': 'wear', disabled: worn ? '' : null, onclick: () => { m.close(); game.equip(slotFor(g.id), cur); } }, worn ? '已穿戴' : '穿戴')));
-      }
     }
-    draw(uid);
+    // 选装备:列出这个格子能穿的
+    function pick(cur) {
+      if (m) m.close();
+      const g = game.gear(cur), e = g && D.equips[g.id];
+      m = ui.win({ title: '装备', h: 533 });
+      const b = m.body;
+      if (!e) { b.appendChild(h('div.gw-none', '这个格子还没有可穿戴的装备')); return; }
+      const worn = game.slotOf(cur);
+      head(b, e, false);
+      const type = D.slots.find((s) => s.id === opts.slot).type;
+      const list = game.sortedGear().filter((x) => D.equips[x.id].type === type && (!game.slotOf(x.uid) || game.slotOf(x.uid) === opts.slot));
+      b.appendChild(ui.sec('可选装备', 252));
+      b.appendChild(h('div.gw-grid.scroll', list.map((x) => gearCell(x, { sel: x.uid === cur, onclick: () => pick(x.uid) }))));
+      b.appendChild(h('button.btn.gw-ok.' + (worn ? 'dark' : 'purple'), { 'data-act': 'wear', onclick: () => { m.close(); if (!worn) game.equip(opts.slot, cur); } }, '穿戴'));
+    }
+    // 详情:没穿的是「分解 / 穿戴」,穿着的是「卸下 / 替换」
+    function detail(cur) {
+      if (m) m.close();
+      const g = game.gear(cur), e = g && D.equips[g.id];
+      if (!e) return;
+      const worn = game.slotOf(cur);
+      m = ui.win({ title: '装备', h: 476 });
+      const b = m.body;
+      head(b, e, !!worn);
+      b.appendChild(ui.sec('描述', 256));
+      b.appendChild(h('div.gw-desc', e.desc));
+      b.appendChild(ui.sec('获取来源', 306));
+      e.src.slice(0, 2).forEach((t, i) => b.appendChild(h('div.gw-src', { style: { top: 328 + i * 28 } }, t, h('i'))));
+      b.appendChild(h('div.gw-btns', worn
+        ? [h('button.btn.pink', { 'data-act': 'unwear', onclick: () => { m.close(); game.unequip(worn); } }, '卸下'),
+          h('button.btn.dark', { 'data-act': 'swap', onclick: () => { opts.slot = worn; pick(cur); } }, '替换')]
+        : [h('button.btn.pink', { onclick: () => { m.close(); game.dismantle([cur]); } }, h('small', '可获 晶片 ' + crystalOf(g.id)), '分解'),
+          h('button.btn.purple', { 'data-act': 'wear', onclick: () => { m.close(); game.equip(opts.slot || slotFor(g.id), cur); } }, '穿戴')]));
+    }
+    if (opts.slot && !(game.gear(uid) && game.slotOf(uid))) pick(uid); else detail(uid);
   };
   function gearCell(g, o) {
     const e = D.equips[g.id];
@@ -102,19 +125,22 @@
   // 权益加成
   function perkWin() {
     let seg = 'perk';
-    const m = ui.win({ title: '权益加成', top: 136, hintTop: 690 });
+    const m = ui.win({ title: '权益加成', h: 533 });
     m.body.classList.add('pk');
+    const row = (i, tag, text, val, right, off) => h('div.pk-row' + (off ? '.off' : ''), { style: { top: 98 + i * 30.5 } }, h('i', tag), h('span', text + ' ', h('em', val)), h('b', right));
     function draw() {
       m.body.textContent = '';
       m.body.appendChild(h('div.seg', ['add', 'perk'].map((k) => h('button' + (seg === k ? '.on' : ''), { onclick: () => { seg = k; draw(); } }, k === 'add' ? '加成信息' : '权益信息'))));
       if (seg === 'perk') {
         m.body.appendChild(h('div.pk-top', ui.sec('线上权益'), h('span', '剩余有效时间')));
-        D.perks.forEach((p) => m.body.appendChild(h('div.pk-row', h('i', p[0]), h('span', p[1] + ' ', h('em', p[2])), h('b', p[3]))));
+        D.perks.forEach((p, i) => m.body.appendChild(row(i, p[0], p[1], p[2], p[3])));
+        // 录屏里还有第三条,和第一条同类型,被压成灰色并标了「同类型冲突」
+        m.body.appendChild(row(D.perks.length, D.perks[0][0], D.perks[0][1], D.perks[0][2], D.perks[0][3], true));
+        m.body.appendChild(h('div.pk-clash', { style: { top: 98 + D.perks.length * 30.5 - 10 } }, '同类型冲突'));
         m.body.appendChild(h('button.btn.pink.small.pk-src', { onclick: () => ui.toast('权益来自已穿戴的装备。') }, '详细来源'));
       } else {
         m.body.appendChild(h('div.pk-top', ui.sec('战力构成')));
-        [['等级', game.levelPower(NL.state.level)], ['装备', game.powerParts[1]()], ['基础', 12335]].forEach((p) =>
-          m.body.appendChild(h('div.pk-row', h('i', p[0]), h('span', '战力 ', h('em', '+' + p[1])), h('b', ''))));
+        [['等级', game.levelPower(NL.state.level)], ['装备', game.powerParts[1]()], ['基础', 12335]].forEach((p, i) => m.body.appendChild(row(i, p[0], '战力', '+' + p[1], '')));
       }
     }
     draw();
@@ -129,6 +155,8 @@
       const s = NL.state;
       root.appendChild(NL.sprite('role/' + tab + '.jpg', 0, 0, 360, 700));
       TABS.forEach(([k, y]) => root.appendChild(NL.hit(0, y - 2, 80, 32, () => { tab = k; NL.refresh(); }, { 'data-tab': k })));
+      // 引导开着时,原版在底部导航的「任务」上方一直有个箭头(以前是烙在底图上的)
+      if (s.guide === 'on') root.appendChild(h('div.guide-arrow', { style: { left: 229, top: 667 } }));
       if (tab !== 'enh' || true) {
         root.appendChild(h('div.role-power', NL.fmt.power(game.power())));
         root.appendChild(NL.hit(250, 666, 100, 30, perkWin, { 'data-act': 'perks' }));
@@ -159,7 +187,7 @@
         root.appendChild(NL.hit(20, 466, 200, 54, () => ui.toast('势力天赋暂未开放。')));
       } else {
         CHIPS.forEach(([x, y, kind], i) => root.appendChild(NL.hit(x, y, 58, 58, () => ui.win({
-          title: '选择芯片', top: 112, hintTop: 628,
+          title: '选择芯片', h: 476,
           body: h('div.chip-win', h('b', (i + 1) + ' 号槽 · ' + kind), h('span', '没有能放进这个槽的芯片')),
         }), { 'data-chip': i + 1 })));
         root.appendChild(NL.hit(122, 584, 120, 30, () => ui.toast('芯片背包是空的。')));

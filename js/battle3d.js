@@ -352,7 +352,7 @@
     if (window.THREE) return Promise.resolve(true);
     if (!loading) loading = new Promise((ok) => {
       const s = document.createElement('script');
-      s.src = 'vendor/three.min.js';
+      s.src = NL.ver('vendor/three.min.js');
       s.onload = () => ok(!!window.THREE);
       s.onerror = () => { loading = null; ok(false); };
       document.head.appendChild(s);

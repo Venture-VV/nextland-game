@@ -20,14 +20,15 @@
   /* ---------- 邮件 ---------- */
   function mailWin(m) {
     const [def, date] = MAILS[m.k];
-    ui.win({ title: def.title, dark: true, top: 190, hintTop: 628, body(b, w) {
+    ui.win({ title: '', dark: true, h: 417, body(b, w) {
       b.classList.add('ml-win');
-      b.appendChild(h('div.ml-from', '发件人：系统', h('span', date + ' 08:00:00')));
+      b.appendChild(h('div.ml-title', def.title));
+      b.appendChild(h('div.ml-from', '发件人：  系统', h('span', date + ' 08:00:00')));
       b.appendChild(h('div.ml-body', def.body));
-      b.appendChild(h('div.ml-items', def.items.map((it) => ui.itemEl(it.id, it.n))));
+      b.appendChild(h('div.ml-items', def.items.map((it) => { const d = D.items[it.id] || {}; const el = ui.itemEl(it.id, it.n); if (m.got) el.classList.add('got'); return h('div', el, h('span', d.name || '')); })));
       b.appendChild(m.got
-        ? h('button.btn.purple', { onclick: () => { w.close(); NL.state.mails.splice(NL.state.mails.indexOf(m), 1); NL.save(); NL.refresh(); ui.toast('删除成功。'); } }, '删除')
-        : h('button.btn.pink', { 'data-act': 'mail-get', onclick: () => { w.close(); m.got = true; game.award(def.items); } }, '领取'));
+        ? h('button.btn.pink', { 'data-act': 'mail-del', onclick: () => { w.close(); NL.state.mails.splice(NL.state.mails.indexOf(m), 1); NL.save(); NL.refresh(); ui.toast('删除成功。'); } }, '删除')
+        : h('button.btn.purple', { 'data-act': 'mail-get', onclick: () => { w.close(); m.got = true; game.award(def.items); } }, '领取'));
     } });
   }
   NL.screens.mail = {
@@ -39,20 +40,20 @@
       root.appendChild(h('div.ml-list.scroll', { 'data-keep': 'mail' }, s.mails.length ? s.mails.map((m) => {
         const [def, date, left] = MAILS[m.k];
         return h('button.ml-row' + (m.got ? '.read' : ''), { 'data-mail': m.k, onclick: () => mailWin(m) },
-          h('img', { src: NL.img(m.got ? 'mail/ico_read.jpg' : 'mail/ico.jpg'), draggable: 'false' }), h('b', def.title), h('span', date), h('em', '有效期: ' + left), m.got ? null : h('i', '!'));
+          h('img', { src: NL.img(m.got ? 'mail/ico_read.jpg' : 'mail/ico.jpg'), draggable: 'false' }), h('b', def.title), h('u'), h('span', date), h('em', '有效期: ' + left), m.got ? null : h('i', '!'));
       }) : h('div.ml-empty', '暂无邮件')));
-      root.appendChild(h('button.btn.pink.ml-del', { onclick: () => {
+      root.appendChild(h('button.ml-del', { 'data-act': 'mail-clear', onclick: () => {
         const n = s.mails.filter((m) => m.got).length;
         if (!n) return ui.toast('没有已读邮件。');
         s.mails = s.mails.filter((m) => !m.got); NL.save(); NL.refresh(); ui.toast('删除成功。');
-      } }, '删除已读'));
-      root.appendChild(h('button.btn.ml-all', { 'data-act': 'mail-all', onclick: () => {
+      } }));
+      root.appendChild(h('button.ml-all', { 'data-act': 'mail-all', onclick: () => {
         const todo = s.mails.filter((m) => !m.got);
         if (!todo.length) return ui.toast('没有可领取的邮件。');
         const sum = {};
         todo.forEach((m) => { m.got = true; MAILS[m.k][0].items.forEach((it) => (sum[it.id] = (sum[it.id] || 0) + it.n)); });
         game.award(Object.keys(sum).map((id) => ({ id, n: sum[id] })));
-      } }, '全部领取'));
+      } }));
     },
   };
 
@@ -153,7 +154,7 @@
       if (s.bound) root.appendChild(h('div.bd-done', '已绑定'));
       root.appendChild(NL.hit(105, 330, 150, 30, () => {
         if (s.bound) return ui.toast('已绑定新生乐园会员。');
-        ui.win({ title: '', dark: true, top: 200, hintTop: 634, body(b, w) {
+        ui.win({ title: '', dark: true, h: 367, body(b, w) {
           b.classList.add('bd-win');
           const phone = h('input.nl-input', { placeholder: '请输入手机号', inputmode: 'numeric', maxlength: '11' });
           const code = h('input.nl-input', { placeholder: '请输入验证码', inputmode: 'numeric', maxlength: '6' });
@@ -161,7 +162,7 @@
           b.appendChild(h('div.bd-t', '绑定新生乐园会员：'));
           b.appendChild(phone);
           b.appendChild(h('div.bd-code', code, h('button', { onclick: () => { code.value = '123456'; ui.toast('演示环境不会真的发短信，已自动填入。'); } }, '获取验证码')));
-          b.appendChild(h('label.bd-agree', agree, '我已经详细阅读并同意', h('em', '用户协议'), '和', h('em', '隐私政策'), '。'));
+          b.appendChild(h('label.bd-agree', agree, h('i'), '我已经详细阅读并同意', h('em', '用户协议'), '和', h('em', '隐私政策'), '。'));
           b.appendChild(h('button.btn.purple', { 'data-act': 'bind-ok', onclick: () => {
             if (!/^\d{11}$/.test(phone.value)) return ui.toast('请输入 11 位手机号。');
             if (!code.value) return ui.toast('请输入验证码。');
@@ -177,19 +178,25 @@
 
   /* ---------- 设置、兑换码 ---------- */
   ui.settings = function () {
-    ui.win({ title: '设置', dark: true, top: 262, hintTop: 690, body(b, w) {
-      b.classList.add('set-win');
-      const btn = (t, fn) => b.appendChild(h('button.btn.purple', { onclick: fn }, t));
-      btn('扫码', () => { w.close(); const input = h('input.nl-input', { placeholder: '点击输入兑换码' });
-        ui.dialog({ extra: input, buttons: [{ text: '取消', cls: 'pink' }, { text: '确认', cls: 'purple', onClick: () => ui.toast(input.value ? '兑换码无效。' : '请输入兑换码。') }] }); });
-      btn('切换账号', () => ui.toast('演示版只有一个本机存档。'));
-      btn('退出登录', () => { w.close(); NL.go('login'); });
-      const sw = h('button.set-switch', { 'data-act': 'set-sound', onclick: () => { NL.audio.toggle(); paint(); } });
-      const paint = () => { sw.classList.toggle('on', NL.audio.on()); sw.textContent = NL.audio.on() ? '开' : '关'; };
-      paint();
-      b.appendChild(h('div.set-row', '背景音乐', sw));
-      b.appendChild(h('div.set-id', '玩家编号:' + NL.state.uid));
-    } });
+    const m = ui.mask({});
+    const hit = (y, fn) => NL.hit(54, y, 180, 30, fn);
+    const sw = h('button.set-switch', { 'data-act': 'set-sound', onclick: () => { NL.audio.toggle(); paint(); } });
+    const paint = () => { sw.classList.toggle('on', NL.audio.on()); sw.textContent = NL.audio.on() ? '开' : '关'; };
+    paint();
+    m.el.appendChild(h('div.set-win', NL.sprite('ui/settings.jpg', 0, 0, 330, 238),
+      hit(67, () => { m.close(); const input = h('input.nl-input', { placeholder: '点击输入兑换码' });
+        ui.dialog({ extra: input, buttons: [{ text: '取消', cls: 'pink' }, { text: '确认', cls: 'purple', onClick: () => ui.toast(input.value ? '兑换码无效。' : '请输入兑换码。') }] }); }),
+      hit(110, () => ui.toast('演示版只有一个本机存档。')),
+      hit(152, () => { m.close(); NL.go('login'); }),
+      NL.hit(286, 0, 44, 30, () => m.close()),
+      h('div.set-id', '玩家编号:' + NL.state.uid)));
+    const sw2 = h('button.set-switch', { 'data-act': 'set-beat', onclick: () => { NL.state.battleMode = NL.state.battleMode === 'beat' ? 'classic' : 'beat'; NL.save(); paint2(); } });
+    const paint2 = () => { const on = NL.state.battleMode === 'beat'; sw2.classList.toggle('on', on); sw2.textContent = on ? '开' : '关'; };
+    paint2();
+    // 下面两行是网页版加的,原版没有:声音开关,和把战斗换成 3D 节拍对决的开关
+    m.el.appendChild(h('div.set-row', '背景音乐', sw));
+    m.el.appendChild(h('div.set-row.two', h('span', '扩展玩法：节拍对决', h('small', '战斗改成可以格挡、爆发的 3D 版')), sw2));
+    m.el.appendChild(h('div.close-hint.abs', { style: { left: 0, width: 360, top: 686, textAlign: 'center', margin: 0 } }, '点击空白处关闭。'));
   };
 
   /* ---------- 活动日历 ---------- */
@@ -199,31 +206,35 @@
     let seg = 0;
     const now = new Date(), dow = (now.getDay() + 6) % 7;
     let pick = dow;
-    const w = ui.win({ title: '', top: 138, hintTop: 690, cls: 'cal' });
+    const w = ui.mask({});
+    const box = h('div.cal');
+    w.el.appendChild(box);
+    w.el.appendChild(h('div.close-hint.abs', { style: { left: 0, width: 360, top: 686, textAlign: 'center', margin: 0 } }, '点击空白处关闭。'));
     function draw() {
-      const b = w.body;
-      b.textContent = '';
-      b.appendChild(h('div.cal-head', '活动日历', h('button.win-close', { onclick: () => w.close() })));
-      b.appendChild(h('div.seg.light', ['活动日历', 'NPC驻场日历'].map((t, i) => h('button' + (seg === i ? '.on' : ''), { onclick: () => { seg = i; draw(); } }, t))));
-      b.appendChild(h('div.cal-week', '一二三四五六日'.split('').map((c, i) => {
+      box.textContent = '';
+      box.appendChild(NL.sprite('ui/cal_head.jpg', 0, 0, 330, 44.5));
+      box.appendChild(NL.sprite('ui/cal_foot.jpg', 0, 475, 330, 52));
+      box.appendChild(NL.hit(286, 0, 44, 30, () => w.close()));
+      box.appendChild(h('div.seg.light', ['活动日历', 'NPC驻场日历'].map((t, i) => h('button' + (seg === i ? '.on' : ''), { onclick: () => { seg = i; draw(); } }, t))));
+      box.appendChild(h('div.cal-week', h('i'), '一二三四五六日'.split('').map((c, i) => {
         const d = new Date(now); d.setDate(now.getDate() - dow + i);
         return h('button' + (i === pick ? '.on' : ''), { onclick: () => { pick = i; draw(); } }, h('b', c), (d.getMonth() + 1) + '.' + d.getDate());
-      })));
-      b.appendChild(h('div.cal-empty', seg ? '当日暂无 NPC 驻场' : '当日暂无符合条件的活动'));
-      b.appendChild(h('button.btn.dark.small.cal-filter', { 'data-act': 'cal-filter', onclick: filter }, '筛选'));
-      b.appendChild(h('button.btn.purple.cal-mine', { onclick: () => ui.toast('暂无预约。') }, '我的预约'));
+      }), h('u')));
+      box.appendChild(h('div.cal-empty', seg ? '当日暂无 NPC 驻场' : '当日暂无符合条件的活动'));
+      box.appendChild(NL.hit(12, 482, 72, 34, filter, { 'data-act': 'cal-filter' }));
+      box.appendChild(NL.hit(196, 478, 124, 40, () => ui.toast('暂无预约。')));
     }
     function filter() {
       const f = Object.assign({}, NL.state.calFilter);
-      const fw = ui.win({ title: '筛选', top: 150, hintTop: 690, body(b) {
+      const fw = ui.win({ title: '筛选', h: 476, body(b) {
         b.classList.add('flt');
-        const group = (name, key, list) => {
-          b.appendChild(ui.sec(name));
-          const box = h('div.flt-grid');
-          const paint = () => { box.textContent = ''; list.forEach((t) => box.appendChild(h('button' + (f[key] === t ? '.on' : ''), { onclick: () => { f[key] = t; paint(); } }, t))); };
-          paint(); b.appendChild(box);
+        const group = (name, key, list, top) => {
+          b.appendChild(ui.sec(name, top));
+          const grid = h('div.flt-grid', { style: { top: top + 23 } });
+          const paint = () => { grid.textContent = ''; list.forEach((t) => grid.appendChild(h('button' + (f[key] === t ? '.on' : ''), { onclick: () => { f[key] = t; paint(); } }, t))); };
+          paint(); b.appendChild(grid);
         };
-        group('票券', 'act', ACTS); group('商户', 'zone', ZONES);
+        group('票券', 'act', ACTS, 14); group('商户', 'zone', ZONES, 132);
         b.appendChild(h('div.flt-btns', h('button.btn.dark', { onclick: () => { fw.close(); NL.state.calFilter = { act: ACTS[0], zone: ZONES[0] }; NL.save(); } }, '重置'),
           h('button.btn.purple', { onclick: () => { fw.close(); NL.state.calFilter = f; NL.save(); } }, '确认')));
       } });
@@ -233,15 +244,16 @@
 
   /* ---------- 互动(探索) ---------- */
   ui.interact = function () {
-    ui.win({ title: '互动', top: 178, hintTop: 690, body(b, w) {
-      b.classList.add('itx');
-      const input = h('input.nl-input', { placeholder: '请输入编码' });
-      b.appendChild(h('div.itx-card', h('span', '请输入正确编码'), input, h('button.btn.purple.small', { onclick: () => ui.toast(input.value ? '编码不正确。' : '请输入编码。') }, '确认')));
-      const go = (t, fn) => h('button', { onclick: () => { w.close(); fn(); } }, t);
-      b.appendChild(h('div.itx-grid',
-        go('我的ID', () => ui.dialog({ html: '我的ID：<em>' + NL.state.uid + '</em>' })), go('前往绑定', () => NL.go('bind')),
-        go('前往任务', () => NL.go('mission')), go('前往票券', () => NL.go('tickets')),
-        go('涂鸦暗号', () => ui.toast('附近没有可识别的涂鸦。')), go('调频密码', () => ui.toast('附近没有可调频的终端。'))));
-    } });
+    const m = ui.mask({});
+    const input = h('input.itx-input', { placeholder: '请输入编码' });
+    const go = (col, row, fn) => NL.hit(22 + col * 146, 290 + row * 46, 140, 34, () => { m.close(); fn(); });
+    m.el.appendChild(h('div.itx', NL.sprite('ui/interact.jpg', 0, 0, 330, 448), input,
+      NL.hit(118, 185, 94, 26, () => ui.toast(input.value ? '编码不正确。' : '请输入编码。')),
+      NL.hit(254, 42, 62, 62, () => ui.toast('请靠近园区内的互动点后再扫码。')),
+      NL.hit(286, 0, 44, 28, () => m.close()),
+      go(0, 0, () => ui.dialog({ html: '我的ID：<em>' + NL.state.uid + '</em>' })), go(1, 0, () => NL.go('bind')),
+      go(0, 1, () => NL.go('mission')), go(1, 1, () => NL.go('tickets')),
+      go(0, 2, () => ui.toast('附近没有可识别的涂鸦。')), go(1, 2, () => ui.toast('附近没有可调频的终端。'))));
+    m.el.appendChild(h('div.close-hint.abs', { style: { left: 0, width: 360, top: 686, textAlign: 'center', margin: 0 } }, '点击空白处关闭。'));
   };
 })();

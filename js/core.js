@@ -45,6 +45,8 @@
       else el.appendChild(k.nodeType ? k : document.createTextNode(String(k)));
     }
   }
+  // 给由脚本按需加载的文件带上版本号(版本号由 tools/stamp.py 写进页面)
+  NL.ver = (path) => { const v = window.NL_VER && window.NL_VER.files[path]; return v ? path + '?v=' + v : path; };
   NL.img = (p) => 'assets/img/' + p;
   NL.bg = (p) => 'url(' + NL.img(p) + ')';
   // 绝对定位的图片;x/y/w/h 用设计尺寸（录屏像素的一半）
@@ -178,15 +180,17 @@
     o = o || {};
     return ui.dialog({ html, buttons: [{ text: o.cancelText || '取消', cls: 'pink', onClick: o.onCancel }, { text: o.okText || '确认', cls: 'purple', onClick: onOk }] });
   };
-  // 紫色标题弹窗
+  // 紫色标题弹窗。录屏里所有弹窗都以 y=403 为中心上下居中,所以给总高度 h 就行;
+  // dark 是深色那一套(邮件、设置、绑定),标题条和底边取自录屏
   ui.win = function (opts) {
     const m = ui.mask({ onClose: opts.onClose, dismiss: opts.dismiss });
     const body = h('div.win-body', opts.bodyAttrs || null);
-    const win = h('div.win' + (opts.dark ? '.dark' : ''), { style: { top: opts.top == null ? 165 : opts.top } },
-      h('div.win-head', opts.title || '', h('button.win-close', { onclick: () => m.close() })), body);
+    const hh = opts.h || 448;
+    const win = h('div.win' + (opts.dark ? '.dark' : ''), { style: { top: opts.top == null ? Math.round(403 - hh / 2) : opts.top, height: hh } },
+      h('div.win-head', opts.title || '', h('button.win-close', { onclick: () => m.close() })), body, opts.dark ? h('div.win-foot') : null);
     if (opts.cls) win.classList.add(opts.cls);
     m.el.appendChild(win);
-    if (opts.hint !== false) m.el.appendChild(h('div.close-hint.abs', { style: { left: 0, width: 360, top: opts.hintTop || 618, textAlign: 'center', margin: 0 } }, '点击空白处关闭。'));
+    if (opts.hint !== false) m.el.appendChild(h('div.close-hint.abs', { style: { left: 0, width: 360, top: opts.hintTop || 686, textAlign: 'center', margin: 0 } }, '点击空白处关闭。'));
     m.body = body;
     m.win = win;
     if (opts.body) typeof opts.body === 'function' ? opts.body(body, m) : body.appendChild(opts.body);

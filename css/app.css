@@ -87,7 +87,7 @@ input { font: inherit; }
 .mask.clear { background: transparent; }
 @keyframes fade { from { opacity: 0; } }
 @keyframes pop { from { transform: scale(.94); opacity: 0; } }
-.close-hint { font-size: 9.5px; color: rgba(255, 255, 255, .7); margin-top: 26px; pointer-events: none; }
+.close-hint { font-size: 10px; color: rgba(255, 255, 255, .7); margin-top: 26px; pointer-events: none; }
 
 /* 白底「提示」对话框 */
 .dlg { position: absolute; left: 0; width: 360px; top: 320px; animation: pop .16s ease-out; }
@@ -96,17 +96,22 @@ input { font: inherit; }
 .dlg-body em { font-style: normal; color: #ff7a00; }
 .dlg-btns { display: flex; justify-content: center; gap: 27px; margin-top: -15px; }
 
-/* 紫色标题弹窗 */
-.win { position: absolute; left: 7px; width: 346px; animation: pop .16s ease-out; filter: drop-shadow(0 0 0 #e514e0); }
-.win-head { height: 27px; background: #6c16f5; color: #fff; font-size: 13.5px; line-height: 27px; text-align: center; position: relative; border-radius: 3px 3px 0 0; }
-.win-close { position: absolute; right: 8px; top: 0; width: 34px; height: 27px; }
-.win-close::before, .win-close::after { content: ""; position: absolute; left: 8px; top: 12px; width: 18px; height: 3.5px; background: #fff; transform: rotate(45deg); }
+/* 紫色标题弹窗:外框从上到下由紫渐变到品红,里面是一块圆角浅灰板,三个角有小金三角(都量自录屏) */
+.win { position: absolute; left: 15px; width: 330px; display: flex; flex-direction: column; padding: 0 4px 4px; border-radius: 2px; background: linear-gradient(180deg, #7207f5 0, #7207f5 28px, #d800cf 100%); animation: pop .16s ease-out; }
+.win-head { flex: none; height: 28px; color: #fff; font-size: 15px; font-weight: 700; line-height: 27px; text-align: center; position: relative; letter-spacing: .5px; }
+.win-close { position: absolute; right: 8px; top: 0; width: 34px; height: 28px; }
+.win-close::before, .win-close::after { content: ""; position: absolute; left: 6px; top: 12px; width: 22px; height: 3.5px; background: #fff; transform: rotate(45deg); }
 .win-close::after { transform: rotate(-45deg); }
-.win-body { background: #f0eff2; color: #333; border: 2.5px solid #e514e0; border-top: 0; min-height: 120px; position: relative; }
-.win-body::before, .win-body::after { content: ""; position: absolute; width: 0; height: 0; border: 4px solid transparent; }
-.win-body::before { left: 3px; top: 3px; border-left-color: #b9a36a; border-top-color: #b9a36a; }
-.win-body::after { right: 3px; bottom: 3px; border-right-color: #b9a36a; border-bottom-color: #b9a36a; }
-.win.dark .win-body { background: #17141d; color: #fff; border-color: #6c16f5; }
+.win-body { flex: 1; min-height: 0; position: relative; border-radius: 6px; color: #333;
+  background: linear-gradient(135deg, #b9a36a 5px, transparent 5.5px) 3px 3px / 12px 12px no-repeat,
+    linear-gradient(45deg, #b9a36a 5px, transparent 5.5px) 3px calc(100% - 3px) / 12px 12px no-repeat,
+    linear-gradient(315deg, #b9a36a 5px, transparent 5.5px) calc(100% - 3px) calc(100% - 3px) / 12px 12px no-repeat, #e8e8ea; }
+.win.dark { left: 14px; width: 333px; padding: 0; background: none; }
+.win.dark .win-head { height: 30px; line-height: 30px; font-size: 16px; border-radius: 9px 9px 0 0; background: url(../assets/img/ui/wd_head.jpg) center/333px 30px; }
+.win.dark .win-close { opacity: 0; right: 4px; width: 44px; height: 30px; }
+.win.dark .win-body { border-radius: 0; border: solid #6b17c7; border-width: 0 2px; color: #fff;
+  background: linear-gradient(135deg, #b9a36a 5px, transparent 5.5px) 3px 4px / 12px 12px no-repeat, #181619; }
+.win.dark .win-foot { flex: none; height: 24px; border-radius: 0 0 9px 9px; background: url(../assets/img/ui/wd_foot.jpg) center/333px 24px; }
 
 /* 获得物品 */
 .reward { position: absolute; left: 0; top: 307px; width: 360px; animation: pop .18s ease-out; }
@@ -138,8 +143,9 @@ input { font: inherit; }
 /* 引导箭头 */
 .guide-arrow { position: absolute; width: 0; height: 0; border: 16px solid transparent; border-top: 30px solid #f414dc; border-bottom: 0; filter: drop-shadow(0 0 4px rgba(244, 20, 220, .7)); animation: bob .7s ease-in-out infinite alternate; z-index: 8; pointer-events: none; }
 @keyframes bob { to { transform: translateY(8px); } }
-.guide-tip { position: absolute; padding: 6px 10px; background: #0c0a10; border: 1.5px solid #f414dc; color: #fff; font-size: 14px; z-index: 8; pointer-events: none; max-width: 250px; line-height: 1.25; }
+.guide-tip { position: absolute; padding: 7px 11px; background: #0c0a10; border: 1.5px solid #f414dc; color: #fff; font-size: 14px; font-weight: 700; z-index: 8; pointer-events: none; max-width: 250px; line-height: 1.25; }
 .guide-dim { position: absolute; inset: 0; background: rgba(14, 8, 24, .45); pointer-events: none; z-index: 7; }
+.guide-dim.full { background: rgba(10, 6, 18, .5); }
 .reward-body .item { width: 50px; height: 50px; }
 .reward-body .item b { font-size: 8.5px; right: 2px; bottom: 1px; }
 .btn.abs { position: absolute; }

@@ -21,7 +21,7 @@
       root.appendChild(h('div.rk-left', '次数 ' + r.left + '/5'));
       if (r.place) root.appendChild(h('div.rk-place', '第' + r.place + '名'));
       root.appendChild(NL.hit(34, 30, 60, 30, () => ui.toast('每周结算一次排名奖励。')));
-      root.appendChild(NL.hit(296, 76, 58, 50, () => ui.win({ title: '', top: 138, hintTop: 690, cls: 'bare', body: (b, m) => { b.appendChild(h('img', { src: NL.img('rank/rewards.jpg'), style: 'display:block;width:330px;height:527px' })); b.appendChild(NL.hit(286, 0, 44, 30, () => m.close())); } }), { 'data-act': 'rk-info' }));
+      root.appendChild(NL.hit(296, 76, 58, 50, () => ui.win({ title: '', top: 138, h: 527, cls: 'bare', body: (b, m) => { b.appendChild(h('img', { src: NL.img('rank/rewards.jpg'), style: 'display:block;width:330px;height:527px' })); b.appendChild(NL.hit(286, 0, 44, 30, () => m.close())); } }), { 'data-act': 'rk-info' }));
       root.appendChild(NL.hit(296, 138, 58, 52, () => {
         const n = Math.floor(((Date.now() - r.idleAt) / 3600e3) * PER_HOUR);
         if (n < 1) return ui.toast('挂机奖励还在累积中。');

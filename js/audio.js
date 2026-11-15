@@ -24,7 +24,7 @@
   function sync() {
     const play = A.on() && unlocked && !inBattle && !document.hidden;
     if (play) {
-      if (!bgm) { bgm = new Audio('assets/audio/bgm.mp3'); bgm.loop = true; bgm.volume = 0.5; bgm.preload = 'auto'; }
+      if (!bgm) { bgm = new Audio(NL.ver('assets/audio/bgm.mp3')); bgm.loop = true; bgm.volume = 0.5; bgm.preload = 'auto'; }
       if (!bgm.paused) return finish();
       const p = bgm.play();
       if (p && p.catch) p.catch(() => {});

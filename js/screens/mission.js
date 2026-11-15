@@ -32,7 +32,7 @@
     NL.save();
   };
 
-  NL.ui.sec = (t) => h('div.sec-label', h('span', t)); // 小黑标签 + 横线的分节标题
+  NL.ui.sec = (t, top) => h('div.sec-label', top == null ? null : { style: { top } }, h('span', t)); // 小黑标签 + 横线的分节标题;top 是在弹窗里的纵坐标
 
   /* ---------- 任务状态 ---------- */
   function st(t) { return NL.state.tasks[t.id] || {}; }
@@ -96,7 +96,7 @@
   function detail(t) {
     const pr = progress(t);
     NL.ui.win({
-      title: '任务', top: 82,
+      title: '任务', h: 448,
       body(b) {
         b.classList.add('tk-detail');
         b.appendChild(titleEl(t, true));
@@ -113,11 +113,12 @@
   NL.ui.itemInfo = function (id) {
     const d = D.items[id];
     if (!d) return;
-    const m = NL.ui.mask({ clear: true });
+    const m = NL.ui.mask({});
+    m.el.classList.add('soft');
     m.el.appendChild(h('div.info-pop',
       h('div.info-head', 'ⓘ INFO'),
       h('div.info-body',
-        h('div.info-name', d.name), h('div.info-kind', d.kind || ''),
+        h('div.info-name', d.name), h('div.info-kind', h('i'), d.kind || ''),
         h('div.info-ico', { style: { backgroundImage: NL.bg(d.icon) } }),
         NL.ui.sec('描述'), h('div.info-desc', d.desc || ''))));
   };
@@ -161,7 +162,8 @@
     list.appendChild(h('div.dp-clock', h('i'), clock));
     timer = setInterval(() => (clock.textContent = NL.fmt.untilReset() + '后刷新'), 1000);
     const rank = (t) => (d.claimed[t.id] ? 2 : (d.c[t.ev] || 0) >= 1 ? 0 : 1);
-    D.dailyTasks.slice().sort((a, b) => rank(a) - rank(b)).forEach((t) => {
+    const ORDER = ['d3', 'd4', 'd1', 'd5', 'd2']; // 录屏里没做任何日常时的顺序
+    D.dailyTasks.slice().sort((a, b) => rank(a) - rank(b) || ORDER.indexOf(a.id) - ORDER.indexOf(b.id)).forEach((t) => {
       const r = rank(t), p = Math.min(1, d.c[t.ev] || 0);
       list.appendChild(h('div.tk-card.daily', { 'data-task': t.id },
         h('img.tk-ico', { src: NL.img('mission/ico_daily.jpg'), draggable: 'false' }),
@@ -182,7 +184,7 @@
       root.appendChild(NL.sprite('mission/banner.jpg', 0, 0, 360, 104));
       root.appendChild(h('div.tabs2', ['daily', 'task'].map((k) =>
         h('button' + (tab === k ? '.on' : ''), { 'data-tab': k, onclick: () => { tab = k; NL.refresh(); } }, k === 'daily' ? '日常' : '任务'))));
-      const list = h('div.tk-list.scroll', { 'data-keep': 'mission-' + tab });
+      const list = h('div.tk-list.scroll.' + tab, { 'data-keep': 'mission-' + tab });
       root.appendChild(list);
       if (tab === 'daily') renderDaily(list);
       else {
@@ -191,13 +193,11 @@
       }
       // 线下引导
       if (s.guide === 'on' && s.guideStep === 1) {
-        if (tab === 'daily') {
-          root.appendChild(h('div.guide-tip', { style: { left: 2, top: 146, width: 232 } }, '【引导】任务在「剧情」页签的最上面'));
-          root.appendChild(h('div.guide-arrow', { style: { left: 254, top: 72 } }));
-        } else if (open.main) {
-          root.appendChild(h('div.guide-tip', { style: { left: 16, top: 262 } }, '领取奖励，下一步会接着出现在这里'));
-          root.appendChild(h('div.guide-arrow', { style: { left: 279, top: 188 } }));
-        }
+        if (tab === 'daily') { // 录屏:整页压暗,只留提示和箭头
+          root.appendChild(h('div.guide-dim.full'));
+          root.appendChild(h('div.guide-tip', { style: { left: 5, top: 154, width: 268 } }, '【引导】任务在「剧情」页签的最上面'));
+          root.appendChild(h('div.guide-arrow', { style: { left: 250, top: 68 } }));
+        } else if (open.main) root.appendChild(h('div.guide-arrow', { style: { left: 95, top: 150 } }));
       }
     },
     leave() { clearInterval(timer); },
