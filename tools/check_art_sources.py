@@ -25,11 +25,11 @@ def main():
     for cid, c in cast.items():
         if cid.startswith("_"):
             continue
-        for kind in ("art", "card", "face"):
+        for kind in ("card", "face") + (("cut",) if c.get("cut") else ()):
             src["partner/%s_%s.webp" % (kind, cid)] = c["master"]
     src["battle/me.jpg"] = cast["hero"]["master"]
     src["battle/enemy.jpg"] = cast["rival"]["master"]
-    for key in ("_backgrounds", "_story"):
+    for key in ("_backgrounds", "_story", "_derived"):  # _derived:从里的图改出来的(地图、平面图),母版由 tools/build_biao_map.py 出
         src.update(cast.get(key, {}))
     for dst, sc in cast.get("_scenes", {}).items():
         src[dst] = sc["master"]

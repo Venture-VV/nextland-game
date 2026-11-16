@@ -216,33 +216,44 @@
       }
     },
     // 表的画法:夜色底 + 主角立绘 + 自己排的面板。页签、装备格、芯片槽、权益加成和里一一对应
+    // 表的画法:主角是抠出来的透明底全身像,站在页面自己画的舞台上(光柱、光环、远处的城市),不是贴一张方图。
+    // 装备页把十个装备格分列在主角两侧;其余三页在下面的面板里。能点的东西和里一一对应
     renderBiao(root) {
       const s = NL.state;
       root.classList.add('bp');
       root.classList.add('br');
-      root.appendChild(h('div.bp-art' + (NL.biaoAssets['partner/art_hero.webp'] ? '' : '.none'), NL.biaoAssets['partner/art_hero.webp'] ? { style: { backgroundImage: NL.bg('partner/art_hero.webp') } } : null));
-      root.appendChild(h('div.bp-name', h('b', s.name), h('i', '改造者'), h('span', '角色档案')));
+      root.appendChild(h('div.br-city', { style: { backgroundImage: NL.bg('home/bg.webp') } }));
+      root.appendChild(h('div.br-mark', 'CYBORG'));
+      root.appendChild(h('div.br-beam'));
+      root.appendChild(h('div.br-stage'));
+      root.appendChild(h('div.br-hero', { style: { backgroundImage: NL.bg('partner/cut_hero.webp') } }));
+      root.appendChild(h('div.bp-name', h('b', s.name), h('i', '改造者'), h('span', 'Lv.' + s.level + '　角色档案')));
+      if (tab === 'equip') {
+        const SIDE = { l: ['head', 'neck', 'armor', 'pants', 'shoes'], r: ['weapon', 'hand1', 'hand2', 'hand3', 'hand4'] }; // 左边是穿在身上的,右边是拿在手上的
+        root.appendChild(h('div.br-slots', Object.keys(SIDE).map((side) => h('div.' + side, SIDE[side].map((id) => {
+          const sl = D.slots.find((x) => x.id === id), g = game.gear(s.equipped[id]);
+          return h('button' + (g ? '.has' : ''), { 'data-slot': id, onclick: () => openSlot(sl) },
+            g ? h('img', { src: NL.img(D.equips[g.id].icon), draggable: 'false' }) : h('em', '+'), h('span', sl.name), s.iface[id] ? h('u', '+' + s.iface[id]) : null);
+        })))));
+      }
       root.appendChild(h('div.br-tabs', [['profile', '档案'], ['equip', '装备'], ['enh', '强化'], ['chip', '芯片']].map(([k, name]) =>
         h('button' + (tab === k ? '.on' : ''), { 'data-tab': k, onclick: () => { tab = k; NL.refresh(); } }, name))));
       if (s.guide === 'on') root.appendChild(h('div.guide-arrow', { style: { left: 229, top: 667 } }));
-      const panel = h('div.br-panel');
+      const panel = h('div.br-panel.' + tab);
       root.appendChild(panel);
       if (tab === 'profile') {
         const need = game.expNeed(s.level);
-        panel.appendChild(h('div.br-lv', h('b', 'Lv.' + s.level), h('span', s.exp + '/' + need), h('div.bar', h('i', { style: { width: Math.min(100, (s.exp / need) * 100) + '%' } }))));
+        panel.appendChild(h('div.br-lv', h('b', 'Lv.' + s.level), h('span', '经验 ' + s.exp + ' / ' + need), h('div.bar', h('i', { style: { width: Math.min(100, (s.exp / need) * 100) + '%' } }))));
         panel.appendChild(h('div.br-rows',
           h('button', { onclick: () => NL.go('faction') }, h('span', '势力'), '查看'),
           h('button', { onclick: () => ui.toast('种族：改造者') }, h('span', '种族'), '改造者')));
       } else if (tab === 'equip') {
-        panel.appendChild(h('div.br-slots', D.slots.map((sl) => {
-          const g = game.gear(s.equipped[sl.id]);
-          return h('button' + (g ? '.has' : ''), { 'data-slot': sl.id, onclick: () => openSlot(sl) },
-            g ? h('img', { src: NL.img(D.equips[g.id].icon), draggable: 'false' }) : null, h('span', sl.name), s.iface[sl.id] ? h('u', '+' + s.iface[sl.id]) : null);
-        })));
+        const worn = D.slots.filter((sl) => s.equipped[sl.id]).length;
+        panel.appendChild(h('div.br-hint', h('b', '已穿戴 ' + worn + ' / ' + D.slots.length), h('span', '点主角两侧的格子更换装备')));
         panel.appendChild(h('button.br-link', { onclick: () => ui.toast('暂无可激活的套装。') }, '全部套装 ›'));
       } else if (tab === 'enh') {
         panel.appendChild(h('div.br-list',
-          h('button', { 'data-act': 'iface', onclick: () => NL.go('iface') }, h('b', '接口升级'), h('span', '提高每个装备格的加成')),
+          h('button', { 'data-act': 'iface', onclick: () => NL.go('iface') }, h('b', '接口升级'), h('span', '提高装备格的加成')),
           h('button', { onclick: () => ui.toast('种族天赋暂未开放。') }, h('b', '种族天赋'), h('span', '暂未开放')),
           h('button', { onclick: () => ui.toast('势力天赋暂未开放。') }, h('b', '势力天赋'), h('span', '暂未开放'))));
       } else {

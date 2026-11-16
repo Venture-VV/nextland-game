@@ -17,8 +17,8 @@
       root.classList.add('bp');
       root.classList.add('bl');
       [['ling', -96, 150, 0.82], ['guxuan', 104, 150, 0.82], ['jiguang', 0, 96, 1]].forEach(([id, x, y, k]) => {
-        const path = 'partner/art_' + id + '.webp';
-        if (NL.biaoAssets[path]) root.appendChild(h('div.bl-art' + (k === 1 ? '.main' : ''), { style: { left: x, top: y, width: 360 * k, height: 526 * k, backgroundImage: NL.bg(path), backgroundSize: 360 * k + 'px ' + 526 * k + 'px' } }));
+        const path = 'partner/cut_' + id + '.webp';
+        if (NL.biaoAssets[path]) root.appendChild(h('div.bl-art' + (k === 1 ? '.main' : ''), { style: { left: x, top: y, width: 360 * k, height: 526 * k, backgroundImage: NL.bg(path) } }));
       });
       root.appendChild(h('div.bl-title', h('i', 'NEXTLAND'), h('b', '新生乐园世界'), h('span', '表 · 契约之夜')));
       root.appendChild(h('button.btn.purple.bl-enter', { 'data-act': 'enter', onclick: enter }, '进入游戏'));

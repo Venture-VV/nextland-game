@@ -284,14 +284,16 @@
   let quickOpen = false, advMap = null;
   NL.screens.adventure = {
     title: '冒险',
-    // 表:不用那张像素地图,三个地点各是一张场景卡;「快速抵达」把卡片收成紧凑的一列
+    // 表:和里一样是那张可以拖的地图(表的配色);「快速抵达」展开的是三张场景卡
     renderBiao(root) {
       root.classList.add('ba');
-      root.appendChild(h('div.bs-bg', { style: { backgroundImage: NL.bg('stage/adventure.webp') } }));
+      advMap = ui.parkMap((id) => NL.go('stages', { zone: id }));
+      root.appendChild(advMap.el);
+      root.appendChild(h('div.bh-shade'));
       ui.head(root, null, 0, 0, 360, 132, 'ADVENTURE', '冒险');
       root.appendChild(ui.energyPill(253, 100));
       root.appendChild(h('button.ba-quick' + (quickOpen ? '.open' : ''), { 'data-act': 'quick', onclick: () => { quickOpen = !quickOpen; NL.refresh(); } }, '快速抵达', h('i')));
-      root.appendChild(h('div.ba-zones.scroll' + (quickOpen ? '.compact' : ''), { 'data-keep': 'adv' }, Object.keys(D.zones).map((id) => {
+      if (quickOpen) root.appendChild(h('div.ba-zones.scroll', { 'data-keep': 'adv' }, Object.keys(D.zones).map((id) => {
         const z = D.zones[id], cleared = NL.state.stages[id] || 0;
         return h('button.ba-zone', { 'data-zone': id, style: { backgroundImage: NL.bg('stage/zone_' + id + '.webp') }, onclick: () => { quickOpen = false; NL.go('stages', { zone: id }); } },
           h('i', 'PART ' + z.part), h('b', z.name), h('span', z.desc), h('em', cleared + ' / ' + D.stageCount), h('u', h('s', { style: { width: (cleared / D.stageCount) * 100 + '%' } })));
