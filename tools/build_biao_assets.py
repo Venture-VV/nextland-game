@@ -13,6 +13,7 @@ art/biao/cast.json 记着每个角色用哪张母版、脸在哪、卡面裁哪�
 有 art/biao/hires/ 里的高清版(tools/upscale.py 出的)就从高清版裁,没有就从母版裁。
     battle/me.jpg、battle/enemy.jpg  战斗里的头像(和里的同名),另有 js/embed_biao.js 给 3D 战斗用
     cast.json 里 _backgrounds 列的页面背景(例如 home/bg.webp)
+    cast.json 里 _story 列的剧情立绘(story/yin.jpg 等,和里的同名)
     cast.json 里 _scenes 列的场景图(各页的横幅、地点卡、玩法卡、整页背景),按写明的尺寸裁
 然后自动更新 js/skin_assets.js。改完记得再跑 tools/stamp.py。
 """
@@ -96,6 +97,14 @@ def main():
         im.crop((cx - s // 2, cy - s // 2, cx + s // 2, cy + s // 2)).resize((240, 240), Image.LANCZOS).save(os.path.join(OUT, "partner", "face_%s.webp" % cid), quality=88, method=6)
         n += 1
     print("裁好了 %d 个角色" % n)
+    # 剧情对话里的立绘(和里的同名):母版渐隐进夜色;story/none.jpg 是没人说话时的空底
+    os.makedirs(os.path.join(OUT, "story"), exist_ok=True)
+    Image.new("RGB", (72, 104), NIGHT).save(os.path.join(OUT, "story", "none.jpg"), quality=90)
+    for dst, master in cast.get("_story", {}).items():
+        if not os.path.exists(os.path.join(SRC, "masters", master)):
+            print("缺母版,跳过:", dst, master)
+            continue
+        fade_into_night(load(master)[0]).resize((1080, 1578), Image.LANCZOS).save(os.path.join(OUT, dst), quality=88, optimize=True, progressive=True)
     # 战斗里的头像:我方用主角的脸,对手用 rival。原版战斗直接读图片;3D 战斗要把图内嵌成 data: 地址
     # (双击打开时浏览器不让本地图片当贴图),所以另写一份 js/embed_biao.js
     import base64

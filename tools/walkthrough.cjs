@@ -418,7 +418,11 @@ const FLOWS = [
       }
       // 时间戳和皮肤本身不比
       saves[skin] = await page.evaluate(() => { const o = JSON.parse(JSON.stringify(NL.state)); delete o.skin; delete o.energyAt; if (o.rank) delete o.rank.idleAt; return o; });
-      if (skin === 'biao') { const miss = await page.evaluate(() => Object.keys(NL.skinMiss).sort()); console.log('- 表在这组流程里还借用里的图 ' + miss.length + ' 张(画好一张少一张),例如: ' + miss.slice(0, 6).join('、')); }
+      if (skin === 'biao') { // 表不能再借用里的图:借了就算失败
+        const miss = await page.evaluate(() => Object.keys(NL.skinMiss).sort());
+        if (miss.length) { bad++; console.log('✗ 表在这组流程里借用了里的图 ' + miss.length + ' 张: ' + miss.slice(0, 8).join('、')); }
+        else console.log('✓ 表在这组流程里没有借用里的图');
+      }
       if (errs.length) { bad += errs.length; console.log('✗ 两种皮肤对比(' + skin + ')\n  ' + errs.join('\n  ')); }
       await page.close();
     }

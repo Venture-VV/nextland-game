@@ -7,8 +7,10 @@
 (function () {
   'use strict';
   const W = 360, H = 781;
-  const TEAM = [0x34f0e0, 0xff5a26];      // 我方青、对手橙
+  const TEAM = [0x34f0e0, 0xff5a26];      // 我方青、对手橙(里);表是冰青对玫红,开打时按皮肤填
   const TEAM_HOT = [0xc8fff8, 0xffd0a0];
+  const PAL = { li: { team: [0x34f0e0, 0xff5a26], hot: [0xc8fff8, 0xffd0a0], sky: ['#1a0b3c', '#12082a', '#090514'], fog: 0x12082a, pylon: [0xff4a1c, 0x8a3dff], cap: [0xff6a2c, 0xa860ff], mote: 0xb884ff },
+    biao: { team: [0x7de8ff, 0xff3d7f], hot: [0xe6fbff, 0xffc2d6], sky: ['#1b1140', '#0f1230', '#0b0d1a'], fog: 0x0f1230, pylon: [0xff3d7f, 0x7de8ff], cap: [0xff6a9c, 0xa8f0ff], mote: 0xe8cf9a } };
 
   function canvasTex(T, w, h, draw) {
     const c = document.createElement('canvas');
@@ -20,6 +22,8 @@
   }
 
   NL.battle3d = function (mount) {
+    const pal = PAL[NL.skin()] || PAL.li; // 两面是同一个场景、同一套打法,只换颜色
+    TEAM[0] = pal.team[0]; TEAM[1] = pal.team[1]; TEAM_HOT[0] = pal.hot[0]; TEAM_HOT[1] = pal.hot[1];
     const T = window.THREE;
     if (!T) return null;
     let renderer;
@@ -41,7 +45,7 @@
     }));
     const skyTex = keep(canvasTex(T, 8, 256, (g, w, h) => {
       const r = g.createLinearGradient(0, 0, 0, h);
-      r.addColorStop(0, '#1a0b3c'); r.addColorStop(0.35, '#12082a'); r.addColorStop(1, '#090514');
+      r.addColorStop(0, pal.sky[0]); r.addColorStop(0.35, pal.sky[1]); r.addColorStop(1, pal.sky[2]);
       g.fillStyle = r; g.fillRect(0, 0, w, h);
     }));
     const hexTex = keep(canvasTex(T, 256, 256, (g) => { // 护盾上的蜂窝纹
@@ -70,7 +74,7 @@
     /* ---------- 场景 ---------- */
     const scene = new T.Scene();
     scene.background = skyTex;
-    scene.fog = new T.Fog(0x12082a, 16, 58);
+    scene.fog = new T.Fog(pal.fog, 16, 58);
     const FOV = 42;
     const cam = new T.PerspectiveCamera(FOV, W / H, 0.1, 160);
     const CAM = new T.Vector3(0.15, 6.6, 12.6), LOOK = new T.Vector3(0.1, 0.85, -0.3); // 俯视约 25 度,竖屏里两边一上一下
@@ -122,10 +126,10 @@
     }
     for (let i = 0; i < 13; i++) {
       const a = -Math.PI / 2 + (i - 6) * 0.19, rad = 9.5 + (i % 2) * 3.2, hgt = 7 + ((i * 5) % 4) * 2.4;
-      const mat = additive(i % 3 === 1 ? 0xff4a1c : 0x8a3dff, 0.75); mat.vertexColors = true;
+      const mat = additive(i % 3 === 1 ? pal.pylon[0] : pal.pylon[1], 0.75); mat.vertexColors = true;
       const m = add(new T.Mesh(pylonGeo, mat));
       m.scale.y = hgt; m.position.set(Math.cos(a) * rad + 0.3, hgt / 2, Math.sin(a) * rad);
-      const cap = add(new T.Sprite(glowMat(i % 3 === 1 ? 0xff6a2c : 0xa860ff, 0.7))); cap.scale.setScalar(1.6); cap.position.set(m.position.x, 0.15, m.position.z);
+      const cap = add(new T.Sprite(glowMat(i % 3 === 1 ? pal.cap[0] : pal.cap[1], 0.7))); cap.scale.setScalar(1.6); cap.position.set(m.position.x, 0.15, m.position.z);
       pylons.push(m);
     }
     // 飘浮的光点
@@ -133,7 +137,7 @@
     for (let i = 0; i < MOTES; i++) { moteSeed.push([Math.random() * 18 - 9, Math.random() * 7, Math.random() * 20 - 13, 0.15 + Math.random() * 0.35]); }
     const moteGeo = keep(new T.BufferGeometry());
     moteGeo.setAttribute('position', new T.BufferAttribute(motePos, 3));
-    add(new T.Points(moteGeo, keep(new T.PointsMaterial({ size: 0.13, map: glowTex, color: 0xb884ff, transparent: true, opacity: 0.75, blending: T.AdditiveBlending, depthWrite: false }))));
+    add(new T.Points(moteGeo, keep(new T.PointsMaterial({ size: 0.13, map: glowTex, color: pal.mote, transparent: true, opacity: 0.75, blending: T.AdditiveBlending, depthWrite: false }))));
 
     /* ---------- 两个战斗核心 ---------- */
     const discGeo = keep(new T.CircleGeometry(0.6, 56));

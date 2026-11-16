@@ -262,7 +262,7 @@
     render(root) {
       const s = NL.state;
       root.classList.add('wall');
-      root.appendChild(NL.sprite('role/iface_bg.jpg', 0, 0, 360, 120));
+      ui.head(root, 'role/iface_bg.jpg', 0, 0, 360, 120, 'INTERFACE', '接口升级');
       root.appendChild(ui.pill('item/crystal.webp', game.count('crystal'), 254, 70, { w: 91 }));
       root.appendChild(h('div.if-list.scroll', { 'data-keep': 'iface' }, D.slots.map((sl) => {
         const lv = s.iface[sl.id] || 0, cost = ifCost(lv), ok = game.count('crystal') >= cost;

@@ -89,6 +89,13 @@
       img ? NL.h('img', { src: NL.img(img), draggable: 'false' }) : null, NL.h('b', en), NL.h('span', zh)));
   };
 
+  // 战斗的两条横幅(战斗开始、挑战成功)。里是带字的图;表是用字写的
+  NL.ui.battleBanner = function (kind, y) {
+    const start = kind === 'start';
+    if (NL.skin() !== 'biao') return NL.sprite('battle/' + (start ? 'start' : 'win') + '.jpg', 0, y, 360, start ? 160 : 95, { cls: start ? 'bt-start' : 'bt-result' });
+    return NL.h('div.bbt.' + (start ? 'bt-start' : 'bt-result'), { style: { top: y, height: start ? 160 : 95 } }, NL.h('i', start ? 'BATTLE START' : 'VICTORY'), NL.h('b', start ? '战斗开始' : '挑战成功'));
+  };
+
   /* ---------- 格式 ---------- */
   NL.fmt.power = (n) => (n >= 10000 ? (Math.round(n / 1000) / 10).toFixed(1).replace(/\.0$/, '') + '万' : String(Math.round(n)));
   NL.fmt.clock = function (sec) {
@@ -137,6 +144,7 @@
   let current = null;
   NL.current = () => stack[stack.length - 1];
   const NAV_ORDER = ['role', 'bag', 'home', 'mission', 'partner'];
+  const STAGGER = '.tk-card, .sh-card, .ml-row, .fr-row, .if-row, .tr-row, .plv-row, .pd-card, .ba-zone, .bm-card, .brk-row, .bp-card, .btk-card, .bpf-grid button, .bpf-assets div';
   let lastNav = null;
   function render(keepScroll) {
     const top = NL.current();
@@ -167,6 +175,8 @@
     if (!keepScroll) { // 切换页面(不是原地刷新)时才播进场;底部页签之间按左右方向滑
       const a = NAV_ORDER.indexOf(lastNav), b = NAV_ORDER.indexOf(scr.nav);
       NL.motion.page(root, a >= 0 && b >= 0 ? Math.sign(b - a) : 0);
+      // 表:列表里的卡片依次浮上来(只在进页面时播一次,原地刷新不播)
+      if (NL.skin() === 'biao') NL.motion.stagger(root.querySelectorAll(STAGGER), 'rise', 90);
     }
     lastNav = scr.nav || null;
     if (NL.afterRender) NL.afterRender(top.name, root);

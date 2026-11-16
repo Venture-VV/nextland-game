@@ -8,6 +8,8 @@
   "hero": {"master": "hero.webp", "face": [416, 168, 250], "card": [166, 20, 666, 687]},
   "rival": {"master": "rival.webp", "face": [422, 330, 600], "card": [116, 20, 716, 820]},
   "_backgrounds": {"home/bg.webp": "home_bg.webp"},
+  "_story": {"story/yin.jpg": "yinsha.webp", "story/xiong.jpg": "npc_xiong.webp", "story/wu.jpg": "npc_wu.webp"},
+  "_portraits": {"npc_xiong.webp": {"face": [430, 470, 480]}, "npc_wu.webp": {"face": [420, 430, 440]}},
   "_scenes": {
     "stage/zone_core.webp": {"master": "scene_zone_core.webp", "size": [1080, 570]},
     "stage/zone_hanshin.webp": {"master": "scene_zone_hanshin.webp", "size": [1080, 570]},
@@ -27,6 +29,7 @@
     "rank/bg.jpg": {"master": "scene_rank.webp", "size": [1080, 1578]},
     "mail/head.jpg": {"master": "scene_mail.webp", "size": [1080, 450]},
     "friend/head.jpg": {"master": "scene_friends.webp", "size": [1080, 450]},
-    "role/iface_bg.jpg": {"master": "scene_iface.webp", "size": [1080, 450]}
+    "role/iface_bg.jpg": {"master": "scene_iface.webp", "size": [1080, 450]},
+    "partner/band.jpg": {"master": "scene_friends.webp", "size": [1080, 393], "focus": [0.5, 0.3]}
   }
 }

@@ -83,6 +83,22 @@ G = {
     "m_explore": [("s", "M48 18a30 30 0 1 0 0 60 30 30 0 1 0 0-60z"), ("a", "M60 36L52 52 36 60l8-16z"), ("w", "M48 45a3 3 0 1 0 0 6 3 3 0 1 0 0-6z")],
     "m_flag": [("s", "M30 14v70"), ("f", "M30 18h38l-10 14 10 14H30z")],
     "m_mask": [("f", "M18 34c14-8 46-8 60 0 2 18-10 30-18 30-6 0-8-6-12-6s-6 6-12 6c-8 0-20-12-18-30z"), ("a", "M28 40c6-2 12 0 14 6-6 3-12 2-14-6zM68 40c-6-2-12 0-14 6 6 3 12 2 14-6z")],
+    # 邮件、头像、个人页的入口
+    "mail": [("f", "M14 28h68v44H14z"), ("s", "M14 30l34 25 34-25"), ("a", "M70 16a10 10 0 1 0 0 20 10 10 0 1 0 0-20z")],
+    "mail_read": [("f", "M14 44l34-24 34 24v32H14z"), ("s", "M14 44l34 22 34-22")],
+    "person": [("f", "M48 22a14 14 0 1 0 0 28 14 14 0 1 0 0-28z"), ("f", "M20 84c0-16 12-26 28-26s28 10 28 26z")],
+    "p_crown": [("f", "M22 64l-7-32 19 14 14-24 14 24 19-14-7 32z"), ("s", "M22 74h52")],
+    "p_ticket": [("f", "M14 32h68v11a7 7 0 0 0 0 14v11H14V57a7 7 0 0 0 0-14z"), ("t", "M38 34v32"), ("a", "M54 44l4 6 7 1-5 5 1 7-7-3-6 3 1-7-5-5 7-1z")],
+    "p_cart": [("s", "M12 22h12l8 36h38l8-26H30"), ("a", "M40 64a6 6 0 1 0 0 12 6 6 0 1 0 0-12zM64 64a6 6 0 1 0 0 12 6 6 0 1 0 0-12z")],
+    "p_link": [("s", "M40 36H26a12 12 0 0 0 0 24h14M56 36h14a12 12 0 0 1 0 24H56M36 48h24")],
+    "p_cal": [("f", "M18 26h60v52H18z"), ("s", "M18 40h60M32 18v14M64 18v14"), ("t", "M30 54h8M44 54h8M58 54h8M30 66h8M44 66h8")],
+    "p_horn": [("f", "M16 40v16h12l24 18V22L28 40z"), ("s", "M62 38c6 5 6 15 0 20"), ("t", "M70 28c13 10 13 30 0 40")],
+    "p_gear": [("f", "M48 30a18 18 0 1 0 0 36 18 18 0 1 0 0-36z"), ("s", "M48 14v10M48 72v10M14 48h10M72 48h10M24 24l7 7M65 65l7 7M72 24l-7 7M31 65l-7 7"), ("w", "M48 42a6 6 0 1 0 0 12 6 6 0 1 0 0-12z")],
+    "p_info": [("s", "M48 18a30 30 0 1 0 0 60 30 30 0 1 0 0-60z"), ("s", "M48 44v22M48 31v1")],
+    "p_spark": [("f", "M48 14c3 19 15 31 34 34-19 3-31 15-34 34-3-19-15-31-34-34 19-3 31-15 34-34z")],
+    "p_scan": [("s", "M18 34V18h16M62 18h16v16M78 62v16H62M34 78H18V62M30 48h36")],
+    "p_pen": [("f", "M22 74l4-16 34-34 12 12-34 34z"), ("s", "M52 32l12 12"), ("t", "M16 82h40")],
+    "p_key": [("s", "M30 34a14 14 0 1 0 0 28 14 14 0 1 0 0-28z"), ("s", "M44 48h38M68 48v12M78 48v9")],
     # 底部导航
     "n_role": [("s", "M48 14a15 15 0 1 0 0 30 15 15 0 1 0 0-30z"), ("s", "M18 82c0-18 13-28 30-28s30 10 30 28")],
     "n_bag": [("s", "M48 12l32 16v40L48 84 16 68V28z"), ("s", "M16 28l32 16 32-16M48 44v40")],
@@ -111,6 +127,11 @@ ICONS = {
     "role/if_armor": ("vest", "ice", 0), "role/if_pants": ("pants", "ice", 0), "role/if_shoes": ("boots", "ice", 0),
     "mission/ico_daily": ("m_daily", "gold", 2), "mission/ico_main": ("m_main", "rose", 2), "mission/ico_explore": ("m_explore", "violet", 2),
     "mission/ico_red": ("m_flag", "rose", 2), "mission/ico_white": ("m_mask", "white", 2),
+    "mail/ico": ("mail", "rose", 2), "mail/ico_read": ("mail_read", "dim", 2), "friend/avatar": ("person", "ice", 4),
+    "ui/p_crown": ("p_crown", "gold", 4), "ui/p_ticket": ("p_ticket", "gold", 4), "ui/p_cart": ("p_cart", "gold", 4), "ui/p_link": ("p_link", "ice", 4),
+    "ui/p_cal": ("p_cal", "ice", 4), "ui/p_horn": ("p_horn", "rose", 4), "ui/p_gear": ("p_gear", "rose", 4), "ui/p_info": ("p_info", "rose", 4),
+    "ui/p_spark": ("p_spark", "rose", 4), "ui/p_scan": ("p_scan", "ice", 4), "ui/p_pen": ("p_pen", "rose", 4), "ui/p_key": ("p_key", "rose", 4),
+    "ui/p_person": ("person", "rose", 4), "ui/p_mission": ("n_mission", "rose", 4),
     "nav/ico_role": ("n_role", "dim", 3), "nav/ico_bag": ("n_bag", "dim", 3), "nav/ico_home": ("n_home", "dim", 3),
     "nav/ico_mission": ("n_mission", "dim", 3), "nav/ico_partner": ("n_partner", "dim", 3),
     "nav/ico_role_on": ("n_role", "rose", 3), "nav/ico_bag_on": ("n_bag", "rose", 3), "nav/ico_home_on": ("n_home", "rose", 3),
@@ -150,7 +171,10 @@ def draw(glyph, color, plate):
         out += ['<g id="layer-plate" inkscape:groupmode="layer" inkscape:label="底板">',
                 '<path d="M48 3l39 22.5v45L48 93 9 70.5v-45z" fill="url(#bg)" stroke="%s" stroke-width="2.5"/>' % c,
                 '<path d="M48 3l39 22.5v45L48 93 9 70.5v-45z" fill="url(#gl)"/>', "</g>"]
-    scale = {1: "translate(48 50) scale(.78) translate(-48 -48)", 2: "translate(48 48) scale(.62) translate(-48 -48)"}.get(plate)
+    elif plate == 4:  # 圆牌:头像、入口按钮
+        out += ['<g id="layer-plate" inkscape:groupmode="layer" inkscape:label="底板">',
+                '<circle cx="48" cy="48" r="45" fill="url(#bg)" stroke="%s" stroke-width="2.5"/>' % c, '<circle cx="48" cy="48" r="45" fill="url(#gl)"/>', "</g>"]
+    scale = {1: "translate(48 50) scale(.78) translate(-48 -48)", 2: "translate(48 48) scale(.62) translate(-48 -48)", 4: "translate(48 48) scale(.6) translate(-48 -48)"}.get(plate)
     out.append('<g id="layer-glyph" inkscape:groupmode="layer" inkscape:label="图形" stroke-linecap="round" stroke-linejoin="round"%s>' % (' transform="%s"' % scale if scale else ""))
     if glow and plate != 3:
         out.append('<g fill="none" stroke="%s" stroke-width="10" opacity=".22">%s</g>' % (c, "".join(glow)))

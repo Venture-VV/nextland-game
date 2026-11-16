@@ -18,12 +18,22 @@
 ## 2. 文件在哪
 
 ```
-art/biao/masters/   母版:出图工具给的原图,832×1216
-art/biao/hires/     高清版:放大 4 倍后缩到 2 倍,1664×2432
+art/biao/masters/   母版:出图工具给的原图。人物和竖的场景 832×1216,横的场景 1216×832
+art/biao/hires/     高清版:放大 4 倍后缩到 2 倍(1664×2432 或 2432×1664)
 art/biao/vector/    矢量源文件:每张一个分层 SVG;layers.json 记着每层的面积和路径数
-assets/biao/        运行时用的图,从高清版裁出来
+assets/biao/        运行时用的图,从高清版裁出来;其中的 .svg 是图标,本身就是矢量源文件
 .work/art/up4x/     4 倍的原始结果(3328×4864,每张十来兆,不进仓库,重跑工具就有)
 ```
+
+三类素材的矢量源文件分别是:
+
+| 素材 | 矢量源文件 | 怎么来的 |
+|---|---|---|
+| 人物立绘(8 位角色、2 位剧情人物) | `art/biao/vector/<名字>.svg`,6 层 | 位图描出来的,按元素拆层 |
+| 场景图(19 张) | `art/biao/vector/scene_*.svg`、`home_bg.svg`,2 层(远景与建筑、灯光) | 位图描出来的。场景里没有人物可拆,颜色分得比人物细,文件也大一些(每张 1.5~3 MB) |
+| 图标(87 个) | `assets/biao/**/*.svg`,2 层(底板、图形) | `tools/build_biao_icons.py` 直接用路径画的,页面上用的就是这份矢量,不经过位图 |
+
+界面上其余的部件(按钮、弹窗、页签、横幅上的字、底部导航)是用样式画的,本来就不是图片。
 
 ## 3. 怎么重做
 
@@ -37,6 +47,10 @@ python3 tools/vectorize.py
 
 ```bash
 python3 tools/build_biao_assets.py
+```
+
+```bash
+python3 tools/build_biao_icons.py
 ```
 
 前两个第一次跑会从 Hugging Face 下载两个模型到 `.work/models/`(共约 250 MB)。都在 CPU 上跑,不需要显卡:

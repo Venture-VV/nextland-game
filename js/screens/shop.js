@@ -46,7 +46,7 @@
     const range = h('input', { type: 'range', min: '1', max: String(max), value: '1', oninput: () => set(+range.value) });
     function set(v) { n = Math.max(1, Math.min(max, v)); range.value = n; qty.textContent = n + '/' + max; cost.textContent = String(g.price * n); }
     const win = h('div.buy',
-      NL.sprite('ui/buy_head.jpg', 0, 0, 330, 84), NL.sprite('ui/buy_foot.jpg', 0, 508, 330, 20),
+      NL.skin() === 'biao' ? null : NL.sprite('ui/buy_head.jpg', 0, 0, 330, 84), NL.skin() === 'biao' ? null : NL.sprite('ui/buy_foot.jpg', 0, 508, 330, 20), // 表的窗框是样式画的
       NL.state.gem === 100000 ? null : h('div.buy-gem', String(NL.state.gem)),
       NL.hit(288, 4, 42, 32, () => m.close()),
       h('div.buy-body',

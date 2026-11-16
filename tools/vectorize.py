@@ -129,7 +129,8 @@ def run(name, cast):
     im = im.resize((WORK_W, round(WORK_W * mh / mw)), Image.LANCZOS)
     rgb = np.asarray(im)
     k = WORK_W / mw
-    entry = next((c for cid, c in cast.items() if isinstance(c, dict) and c.get("master") == name + ".webp"), None)
+    entry = next((c for cid, c in cast.items() if not cid.startswith("_") and isinstance(c, dict) and c.get("master") == name + ".webp"), None)
+    entry = entry or cast.get("_portraits", {}).get(name + ".webp")  # 只在剧情里出场的角色:没有卡面和头像,但也是人物,照样拆层
     is_bg = entry is None  # 不在角色表里的是页面背景:不抠人物,整张当背景,按明暗分两层
     if is_bg:
         v = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)[..., 2]

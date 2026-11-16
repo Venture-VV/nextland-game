@@ -92,7 +92,7 @@
     const hpBar = [h('i'), h('i')], hpTxt = [h('u', '100%'), h('u', '100%')];
     const card = (i, name, lv, power) => h('div.bt-card.' + (i ? 'foe' : 'me'), h('b', name), h('i', '等级:' + lv), h('span', '战力'), h('em', NL.fmt.power(power)),
       h('div.bt-hp', hpBar[i]), hpTxt[i]);
-    const banner = NL.sprite('battle/start.jpg', 0, 300, 360, 160, { cls: 'bt-start' });
+    const banner = ui.battleBanner('start', 300);
     const gaugeRing = h('i.ring');
     const btnBurst = h('button.bt-btn.burst', { 'data-act': 'burst', onclick: (ev) => { ev.stopPropagation(); tryBurst(); } }, gaugeRing, h('b', '爆发'), h('small', '0%'));
     const btnBlock = h('button.bt-btn.block', { 'data-act': 'block', onpointerdown: (ev) => { ev.stopPropagation(); tryBlock(); } }, h('b', '格挡'), h('small', '看准光环'));
@@ -223,7 +223,7 @@
       const rewards = F.win ? opts.rewards || [] : [];
       const delta = rewards.length ? game.grant(rewards) : 0;
       el.classList.add('over');
-      el.appendChild(F.win ? NL.sprite('battle/win.jpg', 0, 235, 360, 95, { cls: 'bt-result' }) : h('div.bt-lose.bt-result', '挑战失败'));
+      el.appendChild(F.win ? ui.battleBanner('win', 235) : h('div.bt-lose.bt-result', '挑战失败'));
       el.appendChild(h('div.bt-items', rewards.map((r) => ui.itemEl(r.id, r.n))));
       el.appendChild(h('div.bt-hint', '点击空白处关闭。'));
       A.sfx(F.win ? 'win' : 'lose'); A.battleDuck(0.45);
