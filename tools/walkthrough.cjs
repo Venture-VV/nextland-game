@@ -405,13 +405,14 @@ const FLOWS = [
   fs.mkdirSync(SHOTS, { recursive: true });
   const browser = await chromium.launch();
   const base = 'file://' + path.join(ROOT, 'index.html');
-  for (const [title, steps] of FLOWS) {
-    const page = await browser.newPage({ viewport: { width: 360, height: 781 }, deviceScaleFactor: 2 });
+  // 跑一组流程。skin 给 'biao' 时在地址里加上 skin=biao,不截图(截图只留里的,和录屏对照用)
+  async function runFlow(title, steps, skin) {
+    const page = await browser.newPage({ viewport: { width: 360, height: 781 }, deviceScaleFactor: skin ? 1 : 2 });
     const errs = [];
     page.on('pageerror', (e) => errs.push('脚本报错: ' + e.message));
     page.on('console', (m) => { if (m.type() === 'error') errs.push('控制台报错: ' + m.text()); });
     for (const s of steps) {
-      if (s.goto !== undefined) { await page.goto(base + s.goto); await page.waitForTimeout(350); }
+      if (s.goto !== undefined) { await page.goto(base + (skin ? s.goto.replace(/^(\?[^#]*)?/, (q) => (q ? q + '&' : '?') + 'skin=' + skin) : s.goto)); await page.waitForTimeout(350); }
       if (s.click) await page.click(s.click, { timeout: 3000 }).catch(() => errs.push('点不到: ' + s.click));
       if (s.clickXY) await page.mouse.click(s.clickXY[0], s.clickXY[1]);
       if (s.drag) { await page.mouse.move(s.drag[0], s.drag[1]); await page.mouse.down(); await page.mouse.move(s.drag[2], s.drag[3], { steps: 6 }); await page.mouse.up(); }
@@ -421,11 +422,18 @@ const FLOWS = [
         while (cur < s.clock - 1e-6) { cur = Math.min(s.clock, cur + 1 / 30); await page.evaluate((t) => new Promise((r) => { NL.testClock = t; requestAnimationFrame(() => requestAnimationFrame(r)); }), cur); }
       }
       if (s.wait) await page.waitForTimeout(s.wait);
-      if (s.shot) await page.screenshot({ path: path.join(SHOTS, s.shot + '.png') });
+      if (s.shot && !skin) await page.screenshot({ path: path.join(SHOTS, s.shot + '.png') });
     }
-    console.log((errs.length ? '✗ ' : '✓ ') + title + (errs.length ? '\n  ' + errs.join('\n  ') : ''));
+    console.log((errs.length ? '✗ ' : '✓ ') + (skin ? '表:' : '') + title + (errs.length ? '\n  ' + errs.join('\n  ') : ''));
     bad += errs.length;
     await page.close();
+  }
+  for (const [title, steps] of FLOWS) await runFlow(title, steps);
+  // 同样的流程在表皮肤下再走一遍:按钮都得点得到,检查都得过。
+  // 不重跑的:「冒险…」那组下面比存档时会在表里跑;「动效」「表里切换」「表的登录页」里有只对某一面成立的检查
+  for (const [title, steps] of FLOWS) {
+    if (/^(冒险|动效|表里切换|表的登录页)/.test(title)) continue;
+    await runFlow(title, steps, 'biao');
   }
   // 表和里共用一份规则:把同一组步骤在两种皮肤下各跑一遍,规则用的随机数换成同一个固定序列,跑完的存档必须逐项相同
   {
