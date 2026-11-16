@@ -82,6 +82,7 @@
   ui.battleBeat = function (opts) {
     const s = NL.state, e = opts.enemy, myPower = game.power();
     const plan = game.fightPlan(myPower, e.power);
+    const ally = NL.ext.ally(); // 扩展玩法「伙伴援护」:开着时,爆发由信任等级最高的伙伴来放,伤害随等级加成
     const F = { hp: [HP, HP], gauge: 0, armed: false, c: 0, n: 0, over: false, win: false, koAt: 0, loser: 1, tries: {} };
     const atk = {};
     let R = null, t0 = null, raf = 0, closed = false, resultShown = false, shattered = false, hiddenAt = 0;
@@ -94,7 +95,7 @@
       h('div.bt-hp', hpBar[i]), hpTxt[i]);
     const banner = ui.battleBanner('start', 300);
     const gaugeRing = h('i.ring');
-    const btnBurst = h('button.bt-btn.burst', { 'data-act': 'burst', onclick: (ev) => { ev.stopPropagation(); tryBurst(); } }, gaugeRing, h('b', '爆发'), h('small', '0%'));
+    const btnBurst = h('button.bt-btn.burst', { 'data-act': 'burst', onclick: (ev) => { ev.stopPropagation(); tryBurst(); } }, gaugeRing, h('b', ally ? '援护' : '爆发'), h('small', '0%'));
     const btnBlock = h('button.bt-btn.block', { 'data-act': 'block', onpointerdown: (ev) => { ev.stopPropagation(); tryBlock(); } }, h('b', '格挡'), h('small', '看准光环'));
     const tip = h('div.bt-tip', '对手出手时，光环合拢的瞬间点「格挡」；能量满了点「爆发」');
     const el = h('div.battle', view,
@@ -151,7 +152,7 @@
     /* ----- 规则 ----- */
     function resolve(n) {
       const k = atk[n], a = k.a, d = 1 - a;
-      let dmg = a === 0 ? plan.me * (k.burst ? BURST_MUL : 1) : plan.foe;
+      let dmg = a === 0 ? plan.me * (k.burst ? BURST_MUL * (ally ? ally.mul : 1) : 1) : plan.foe;
       if (a === 1 && F.tries[n] != null && hitAt(n) - F.tries[n] <= BLOCK_WIN) { k.blocked = true; dmg *= BLOCK_MUL; k.guardAt = hitAt(n); }
       F.hp[d] = Math.max(0, F.hp[d] - dmg);
       k.dmg = dmg;
@@ -159,7 +160,7 @@
       const dead = F.hp[d] <= 0.5;
       R.impact({ a, burst: k.burst, blocked: k.blocked, dead });
       float(d, '-' + shownDmg(d, dmg), k.burst ? 'crit' : a ? 'foe' : 'me');
-      if (k.burst) float(0, '爆发!', 'burst', 1.25);
+      if (k.burst) { float(0, ally ? '援护!' : '爆发!', 'burst', 1.25); if (ally) NL.ext.cutIn(el, ally); }
       if (k.blocked) float(0, '格挡!', 'block', 1.25);
       A.sfx(k.blocked ? 'block' : k.burst ? 'burst' : 'hit');
       if (dead) { F.over = true; F.win = d === 1; F.loser = d; F.koAt = hitAt(n); A.sfx('ko'); el.classList.add('ko'); }

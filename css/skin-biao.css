@@ -588,7 +588,24 @@ html[data-skin=biao] .story-choice button:active { background: linear-gradient(1
 .bh-side { position: absolute; left: 284px; width: 68px; height: 40px; border-radius: 12px 0 0 12px; background: var(--b-glass); border: 1px solid rgba(232, 207, 154, .55); border-right: 0; color: var(--b-gold); font-size: 11.5px; letter-spacing: 1px; }
 .bh-zones { position: absolute; left: 14px; top: 470px; width: 332px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .bh-zones span { width: 100%; color: var(--b-rose); font-size: 9px; letter-spacing: 4px; text-shadow: 0 1px 4px #000; }
-.bh-zones button { height: 30px; padding: 0 14px; border-radius: 15px; background: var(--b-glass); border: 1px solid rgba(255, 61, 127, .6); color: #fff; font-size: 11px; letter-spacing: 1px; }
+.bh-zone { position: relative; }
+.bh-zone > button[data-building] { height: 30px; padding: 0 14px; border-radius: 15px; background: var(--b-glass); border: 1px solid rgba(255, 61, 127, .6); color: #fff; font-size: 11px; letter-spacing: 1px; }
+.bh-zone .ext-spot { right: -12px; top: -16px; }
+
+/* ---------- 扩展玩法在表里的样子 ---------- */
+html[data-skin=biao] .xt-tip b { color: var(--b-rose2); }
+html[data-skin=biao] .xt-wave { background: var(--b-night); border-radius: 12px; box-shadow: inset 0 0 0 1px rgba(125, 232, 255, .35); }
+html[data-skin=biao] .xt-meter u i { background: linear-gradient(90deg, var(--b-rose), var(--b-ice)); } html[data-skin=biao] .xt-meter em { color: var(--b-rose2); }
+html[data-skin=biao] .xt-knob input { background-image: linear-gradient(var(--b-ink), var(--b-ink)); }
+html[data-skin=biao] .xt-knob input::-webkit-slider-thumb { background: var(--b-rose) radial-gradient(#fff 2px, transparent 3px); box-shadow: 0 0 8px rgba(255, 61, 127, .6); }
+html[data-skin=biao] .xt-knob input::-moz-range-thumb { background: var(--b-rose); }
+html[data-skin=biao] .xg-cell { border-radius: 16px; background: var(--b-ink); color: #7c80a6; }
+html[data-skin=biao] .xg-cell.on { background: linear-gradient(135deg, var(--b-rose), #a23cff); color: #fff; box-shadow: 0 0 16px rgba(255, 61, 127, .7); }
+html[data-skin=biao] .xg-cell.bad { background: #3a3f66; color: #fff; }
+html[data-skin=biao] .ext-spot i { background: var(--b-gold); box-shadow: 0 0 0 4px rgba(255, 61, 127, .5), 0 0 14px 6px rgba(255, 61, 127, .65); }
+html[data-skin=biao] .ext-cut { background: linear-gradient(90deg, transparent, rgba(11, 13, 26, .95) 20%, rgba(255, 61, 127, .9) 60%, rgba(125, 232, 255, .0)); border-top: 1px solid var(--b-gold); border-bottom: 1px solid var(--b-gold); }
+html[data-skin=biao] .ext-cut i { border-color: var(--b-gold); } html[data-skin=biao] .ext-cut b { color: var(--b-gold); }
+.bset-row { height: 60px; }
 .bh-adv { position: absolute; left: 14px; top: 582px; width: 150px; min-width: 0; height: 46px; border-radius: 23px; font-size: 17px; letter-spacing: 8px; }
 .bh-exp { position: absolute; left: 236px; top: 640px; width: 110px; min-width: 0; height: 40px; border-radius: 20px; font-size: 14px; letter-spacing: 6px; }
 #screen.bh .skin-flip { top: 270px; }

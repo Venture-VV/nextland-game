@@ -28,6 +28,7 @@
   NL.onGrant = (items) => items.forEach((it) => { if (it.id === 'credit' && it.n > 0) game.track('credit_gain', it.n); });
   const byId = (id) => D.partners.find((p) => p.id === id);
   const hex = (n) => h('div.hex', h('b', String(n)), h('i', 'Lv.'));
+  NL.partnerApi = { ps, addTrust, byId }; // 扩展玩法(巡游、援护)要读写信任值
   function trustCard(p) {
     const st = ps(p);
     return h('div.trust', hex(st.lv), h('span', '信任等级'), h('em', st.trust + '/' + need(st.lv)), h('div.bar', h('i', { style: { width: Math.min(100, (st.trust / need(st.lv)) * 100) + '%' } })));

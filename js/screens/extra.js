@@ -264,10 +264,13 @@
     const sw3 = h('button.set-switch', { 'data-act': 'set-motion', onclick: () => { NL.state.motion = NL.motion.plus() ? 'orig' : 'plus'; NL.save(); NL.motion.apply(); paint3(); } });
     const paint3 = () => { sw3.classList.toggle('on', NL.motion.plus()); sw3.textContent = NL.motion.plus() ? '开' : '关'; };
     const sw4 = h('button.set-switch' + (NL.skin() === 'biao' ? '.on' : ''), { 'data-act': 'set-skin', onclick: () => { m.close(); NL.setSkin(NL.skin() === 'biao' ? 'li' : 'biao'); } }, NL.skin() === 'biao' ? '表' : '里');
-    paint(); paint2(); paint3();
-    const ROWS = [['背景音乐', '', sw], ['3D 节拍对决', '关掉就是原版战斗:自动对撞,只能看', sw2], ['升级动效', '关掉就照原版:弹窗和页面直接出现', sw3], ['表 / 里', '表是重画的美术,里是原版;规则和存档是同一份', sw4]];
+    const sw5 = h('button.set-switch', { 'data-act': 'set-ext', onclick: () => { NL.state.ext = !NL.state.ext; NL.save(); paint5(); NL.refresh(); } });
+    const paint5 = () => { sw5.classList.toggle('on', !!NL.state.ext); sw5.textContent = NL.state.ext ? '开' : '关'; };
+    paint(); paint2(); paint3(); paint5();
+    const ROWS = [['背景音乐', '', sw], ['3D 节拍对决', '关掉就是原版战斗:自动对撞,只能看', sw2], ['升级动效', '关掉就照原版:弹窗和页面直接出现', sw3], ['表 / 里', '表是重画的美术,里是原版;规则和存档是同一份', sw4],
+      ['扩展玩法', '原版没有的新玩法:调频、涂鸦、巡游、援护', sw5]];
     if (NL.skin() === 'biao') { // 表:里那张带着三个按钮的底图换成真的按钮,开关排在同一个窗里
-      m = ui.win({ title: '设置', h: 456, body(b) {
+      m = ui.win({ title: '设置', h: 516, body(b) {
         b.classList.add('bset');
         b.appendChild(h('div.bset-acts', h('button', { onclick: redeem }, '兑换码'), h('button', { onclick: account }, '切换账号'), h('button', { onclick: logout }, '退出登录')));
         ROWS.forEach(([t, sub, el]) => b.appendChild(h('div.bset-row', h('span', t, sub ? h('small', sub) : null), el)));
@@ -281,8 +284,8 @@
       hit(67, redeem), hit(110, account), hit(152, logout),
       NL.hit(286, 0, 44, 30, () => m.close()),
       h('div.set-id', '玩家编号:' + NL.state.uid)));
-    ROWS.forEach(([t, sub, el], i) => m.el.appendChild(h('div.set-row' + ['', '.two', '.three', '.four'][i], sub ? h('span', t, h('small', sub)) : t, el)));
-    m.el.appendChild(h('div.close-hint.abs', { style: { left: 0, width: 360, top: 686, textAlign: 'center', margin: 0 } }, '点击空白处关闭。'));
+    ROWS.forEach(([t, sub, el], i) => m.el.appendChild(h('div.set-row' + ['', '.two', '.three', '.four', '.five'][i], sub ? h('span', t, h('small', sub)) : t, el)));
+    m.el.appendChild(h('div.close-hint.abs', { style: { left: 0, width: 360, top: 724, textAlign: 'center', margin: 0 } }, '点击空白处关闭。'));
   };
 
   /* ---------- 活动日历 ---------- */
@@ -342,18 +345,19 @@
     const scan = () => ui.toast('请靠近园区内的互动点后再扫码。');
     const GO = [['我的ID', 'person', () => ui.dialog({ html: '我的ID：<em>' + NL.state.uid + '</em>' })], ['前往绑定', 'link', () => NL.go('bind')],
       ['前往任务', 'mission', () => NL.go('mission')], ['前往票券', 'ticket', () => NL.go('tickets')],
-      ['涂鸦暗号', 'pen', () => ui.toast('附近没有可识别的涂鸦。')], ['调频密码', 'key', () => ui.toast('附近没有可调频的终端。')]];
+      // 这两个按钮在原版里点了没反应(录屏里是提示语);打开「扩展玩法」后是两个小游戏
+      ['涂鸦暗号', 'pen', () => (NL.ext.on() ? NL.ext.tag() : ui.toast('附近没有可识别的涂鸦。'))], ['调频密码', 'key', () => (NL.ext.on() ? NL.ext.tune() : ui.toast('附近没有可调频的终端。'))]];
     if (NL.skin() === 'biao') { // 表:里那张带字的底图换成真的部件
       m = ui.win({ title: '互动', h: 448, body(b) {
         b.classList.add('bitx');
         b.appendChild(h('div.bitx-box', h('span', '请输入正确编码'), input, h('button.btn.purple', { onclick: submit }, '确认'),
           h('button.bitx-scan', { onclick: scan }, h('img', { src: NL.img('ui/p_scan.svg'), draggable: 'false' }))));
-        b.appendChild(h('div.bitx-grid', GO.map(([name, ico, fn]) => h('button', { onclick: () => { m.close(); fn(); } }, h('img', { src: NL.img('ui/p_' + ico + '.svg'), draggable: 'false' }), name))));
+        b.appendChild(h('div.bitx-grid', GO.map(([name, ico, fn], i) => h('button', { 'data-act': 'itx-' + i, onclick: () => { m.close(); fn(); } }, h('img', { src: NL.img('ui/p_' + ico + '.svg'), draggable: 'false' }), name))));
       } });
       return;
     }
     m = ui.mask({});
-    const go = (i) => NL.hit(22 + (i % 2) * 146, 290 + Math.floor(i / 2) * 46, 140, 34, () => { m.close(); GO[i][2](); });
+    const go = (i) => NL.hit(22 + (i % 2) * 146, 290 + Math.floor(i / 2) * 46, 140, 34, () => { m.close(); GO[i][2](); }, { 'data-act': 'itx-' + i });
     m.el.appendChild(h('div.itx', NL.sprite('ui/interact.jpg', 0, 0, 330, 448), input,
       NL.hit(118, 185, 94, 26, submit), NL.hit(254, 42, 62, 62, scan), NL.hit(286, 0, 44, 28, () => m.close()),
       GO.map((_, i) => go(i))));

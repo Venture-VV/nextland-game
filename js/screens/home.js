@@ -24,6 +24,11 @@
       const [x0, y0, x1, y1] = b.box.map((v) => v / 2);
       map.appendChild(h('button.hit', { 'data-building': b.id, style: { left: x0, top: y0, width: x1 - x0, height: y1 - y0 }, onclick: () => { if (!moved) onBuilding(b.id); } }));
     });
+    // 扩展玩法「园区巡游」:今天还没去过的光点钉在对应的建筑上(开关关着时没有)
+    NL.ext.spots().forEach((sp, i) => {
+      const b = D.buildings.find((x) => x.id === sp.zone);
+      if (b && !sp.done) map.appendChild(NL.ext.spotEl(i, { left: (b.box[0] + b.box[2]) / 4 - 17, top: b.box[3] / 2 - 4 })); // 牌子的正下方,不会被上面的资源栏挡住
+    });
     let drag = null, moved = false;
     map.addEventListener('pointerdown', (e) => { if (glide) glide.stop(); clamp(); drag = [e.clientX, e.clientY, pos[0], pos[1]]; moved = false; vel = [0, 0]; lastMove = performance.now(); });
     window.addEventListener('pointermove', onMove);
@@ -161,8 +166,11 @@
       root.appendChild(h('button.skin-flip', { 'data-act': 'skin', title: '表 / 里', onclick: () => NL.setSkin('li', 31, 300) }, h('b', '里'), h('i', '翻面')));
       [['shop', '商城'], ['supply', '补给'], ['rank', '无尽之塔'], ['modes', '玩法']].forEach(([name, text], i) =>
         hud.appendChild(h('button.bh-side', { style: { top: 212 + i * 52 }, 'data-act': name, onclick: () => NL.go(name) }, text)));
-      hud.appendChild(h('div.bh-zones', h('span', '园区地点'), D.buildings.map((b) =>
-        h('button', { 'data-building': b.id, onclick: () => NL.go('stages', { zone: b.id }) }, b.name))));
+      const spots = NL.ext.spots(); // 扩展玩法「园区巡游」的光点,挂在地点按钮上
+      hud.appendChild(h('div.bh-zones', h('span', '园区地点'), D.buildings.map((b) => {
+        const i = spots.findIndex((sp) => sp.zone === b.id && !sp.done);
+        return h('div.bh-zone', h('button', { 'data-building': b.id, onclick: () => NL.go('stages', { zone: b.id }) }, b.name), i >= 0 ? NL.ext.spotEl(i) : null);
+      })));
       hud.appendChild(h('button.btn.purple.bh-adv', { 'data-act': 'adventure', onclick: () => NL.go('adventure') }, '冒险'));
       hud.appendChild(h('button.btn.dark.bh-exp', { 'data-act': 'explore', onclick: () => NL.ui.interact() }, '探索'));
       guideLayer(root);
