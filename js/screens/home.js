@@ -27,7 +27,7 @@
     // 扩展玩法「园区巡游」:今天还没去过的光点钉在对应的建筑上(开关关着时没有)
     NL.ext.spots().forEach((sp, i) => {
       const b = D.buildings.find((x) => x.id === sp.zone);
-      if (b && !sp.done) map.appendChild(NL.ext.spotEl(i, { left: (b.box[0] + b.box[2]) / 4 - 17, top: b.box[3] / 2 - 4 })); // 牌子的正下方,不会被上面的资源栏挡住
+      if (b && !sp.done) map.appendChild(NL.ext.spotEl(i, { left: (b.box[0] + b.box[2]) / 4 - 17, top: b.box[3] / 2 - 4 }, () => moved)); // 牌子的正下方,不会被上面的资源栏挡住
     });
     let drag = null, moved = false;
     map.addEventListener('pointerdown', (e) => { if (glide) glide.stop(); clamp(); drag = [e.clientX, e.clientY, pos[0], pos[1]]; moved = false; vel = [0, 0]; lastMove = performance.now(); });

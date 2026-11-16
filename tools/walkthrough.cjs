@@ -358,14 +358,19 @@ const FLOWS = [
   ["扩展玩法:开关、调频密码、涂鸦暗号、园区巡游、伙伴援护", [
     {"goto": "?reset#home", "wait": 300},
     {"click": ".dlg-btns .btn.pink", "wait": 200},
-    {"eval": "if(document.querySelector('.ext-spot'))throw new Error('开关关着时不应该有巡游光点');if(NL.ext.ally())throw new Error('开关关着时不应该有援护')"},
+    {"eval": "if(!NL.ext.on()||document.querySelectorAll('.ext-spot').length!==3)throw new Error('扩展玩法默认是开的,主页应该有 3 个巡游光点')"},
+    {"eval": "NL.ui.settings()", "wait": 300},
+    {"click": "[data-act=set-ext]", "wait": 200},
+    {"clickXY": [20, 770], "wait": 300},
+    {"eval": "if(NL.ext.on())throw new Error('点一下开关应该关掉扩展玩法');if(document.querySelector('.ext-spot'))throw new Error('开关关着时不应该有巡游光点');if(NL.ext.ally())throw new Error('开关关着时不应该有援护')"},
     {"click": "[data-act=explore]", "wait": 300},
     {"click": "[data-act=itx-5]", "wait": 300},
     {"eval": "if(document.querySelector('.xt'))throw new Error('开关关着时,调频密码应该还是原版的提示语')"},
     {"eval": "NL.ui.settings()", "wait": 300},
     {"click": "[data-act=set-ext]", "wait": 200, "shot": "c12_ext_on"},
     {"clickXY": [20, 770], "wait": 300},
-    {"eval": "if(document.querySelectorAll('.ext-spot').length!==3)throw new Error('打开开关后主页应该有 3 个巡游光点');window.__t=JSON.stringify(NL.state.partners)"},
+    {"eval": "if(!NL.ext.on()||document.querySelectorAll('.ext-spot').length!==3)throw new Error('重新打开开关后主页应该有 3 个巡游光点')"},
+    {"eval": "var keep=JSON.parse(localStorage.getItem('nextland-web-save-v1'));if(keep.ext!==true||keep.extSet!==true)throw new Error('动过开关应该记进存档');keep.ext=false;keep.extSet=false;var st=NL.state;NL.state=keep;var on=NL.ext.on();NL.state=st;if(!on)throw new Error('没动过开关的老存档(哪怕存着关)也应该算开')"},
     {"click": "[data-spot='1']", "wait": 300, "shot": "c12_patrol"},
     {"click": ".dlg-btns .btn.purple", "wait": 300},
     {"eval": "var sp=NL.ext.spots()[1];if(!sp.done)throw new Error('巡游选完后这个光点应该记为去过');var st=NL.state.partners[sp.pid];if(!st||(st.trust<2&&st.lv<2))throw new Error('巡游选「多聊几句」应该加 2 点信任');if(document.querySelectorAll('.ext-spot').length!==2)throw new Error('去过的光点应该消失')"},
@@ -439,6 +444,7 @@ const FLOWS = [
   async function runFlow(title, steps, skin) {
     const page = await browser.newPage({ viewport: { width: 360, height: 781 }, deviceScaleFactor: skin ? 1 : 2 });
     const errs = [];
+    let scrolled = false;
     page.on('pageerror', (e) => errs.push('脚本报错: ' + e.message));
     page.on('console', (m) => { if (m.type() === 'error') errs.push('控制台报错: ' + m.text()); });
     for (const s of steps) {
@@ -452,6 +458,8 @@ const FLOWS = [
         while (cur < s.clock - 1e-6) { cur = Math.min(s.clock, cur + 1 / 30); await page.evaluate((t) => new Promise((r) => { NL.testClock = t; requestAnimationFrame(() => requestAnimationFrame(r)); }), cur); }
       }
       if (s.wait) await page.waitForTimeout(s.wait);
+      // 舞台被滚动过就算失败(出过这种事:点一个半露在外面的按钮,浏览器把整个舞台挪了几十像素,之后的点击全偏)
+      if (!scrolled && await page.evaluate(() => { const e = document.querySelector('#stage'); return !!e && (e.scrollLeft !== 0 || e.scrollTop !== 0 || window.scrollX !== 0 || window.scrollY !== 0); })) { scrolled = true; errs.push('舞台被滚动了,发生在这一步之后: ' + JSON.stringify(s).slice(0, 120)); }
       if (s.shot && !skin) await page.screenshot({ path: path.join(SHOTS, s.shot + '.png') });
     }
     console.log((errs.length ? '✗ ' : '✓ ') + (skin ? '表:' : '') + title + (errs.length ? '\n  ' + errs.join('\n  ') : ''));

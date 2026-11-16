@@ -266,17 +266,17 @@
     const logout = () => { m.close(); NL.go('login'); };
     const sw = h('button.set-switch', { 'data-act': 'set-sound', onclick: () => { NL.audio.toggle(); paint(); } });
     const paint = () => { sw.classList.toggle('on', NL.audio.on()); sw.textContent = NL.audio.on() ? '开' : '关'; };
-    // 下面三个开关是网页版加的,原版没有。前两个关掉就是原版的样子
+    // 下面几个开关是网页版加的,原版没有。「3D 节拍对决」「升级动效」「扩展玩法」都关掉、停在里,就是原版的样子
     const sw2 = h('button.set-switch', { 'data-act': 'set-beat', onclick: () => { NL.state.beat = !NL.state.beat; NL.save(); paint2(); } });
     const paint2 = () => { sw2.classList.toggle('on', !!NL.state.beat); sw2.textContent = NL.state.beat ? '开' : '关'; };
     const sw3 = h('button.set-switch', { 'data-act': 'set-motion', onclick: () => { NL.state.motion = NL.motion.plus() ? 'orig' : 'plus'; NL.save(); NL.motion.apply(); paint3(); } });
     const paint3 = () => { sw3.classList.toggle('on', NL.motion.plus()); sw3.textContent = NL.motion.plus() ? '开' : '关'; };
     const sw4 = h('button.set-switch' + (NL.skin() === 'biao' ? '.on' : ''), { 'data-act': 'set-skin', onclick: () => { m.close(); NL.setSkin(NL.skin() === 'biao' ? 'li' : 'biao'); } }, NL.skin() === 'biao' ? '表' : '里');
-    const sw5 = h('button.set-switch', { 'data-act': 'set-ext', onclick: () => { NL.state.ext = !NL.state.ext; NL.save(); paint5(); NL.refresh(); } });
-    const paint5 = () => { sw5.classList.toggle('on', !!NL.state.ext); sw5.textContent = NL.state.ext ? '开' : '关'; };
+    const sw5 = h('button.set-switch', { 'data-act': 'set-ext', onclick: () => { NL.ext.set(!NL.ext.on()); paint5(); NL.refresh(); } });
+    const paint5 = () => { sw5.classList.toggle('on', NL.ext.on()); sw5.textContent = NL.ext.on() ? '开' : '关'; };
     paint(); paint2(); paint3(); paint5();
     const ROWS = [['背景音乐', '', sw], ['3D 节拍对决', '关掉就是原版战斗:自动对撞,只能看', sw2], ['升级动效', '关掉就照原版:弹窗和页面直接出现', sw3], ['表 / 里', '表是重画的美术,里是原版;规则和存档是同一份', sw4],
-      ['扩展玩法', '原版没有的新玩法:调频、涂鸦、巡游、援护', sw5]];
+      ['扩展玩法', '调频、涂鸦、巡游、援护;关掉就和原版一样', sw5]];
     if (NL.skin() === 'biao') { // 表:里那张带着三个按钮的底图换成真的按钮,开关排在同一个窗里
       m = ui.win({ title: '设置', h: 516, body(b) {
         b.classList.add('bset');

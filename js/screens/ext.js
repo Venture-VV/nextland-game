@@ -5,8 +5,8 @@
  *   园区巡游  主页上每天 3 个光点,点到会遇见一位伙伴,二选一,加信任值
  *   伙伴援护  3D 节拍对决里,能量满时放的不是「爆发」而是信任等级最高的伙伴的援护,等级越高越疼
  *
- * 全都在「设置 → 扩展玩法」开关后面(地址后加 ?ext=1 也行),默认关。关着的时候,这个文件什么都不做,
- * 游戏和原版一样。两种皮肤共用这一份规则;产出有每日上限,不超过原有玩法一天的产出。 */
+ * 全都在「设置 → 扩展玩法」开关后面,默认开(业主 11 月 16 日定的);地址后加 ?ext=0 或 ?ext=1 也能指定。
+ * 关掉以后,这个文件什么都不做,游戏和原版一样。两种皮肤共用这一份规则;产出有每日上限,不超过原有玩法一天的产出。 */
 (function () {
   'use strict';
   const h = NL.h, D = NL.data, game = NL.game, ui = NL.ui;
@@ -15,14 +15,19 @@
   const TAG_REWARD = [{ id: 'gift_green', n: 1 }];
   const TUNE_SEC = 30, TUNE_OK = 93, TAG_ROUNDS = 4;       // 调频:限时、判定重合的百分比;涂鸦:过几轮算赢
 
-  NL.defaults.push(() => ({ ext: false, extDay: { date: '', tune: 0, tag: 0, patrol: null } }));
+  // extSet 记的是「玩家自己动过开关」:没动过的一律算开,这样改成默认开之前留下的存档也跟着开
+  NL.defaults.push(() => ({ ext: true, extSet: false, extDay: { date: '', tune: 0, tag: 0, patrol: null } }));
   const today = () => { const d = new Date(Date.now() - 8 * 3600e3); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); };
   function day() {
     const s = NL.state;
     if (!s.extDay || s.extDay.date !== today()) s.extDay = { date: today(), tune: 0, tag: 0, patrol: null };
     return s.extDay;
   }
-  const X = (NL.ext = { on: () => !!NL.state.ext, debug: {} });
+  const X = (NL.ext = {
+    on: () => (NL.state.extSet ? !!NL.state.ext : true),
+    set(v) { NL.state.ext = !!v; NL.state.extSet = true; NL.save(); },
+    debug: {},
+  });
 
   /* ---------- 调频密码 ---------- */
   const wave = (p, x) => p.a * Math.sin(2 * Math.PI * p.f * x + p.p);
@@ -140,13 +145,20 @@
   // 三种小场面,换着用;{n} 是伙伴的名字,{z} 是地点。选第一个 +2 信任,第二个 +1
   const SCENES = [['在{z}的拐角遇见了{n}。对方朝你看了一眼。', '上前聊几句', '点头致意'], ['{n}正靠在{z}外的栏杆上看夜景。', '一起看一会儿', '不打扰，悄悄离开'],
     ['{n}在{z}门口像是在等人，手里的终端亮了又灭。', '问问要不要帮忙', '路过时打个招呼']];
+  // 一天一组,用日期当种子排出来:同一天谁打开都是这三个,不看皮肤,也不看是哪一刻第一次进的主页
+  function dayRand(seed) {
+    let a = 0;
+    for (let i = 0; i < seed.length; i++) a = (Math.imul(a, 31) + seed.charCodeAt(i)) | 0;
+    return () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
   X.spots = function () { // 今天的三个光点:[{pid, zone, scene, done}],每天第一次用到时排好
     if (!X.on()) return [];
     const d = day();
     if (!d.patrol) {
+      const rnd = dayRand('patrol' + d.date);
       const ids = D.partners.map((p) => p.id), zones = D.buildings.map((b) => b.id);
-      for (let i = ids.length - 1; i > 0; i--) { const j = Math.floor(NL.rand() * (i + 1)); const t = ids[i]; ids[i] = ids[j]; ids[j] = t; }
-      d.patrol = zones.slice(0, 3).map((zone, i) => ({ pid: ids[i], zone, scene: Math.floor(NL.rand() * SCENES.length), done: false }));
+      for (let i = ids.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); const t = ids[i]; ids[i] = ids[j]; ids[j] = t; }
+      d.patrol = zones.slice(0, 3).map((zone, i) => ({ pid: ids[i], zone, scene: Math.floor(rnd() * SCENES.length), done: false }));
       NL.save();
     }
     return d.patrol;
@@ -160,7 +172,8 @@
     ui.dialog({ html: line.replace('{n}', '<em>' + p.name + '</em>').replace('{z}', z.name), buttons: [{ text: b, cls: 'pink', onClick: pick(1) }, { text: a, cls: 'purple', onClick: pick(2) }] });
   };
   // 光点本身。里:钉在地图的建筑上;表:挂在地点按钮上。两面点了都是 X.patrol(i)
-  X.spotEl = (i, style) => h('button.ext-spot', { 'data-spot': i, style, onclick: (e) => { e.stopPropagation(); X.patrol(i); } }, h('i'));
+  // skip() 返回真时这一下不算点(里的地图刚被拖动过:松手的地方正好是光点,那是拖完了,不是要点它)
+  X.spotEl = (i, style, skip) => h('button.ext-spot', { 'data-spot': i, style, onclick: (e) => { e.stopPropagation(); if (skip && skip()) return; X.patrol(i); } }, h('i'));
 
   /* ---------- 伙伴援护 ---------- */
   X.ally = function () { // 信任等级最高的伙伴;开关关着或者没有伙伴存档时没有援护
