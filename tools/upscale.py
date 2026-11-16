@@ -37,7 +37,8 @@ def main():
             continue
         t = time.time()
         big = art_models.upscale4x(Image.open(src).convert("RGB"))
-        big.save(os.path.join(RAW, name + ".png"))
+        if big.width <= 8000:  # 地图那样的大图,4 倍的原始结果有上亿像素,就不另存了
+            big.save(os.path.join(RAW, name + ".png"))
         big.resize((big.width // 2, big.height // 2), Image.LANCZOS).save(dst, quality=92, method=6)
         print("放大好了: %s %dx%d,用时 %.0f 秒" % (name, big.width // 2, big.height // 2, time.time() - t), flush=True)
 

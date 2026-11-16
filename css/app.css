@@ -10,7 +10,7 @@ input { font: inherit; }
 
 #stage {
   position: absolute; left: 50%; top: 50%; width: 360px; height: 781px;
-  transform-origin: 50% 50%; overflow: hidden; background: #0d0a14;
+  transform-origin: 50% 50%; overflow: hidden; overflow: clip; background: #0d0a14; /* clip:连脚本和焦点都滚不动它。只写 hidden 的话,浏览器为了把获得焦点的元素滚进视野,会把整个舞台挪走 */
   box-shadow: 0 0 60px rgba(120, 40, 255, .25);
 }
 #screen, #layers, #chrome { position: absolute; inset: 0; }

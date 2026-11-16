@@ -199,7 +199,7 @@ html[data-skin=biao] .sr-card span { left: 0; text-align: center; color: #f4f1fb
 .ba-quick { position: absolute; left: 16px; top: 140px; height: 24px; padding: 0 28px 0 12px; border-radius: 12px; background: var(--b-glass); border: 1px solid rgba(125, 232, 255, .45); color: var(--b-ice); font-size: 10px; letter-spacing: 1px; }
 .ba-quick i { position: absolute; right: 11px; top: 8px; width: 6px; height: 6px; border-right: 1.5px solid var(--b-ice); border-bottom: 1.5px solid var(--b-ice); transform: rotate(45deg); }
 .ba-quick.open i { top: 11px; transform: rotate(-135deg); }
-.ba-zones { position: absolute; left: 0; top: 174px; width: 360px; height: 450px; padding: 2px 14px 10px; display: flex; flex-direction: column; gap: 12px; }
+.ba-zones { position: absolute; left: 0; top: 172px; width: 360px; height: 452px; padding: 10px 14px; display: flex; flex-direction: column; gap: 12px; background: rgba(11, 13, 26, .86); border-top: 1px solid rgba(232, 207, 154, .3); border-bottom: 1px solid rgba(232, 207, 154, .3); } /* 展开时盖在地图上 */
 .ba-zone { position: relative; flex: none; height: 136px; border-radius: 14px; background: #1a1d33 center/cover no-repeat; border: 1px solid rgba(232, 207, 154, .5); box-shadow: 0 6px 16px rgba(0, 0, 0, .5); overflow: hidden; color: #fff; text-align: left; transition: transform .25s cubic-bezier(.34, 1.56, .64, 1); }
 .ba-zone:active { transform: scale(.975); }
 .ba-zone::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(11, 13, 26, .92) 0, rgba(11, 13, 26, .45) 55%, transparent), linear-gradient(0deg, rgba(11, 13, 26, .85), transparent 55%); }
@@ -210,8 +210,6 @@ html[data-skin=biao] .sr-card span { left: 0; text-align: center; color: #f4f1fb
 .ba-zone em { right: 16px; bottom: 16px; color: var(--b-ice); font-size: 11px; font-style: normal; font-weight: 700; }
 .ba-zone u { left: 16px; bottom: 20px; width: 236px; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, .16); overflow: hidden; }
 .ba-zone s { display: block; height: 100%; background: linear-gradient(90deg, var(--b-rose), var(--b-ice)); }
-.ba-zones.compact .ba-zone { height: 64px; } .ba-zones.compact .ba-zone span { display: none; }
-.ba-zones.compact .ba-zone i { top: 10px; } .ba-zones.compact .ba-zone b { top: 24px; font-size: 17px; } .ba-zones.compact .ba-zone u { bottom: 8px; } .ba-zones.compact .ba-zone em { bottom: 5px; }
 
 /* ---------- 关卡列表和关卡详情 ---------- */
 .bst-prog { position: absolute; left: 18px; top: 150px; width: 324px; color: #b9bcd8; font-size: 9.5px; letter-spacing: 2px; z-index: 1; }
@@ -346,15 +344,12 @@ html[data-skin=biao] .scr-tickets .sh-cat, html[data-skin=biao] .scr-ticketShop 
 html[data-skin=biao] .bd-win .nl-input { background: rgba(255, 255, 255, .92); }
 html[data-skin=biao] .bd-agree i { border-color: var(--b-rose); border-radius: 4px; } html[data-skin=biao] .bd-agree input:checked + i { background: var(--b-rose) linear-gradient(45deg, transparent 42%, #fff 42% 58%, transparent 58%); } html[data-skin=biao] .bd-agree em { color: var(--b-ice); }
 
-/* ---------- 园区地图(示意)、种族与势力 ---------- */
-.bmap-box { position: absolute; left: 14px; top: 150px; width: 332px; height: 470px; border-radius: 16px; background: rgba(11, 13, 26, .72); border: 1px solid rgba(232, 207, 154, .4); overflow: hidden; }
-.bmap-box::before { content: ""; position: absolute; inset: 0; background: linear-gradient(rgba(125, 232, 255, .08) 1px, transparent 1px) 0 0 / 100% 26px, linear-gradient(90deg, rgba(125, 232, 255, .08) 1px, transparent 1px) 0 0 / 26px 100%; }
-.bmap-box::after { content: "示意图 · 以园区现场指引为准"; position: absolute; left: 0; right: 0; bottom: 10px; color: #7c80a6; font-size: 8.5px; text-align: center; letter-spacing: 1px; }
-.bmap-zone { position: absolute; width: 84px; height: 54px; padding-top: 30px; border-radius: 10px; border: 1px solid currentColor; background: rgba(18, 22, 44, .85); font-size: 10px; text-align: center; letter-spacing: 1px; box-shadow: 0 0 10px -2px currentColor; }
-.bmap-zone i { position: absolute; left: 50%; top: 9px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; opacity: .85; }
-.bmap-zone.rose { color: var(--b-rose); } .bmap-zone.ice { color: var(--b-ice); } .bmap-zone.gold { color: var(--b-gold); }
-.bmap-in { position: absolute; left: 142px; bottom: 34px; width: 48px; height: 20px; border-radius: 10px; background: var(--b-gold); color: #2a2010; font-size: 10px; font-weight: 700; line-height: 20px; text-align: center; }
-.bfa .bp-art { left: 70px; }
+/* ---------- 园区地图(原版的平面图,表的配色)、种族与势力 ---------- */
+.bmap .b-head { background: none; } .bmap .b-head::after { display: none; }
+.bmap-box { position: absolute; left: 14px; top: 124px; width: 332px; height: 424px; border-radius: 16px; background: #000; border: 1px solid rgba(232, 207, 154, .5); box-shadow: 0 0 20px rgba(255, 61, 127, .25); overflow: hidden; }
+.bmap-box img { display: block; width: 332px; height: 424px; }
+.btn.bmap-go { position: absolute; left: 110px; top: 572px; width: 140px; min-width: 0; height: 36px; font-size: 12px; letter-spacing: 2px; }
+.bfa .bp-cut { left: 96px; top: 96px; width: 264px; height: 470px; } .bfa .bp-glow { left: 130px; } .bfa .bp-ring { left: 120px; width: 260px; height: 260px; top: 190px; }
 .bfa-panel { position: absolute; left: 14px; top: 250px; width: 176px; padding: 4px 14px 14px; border-radius: 14px; background: var(--b-glass); border: 1px solid rgba(232, 207, 154, .45); }
 .bfa-panel h4 { margin: 12px 0 6px; padding-left: 8px; border-left: 2px solid var(--b-rose); color: var(--b-gold); font-size: 11.5px; letter-spacing: 2px; } .bfa-panel p { margin: 0; color: #d9d6e8; font-size: 9.5px; line-height: 1.6; }
 .bfa-now { position: absolute; left: 14px; top: 600px; width: 332px; height: 60px; padding-left: 18px; border-radius: 14px; background: var(--b-glass); border: 1px solid rgba(255, 61, 127, .5); color: #b9bcd8; font-size: 10.5px; line-height: 60px; letter-spacing: 2px; }
@@ -395,7 +390,11 @@ html[data-skin=biao] #screen.bp::after { display: none; }
 .bp-card b { position: absolute; left: 8px; bottom: 15px; font-size: 13px; letter-spacing: 2px; }
 .bp-card span { position: absolute; left: 8px; bottom: 3px; color: var(--b-rose); font-size: 8.5px; }
 .bp-card u { position: absolute; right: 7px; bottom: 6px; padding: 1px 6px; border-radius: 7px; background: linear-gradient(100deg, var(--b-rose), #a23cff); font-size: 8.5px; font-weight: 700; text-decoration: none; }
-.bp-art { position: absolute; left: 0; top: 52px; width: 360px; height: 526px; background: center top / 360px 526px no-repeat; pointer-events: none; }
+/* 大立绘:透明底的抠图(partner/cut_<id>.webp),后面是页面自己画的一团光和一道光环 */
+.bp-glow { position: absolute; left: 60px; top: 90px; width: 260px; height: 420px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 61, 127, .34), rgba(125, 232, 255, .14) 60%, transparent 78%); filter: blur(14px); pointer-events: none; }
+.bp-ring { position: absolute; left: 38px; top: 150px; width: 300px; height: 300px; border-radius: 50%; border: 1px solid rgba(232, 207, 154, .5); box-shadow: 0 0 0 14px rgba(125, 232, 255, .05), inset 0 0 40px rgba(255, 61, 127, .22); pointer-events: none; }
+.bp-ring::after { content: ""; position: absolute; inset: 22px; border-radius: 50%; border: 1px dashed rgba(125, 232, 255, .45); }
+.bp-cut { position: absolute; left: 0; top: 64px; width: 360px; height: 500px; background: center bottom / contain no-repeat; pointer-events: none; filter: drop-shadow(0 0 12px rgba(125, 232, 255, .3)) drop-shadow(0 10px 28px rgba(255, 61, 127, .3)); -webkit-mask-image: linear-gradient(#000 86%, transparent 100%); mask-image: linear-gradient(#000 86%, transparent 100%); }
 .bp-name { position: absolute; left: 18px; top: 86px; color: #fff; pointer-events: none; text-shadow: 0 2px 8px #000; }
 .bp-name b { display: block; font-size: 30px; font-weight: 800; letter-spacing: 6px; color: var(--b-gold); }
 .bp-name i { display: inline-block; margin-top: 6px; padding: 1px 8px; border: 1px solid var(--b-ice); border-radius: 9px; color: var(--b-ice); font-size: 9.5px; font-style: normal; }
@@ -414,13 +413,13 @@ html[data-skin=biao] #screen.bp::after { display: none; }
 .bp-row span { flex: none; width: 48px; color: var(--b-gold); font-weight: 700; }
 .bp-row em { flex: 1; font-style: normal; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #d9d6e8; }
 .bp-row button { flex: none; width: 70px; height: 20px; border-radius: 10px; border: 1px solid rgba(125, 232, 255, .6); color: var(--b-ice); font-size: 9px; }
-.bp-pic.none, .bp-art.none { display: flex; align-items: center; justify-content: center; }
-.bp-pic.none span, .bp-art.none span { color: rgba(232, 207, 154, .45); font-size: 9px; letter-spacing: 2px; }
-.bp-art.none span { font-size: 13px; margin-top: -60px; }
+.bp-pic.none, .bp-cut.none { display: flex; align-items: center; justify-content: center; }
+.bp-pic.none span, .bp-cut.none span { color: rgba(232, 207, 154, .45); font-size: 9px; letter-spacing: 2px; }
+.bp-cut.none span { font-size: 13px; margin-top: -60px; }
 
 /* ---------- 伙伴的几个子页面:赠礼、视觉档案、等级权益、每日委托、档案 ---------- */
 html[data-skin=biao] #screen.pink { background: radial-gradient(120% 45% at 85% 12%, #231338 0, transparent 70%), var(--b-night); }
-.bpg .bp-art { top: 40px; } .bpg .bp-name { top: 74px; }
+.bpg .bp-cut { top: 44px; height: 430px; } .bpg .bp-ring { top: 110px; } .bpg .bp-glow { top: 60px; } .bpg .bp-name { top: 74px; }
 html[data-skin=biao] .gp-tab { margin-left: 16px; border-radius: 10px 10px 0 0; clip-path: none; background: linear-gradient(100deg, var(--b-rose), #a23cff); letter-spacing: 3px; }
 html[data-skin=biao] .gp-card { border-radius: 12px; background: var(--b-glass); border: 1px solid rgba(232, 207, 154, .4); margin-bottom: 6px; }
 html[data-skin=biao] .trust { background: none; box-shadow: none; } html[data-skin=biao] .trust span { color: var(--b-gold); } html[data-skin=biao] .trust em { color: #fff; }
@@ -430,7 +429,7 @@ html[data-skin=biao] .gp-name { color: #f4f1fb; } html[data-skin=biao] .gp-tags 
 html[data-skin=biao] .gp-fav span { color: #b9bcd8; } html[data-skin=biao] .gp-fav em { color: var(--b-rose); } html[data-skin=biao] .gp-fav b { color: var(--b-gold); }
 html[data-skin=biao] .gp-desc { border-top-color: rgba(255, 255, 255, .15); color: #b9bcd8; } html[data-skin=biao] .gp-list { background: rgba(255, 255, 255, .06); border-radius: 10px; }
 html[data-skin=biao] .item.gift u { color: var(--b-rose); } html[data-skin=biao] .gp-count { background: var(--b-glass); color: var(--b-ice); border-radius: 7px; top: 712px; }
-.bpv .bp-art { top: 40px; } .bpv .bp-name { top: 74px; }
+.bpv .bp-cut { top: 50px; } .bpv .bp-name { top: 74px; }
 .bpv-bar { position: absolute; left: 0; top: 548px; width: 360px; height: 148px; background: var(--b-glass); border-top: 1px solid rgba(232, 207, 154, .45); border-bottom: 1px solid rgba(232, 207, 154, .45); }
 .bpv-bar > b { position: absolute; left: 16px; top: -24px; height: 24px; padding: 0 14px; border-radius: 10px 10px 0 0; background: linear-gradient(100deg, var(--b-rose), #a23cff); color: #fff; font-size: 12px; line-height: 24px; }
 .bpv-list { display: flex; gap: 10px; padding: 14px 16px; }
@@ -474,47 +473,66 @@ html[data-skin=biao] .if-cost b.no { color: var(--b-rose); }
 html[data-skin=biao] .if-btn { border-radius: 11px; background: linear-gradient(100deg, var(--b-rose), #a23cff); color: #fff; box-shadow: 0 0 8px rgba(255, 61, 127, .45); } html[data-skin=biao] .if-btn.off { background: #2a2e52; color: #7c80a6; box-shadow: none; }
 
 /* ---------- 角色页的表画法(js/screens/role.js 里的 renderBiao) ---------- */
-#screen.br .bp-art { top: 66px; height: 364px; background-size: 360px 526px; }
+/* 主角是透明底的抠图,站在这里画出来的舞台上:远处的城市、一道光柱、脚下的光环 */
+#screen.br { background: radial-gradient(90% 50% at 50% 36%, #1f2558 0, #12152c 55%, var(--b-night) 86%); }
+#screen.br::before { display: none; }
+.br-city { position: absolute; left: 0; top: 0; width: 360px; height: 470px; background: center 28% / cover no-repeat; opacity: .3; pointer-events: none; -webkit-mask-image: linear-gradient(#000 30%, transparent 92%); mask-image: linear-gradient(#000 30%, transparent 92%); }
+.br-mark { position: absolute; right: -4px; top: 96px; writing-mode: vertical-rl; color: transparent; -webkit-text-stroke: 1px rgba(125, 232, 255, .2); font-size: 58px; font-weight: 800; letter-spacing: 8px; line-height: 1; pointer-events: none; }
+.br-beam { position: absolute; left: 96px; top: 30px; width: 168px; height: 460px; border-radius: 50%; background: linear-gradient(180deg, rgba(125, 232, 255, 0), rgba(125, 232, 255, .2) 55%, rgba(255, 61, 127, .3)); filter: blur(22px); pointer-events: none; }
+.br-stage { position: absolute; left: 24px; top: 424px; width: 312px; height: 84px; border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 61, 127, .6), rgba(255, 61, 127, .14) 58%, transparent 74%); pointer-events: none; }
+.br-stage::before { content: ""; position: absolute; left: 34px; right: 34px; top: 12px; bottom: 12px; border-radius: 50%; border: 1.5px solid rgba(125, 232, 255, .85); box-shadow: 0 0 16px rgba(125, 232, 255, .75), inset 0 0 18px rgba(125, 232, 255, .4); }
+.br-stage::after { content: ""; position: absolute; left: 4px; right: 4px; top: 0; bottom: 0; border-radius: 50%; border: 1px solid rgba(232, 207, 154, .45); }
+.br-hero { position: absolute; left: 44px; top: 54px; width: 272px; height: 436px; background: center bottom / contain no-repeat; pointer-events: none; filter: drop-shadow(0 0 10px rgba(125, 232, 255, .4)) drop-shadow(0 8px 26px rgba(255, 61, 127, .35)); -webkit-mask-image: linear-gradient(#000 80%, transparent 99%); mask-image: linear-gradient(#000 80%, transparent 99%); }
+html[data-motion=plus] .br-hero { animation: m-breathe 4.6s ease-in-out infinite alternate; transform-origin: 50% 100%; }
+html[data-motion=plus] .br-stage::before { animation: br-ring 3.2s ease-in-out infinite alternate; }
+@keyframes br-ring { to { transform: scale(1.06); opacity: .7; } }
+html.reduced .br-hero, html.reduced .br-stage::before { animation: none !important; }
 #screen.br .bp-name { top: 38px; }
 #screen.br .bp-name b { font-size: 20px; letter-spacing: 4px; display: inline-block; margin-right: 8px; }
 #screen.br .bp-name i { margin-top: 0; vertical-align: 4px; }
-#screen.br .bp-name span { display: none; }
-.br-tabs { position: absolute; left: 0; top: 196px; display: flex; flex-direction: column; gap: 9px; }
-.br-tabs button { width: 62px; height: 28px; border-radius: 0 14px 14px 0; background: var(--b-glass); border: 1px solid rgba(232, 207, 154, .5); border-left: 0; color: var(--b-gold); font-size: 11.5px; letter-spacing: 2px; }
+#screen.br .bp-name span { margin-top: 5px; letter-spacing: 2px; font-size: 9px; color: var(--b-ice); }
+/* 装备格:分列在主角两侧 */
+.br-slots .l, .br-slots .r { position: absolute; top: 108px; display: flex; flex-direction: column; gap: 9px; }
+.br-slots .l { left: 10px; } .br-slots .r { right: 10px; }
+.br-slots button { position: relative; width: 56px; height: 62px; border-radius: 12px; background: rgba(18, 22, 44, .78); border: 1px dashed rgba(232, 207, 154, .45); color: #b9bcd8; }
+.br-slots button.has { border: 1px solid var(--b-rose); box-shadow: 0 0 10px rgba(255, 61, 127, .4); color: #fff; }
+.br-slots img { position: absolute; left: 8px; top: 5px; width: 40px; height: 40px; }
+.br-slots em { position: absolute; left: 0; right: 0; top: 8px; color: rgba(232, 207, 154, .5); font-size: 22px; font-style: normal; font-weight: 300; text-align: center; }
+.br-slots span { position: absolute; left: 0; right: 0; bottom: 4px; font-size: 8.5px; text-align: center; letter-spacing: 1px; }
+.br-slots u { position: absolute; right: -4px; top: -5px; padding: 0 5px; border-radius: 7px; background: var(--b-rose); color: #fff; font-size: 8px; line-height: 13px; text-decoration: none; }
+/* 四个页签横排,下面是面板 */
+.br-tabs { position: absolute; left: 14px; top: 508px; width: 332px; height: 30px; display: flex; gap: 6px; }
+.br-tabs button { flex: 1; border-radius: 15px; background: var(--b-glass); border: 1px solid rgba(232, 207, 154, .45); color: var(--b-gold); font-size: 11.5px; letter-spacing: 4px; text-indent: 4px; }
 .br-tabs button.on { background: linear-gradient(100deg, var(--b-rose), #a23cff); border-color: transparent; color: #fff; box-shadow: 0 0 10px rgba(255, 61, 127, .55); }
-.br-panel { position: absolute; left: 14px; top: 420px; width: 332px; height: 224px; border-radius: 14px; background: var(--b-glass); border: 1px solid rgba(232, 207, 154, .45); box-shadow: 0 0 18px rgba(255, 61, 127, .18); }
-.br-lv { position: absolute; left: 18px; right: 18px; top: 22px; color: #fff; }
+.br-panel { position: absolute; left: 14px; top: 546px; width: 332px; height: 100px; border-radius: 14px; background: var(--b-glass); border: 1px solid rgba(232, 207, 154, .4); box-shadow: 0 0 18px rgba(0, 0, 0, .4); }
+.br-lv { position: absolute; left: 16px; top: 14px; width: 150px; color: #fff; }
 .br-lv b { font-size: 22px; color: var(--b-gold); letter-spacing: 1px; }
-.br-lv span { position: absolute; right: 0; top: 10px; font-size: 10px; color: #d9d6e8; }
-.br-lv .bar { margin-top: 8px; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .14); overflow: hidden; }
+.br-lv span { display: block; margin-top: 4px; font-size: 9.5px; color: #b9bcd8; }
+.br-lv .bar { position: static; width: 150px; margin-top: 8px; height: 5px; border-radius: 3px; background: rgba(255, 255, 255, .14); overflow: hidden; }
 .br-lv .bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--b-rose), var(--b-ice)); }
-.br-rows { position: absolute; left: 18px; right: 18px; top: 104px; display: flex; gap: 12px; }
-.br-rows button { flex: 1; height: 60px; border-radius: 12px; border: 1px solid rgba(125, 232, 255, .5); color: #fff; font-size: 14px; letter-spacing: 2px; }
-.br-rows span { display: block; margin-bottom: 4px; color: var(--b-ice); font-size: 9px; letter-spacing: 3px; }
-.br-slots { position: absolute; left: 14px; top: 16px; width: 304px; display: grid; grid-template-columns: repeat(5, 54px); gap: 12px 8.500px; }
-.br-slots button, .br-chips button { position: relative; height: 76px; border-radius: 10px; background: rgba(255, 255, 255, .05); border: 1px dashed rgba(232, 207, 154, .4); color: #d9d6e8; }
-.br-slots button.has { border: 1px solid var(--b-rose); box-shadow: 0 0 8px rgba(255, 61, 127, .35); }
-.br-slots img { position: absolute; left: 4px; top: 4px; width: 44px; height: 44px; border-radius: 6px; }
-.br-slots span { position: absolute; left: 0; right: 0; bottom: 5px; font-size: 9px; text-align: center; }
-.br-slots u { position: absolute; right: 3px; top: 2px; padding: 0 4px; border-radius: 6px; background: var(--b-rose); color: #fff; font-size: 8px; text-decoration: none; }
-.br-link { position: absolute; right: 16px; bottom: 10px; color: var(--b-ice); font-size: 10px; }
-.br-list { position: absolute; left: 16px; right: 16px; top: 16px; display: flex; flex-direction: column; gap: 10px; }
-.br-list button { height: 56px; padding: 0 16px; border-radius: 12px; background: rgba(255, 255, 255, .05); border: 1px solid rgba(232, 207, 154, .4); color: #fff; text-align: left; }
-.br-list b { display: block; font-size: 13.5px; color: var(--b-gold); letter-spacing: 2px; }
-.br-list span { font-size: 9.5px; color: #b9b6cc; }
-.br-chips { position: absolute; left: 14px; top: 16px; width: 304px; display: grid; grid-template-columns: repeat(5, 54px); gap: 12px 8.500px; }
-.br-chips b { display: block; font-size: 13px; color: var(--b-ice); }
-.br-chips span { font-size: 8.5px; color: #8f8ca8; }
+.br-rows { position: absolute; left: 184px; right: 14px; top: 14px; display: flex; flex-direction: column; gap: 8px; }
+.br-rows button { height: 32px; border-radius: 16px; border: 1px solid rgba(125, 232, 255, .5); color: #fff; font-size: 12px; letter-spacing: 2px; }
+.br-rows span { margin-right: 10px; color: var(--b-ice); font-size: 9px; letter-spacing: 3px; }
+.br-hint { position: absolute; left: 18px; top: 22px; } .br-hint b { display: block; color: var(--b-gold); font-size: 16px; letter-spacing: 2px; } .br-hint span { display: block; margin-top: 8px; color: #b9bcd8; font-size: 10px; }
+.br-link { position: absolute; right: 14px; top: 34px; height: 30px; padding: 0 14px; border-radius: 15px; border: 1px solid rgba(125, 232, 255, .5); color: var(--b-ice); font-size: 11px; }
+.br-list { position: absolute; left: 12px; right: 12px; top: 14px; display: flex; gap: 8px; }
+.br-list button { flex: 1; height: 72px; border-radius: 12px; background: rgba(255, 255, 255, .05); border: 1px solid rgba(232, 207, 154, .4); color: #fff; }
+.br-list b { display: block; font-size: 12.5px; color: var(--b-gold); letter-spacing: 1px; }
+.br-list span { display: block; margin-top: 6px; font-size: 8.5px; color: #b9b6cc; }
+.br-panel.chip .br-link { top: auto; right: 12px; bottom: -34px; display: none; }
+.br-chips { position: absolute; left: 12px; top: 10px; width: 308px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px 7px; }
+.br-chips button { height: 37px; border-radius: 10px; background: rgba(255, 255, 255, .05); border: 1px dashed rgba(232, 207, 154, .4); }
+.br-chips b { display: inline; font-size: 12px; color: var(--b-ice); }
+.br-chips span { margin-left: 4px; font-size: 8.5px; color: #8f8ca8; }
 .br-power { position: absolute; left: 14px; top: 654px; width: 332px; height: 36px; display: flex; align-items: center; gap: 10px; padding-left: 16px; border-radius: 18px; background: var(--b-glass); border: 1px solid rgba(232, 207, 154, .45); color: #fff; }
 .br-power span { color: var(--b-rose); font-size: 11px; font-weight: 700; letter-spacing: 2px; }
 .br-power b { flex: 1; font-size: 16px; }
 .br-power button { width: 96px; height: 28px; margin-right: 4px; border-radius: 14px; background: linear-gradient(100deg, #f3dfb0, #cfa860); color: #2a2010; font-size: 11px; font-weight: 700; }
 
 /* ---------- 登录页的表画法 ---------- */
-.bl-art { position: absolute; background-repeat: no-repeat; pointer-events: none; -webkit-mask-image: linear-gradient(#000 62%, transparent 96%); mask-image: linear-gradient(#000 62%, transparent 96%); }
-.bl-art:not(.main) { opacity: .7; filter: saturate(.85) brightness(.9); }
-/* 中间这张左右两边也渐隐,让两侧的人露出来(立绘是不透明的夜色底,不这样会整张盖住) */
-.bl-art.main { -webkit-mask-image: linear-gradient(90deg, transparent 3%, #000 30%, #000 70%, transparent 97%), linear-gradient(#000 62%, transparent 96%); -webkit-mask-composite: source-in; mask-image: linear-gradient(90deg, transparent 3%, #000 30%, #000 70%, transparent 97%), linear-gradient(#000 62%, transparent 96%); mask-composite: intersect; }
+.bl-art { position: absolute; background: center bottom / contain no-repeat; pointer-events: none; filter: drop-shadow(0 8px 24px rgba(0, 0, 0, .6)); -webkit-mask-image: linear-gradient(#000 70%, transparent 98%); mask-image: linear-gradient(#000 70%, transparent 98%); }
+.bl-art:not(.main) { opacity: .78; filter: saturate(.8) brightness(.78) drop-shadow(0 8px 24px rgba(0, 0, 0, .6)); }
+.bl-art.main { filter: drop-shadow(0 0 14px rgba(125, 232, 255, .3)) drop-shadow(0 10px 30px rgba(255, 61, 127, .35)); }
 .bl-title { position: absolute; left: 0; right: 0; top: 52px; text-align: center; pointer-events: none; text-shadow: 0 2px 10px #000; }
 .bl-title i { display: block; color: var(--b-rose); font-size: 10px; font-style: normal; letter-spacing: 9px; }
 .bl-title b { display: block; margin-top: 4px; color: var(--b-gold); font-size: 30px; font-weight: 800; letter-spacing: 6px; }
@@ -523,13 +541,13 @@ html[data-skin=biao] .if-btn { border-radius: 11px; background: linear-gradient(
 .bl-out { position: absolute; left: 296px; top: 130px; width: 56px; height: 24px; border-radius: 12px; border: 1px solid rgba(232, 207, 154, .5); color: var(--b-gold); font-size: 9px; }
 .bl-age { position: absolute; left: 14px; top: 130px; width: 34px; height: 34px; border-radius: 6px; border: 1.5px solid var(--b-ice); color: var(--b-ice); font-size: 12px; font-weight: 800; line-height: 31px; text-align: center; }
 /* ---------- 表的动效打磨(只在「升级动效」开着时有;系统开了「减少动态效果」就停) ---------- */
-html[data-motion=plus] .bp-art, html[data-motion=plus] .bh-art { animation: m-breathe 4.6s ease-in-out infinite alternate; transform-origin: 50% 100%; }
+html[data-motion=plus] .bp-cut { animation: m-breathe 4.6s ease-in-out infinite alternate; transform-origin: 50% 100%; }
 html[data-motion=plus] .bl-art { animation: m-breathe 5.2s ease-in-out infinite alternate; transform-origin: 50% 100%; } html[data-motion=plus] .bl-art.main { animation-duration: 4.4s; animation-delay: -1.5s; }
 html[data-motion=plus][data-skin=biao] .b-head img { animation: b-pan 16s ease-in-out infinite alternate; }
 @keyframes b-pan { from { transform: scale(1.02); } to { transform: scale(1.1) translateX(-2%); } }
 html[data-motion=plus][data-skin=biao] .story-plate { animation: b-in .4s cubic-bezier(.2, 0, 0, 1) both; }
 @keyframes b-in { from { opacity: 0; transform: translateY(10px) scale(1.02); } }
-html.reduced .bp-art, html.reduced .bh-art, html.reduced .bl-art, html.reduced .b-head img, html.reduced .story-plate { animation: none !important; }
+html.reduced .bp-cut, html.reduced .bl-art, html.reduced .b-head img, html.reduced .story-plate { animation: none !important; }
 
 /* 进游戏的进度条、公告 */
 html[data-skin=biao] .load-bar { left: 60px; top: 632px; width: 240px; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .16); overflow: visible; border: 0; clip-path: none; }
@@ -582,8 +600,16 @@ html[data-skin=biao] .story-choice button { height: 36px; border-radius: 18px; b
 html[data-skin=biao] .story-choice button:active { background: linear-gradient(100deg, var(--b-rose), #a23cff); }
 
 /* ---------- 主页的表画法 ---------- */
-.bh-bg { position: absolute; inset: 0; background: center/cover no-repeat; opacity: .55; pointer-events: none; -webkit-mask-image: linear-gradient(#000 55%, transparent 96%); mask-image: linear-gradient(#000 55%, transparent 96%); }
-.bh-art { position: absolute; left: 40px; top: 176px; width: 300px; height: 438px; background: center top / 300px 438px no-repeat; pointer-events: none; -webkit-mask-image: linear-gradient(90deg, transparent 2%, #000 28%, #000 72%, transparent 98%), linear-gradient(#000 60%, transparent 94%); -webkit-mask-composite: source-in; mask-image: linear-gradient(90deg, transparent 2%, #000 28%, #000 72%, transparent 98%), linear-gradient(#000 60%, transparent 94%); mask-composite: intersect; }
+/* 地图和里是同一张(tools/build_biao_map.py 调成了表的配色),上下压一层夜色,好让上面的部件看得清 */
+.bh-shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(11, 13, 26, .88) 0, rgba(11, 13, 26, .35) 24%, transparent 38%, transparent 68%, rgba(11, 13, 26, .7) 100%); }
+/* 地图上的地点牌子:盖在里烙着的那块牌子上,位置和大小取自 D.buildings */
+.hit.bh-sign { border-radius: 12px; background: #1a1d33 center/cover no-repeat; border: 1px solid rgba(232, 207, 154, .75); box-shadow: 0 8px 18px rgba(0, 0, 0, .6), 0 0 14px rgba(255, 61, 127, .4); overflow: hidden; color: #fff; text-align: left; transition: transform .25s cubic-bezier(.34, 1.56, .64, 1); }
+.hit.bh-sign:active { transform: scale(.96); }
+.bh-sign::before { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(11, 13, 26, .96) 0, rgba(11, 13, 26, .55) 45%, rgba(11, 13, 26, .1) 100%); }
+.bh-sign > * { position: absolute; left: 10px; }
+.bh-sign i { top: 9px; color: var(--b-rose); font-size: 8px; font-style: normal; letter-spacing: 3px; }
+.bh-sign b { bottom: 24px; color: var(--b-gold); font-size: 14px; letter-spacing: 2px; white-space: nowrap; }
+.bh-sign span { bottom: 8px; color: var(--b-ice); font-size: 9px; letter-spacing: 1px; }
 .bh-card { position: absolute; left: 14px; top: 132px; width: 204px; height: 58px; border-radius: 29px 12px 12px 29px; background: var(--b-glass); border: 1px solid rgba(232, 207, 154, .55); color: #fff; text-align: left; }
 .bh-face { position: absolute; left: 4px; top: 4px; width: 48px; height: 48px; border-radius: 50%; background: #1a1d33 center/cover; border: 1.5px solid var(--b-rose); }
 .bh-card b { position: absolute; left: 64px; top: 10px; font-size: 14px; letter-spacing: 1px; color: var(--b-gold); }
@@ -591,11 +617,6 @@ html[data-skin=biao] .story-choice button:active { background: linear-gradient(1
 .bh-place { position: absolute; left: 100px; top: 194px; height: 20px; padding: 0 10px; border-radius: 10px; background: rgba(11, 13, 26, .7); color: #d9d6e8; font-size: 9.5px; }
 .bh-chip { position: absolute; width: 36px; height: 36px; border-radius: 50%; background: var(--b-glass); border: 1px solid rgba(125, 232, 255, .55); color: var(--b-ice); font-size: 9.5px; }
 .bh-side { position: absolute; left: 284px; width: 68px; height: 40px; border-radius: 12px 0 0 12px; background: var(--b-glass); border: 1px solid rgba(232, 207, 154, .55); border-right: 0; color: var(--b-gold); font-size: 11.5px; letter-spacing: 1px; }
-.bh-zones { position: absolute; left: 14px; top: 470px; width: 332px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.bh-zones span { width: 100%; color: var(--b-rose); font-size: 9px; letter-spacing: 4px; text-shadow: 0 1px 4px #000; }
-.bh-zone { position: relative; }
-.bh-zone > button[data-building] { height: 30px; padding: 0 14px; border-radius: 15px; background: var(--b-glass); border: 1px solid rgba(255, 61, 127, .6); color: #fff; font-size: 11px; letter-spacing: 1px; }
-.bh-zone .ext-spot { right: -12px; top: -16px; }
 
 /* ---------- 扩展玩法在表里的样子 ---------- */
 html[data-skin=biao] .xt-tip b { color: var(--b-rose2); }

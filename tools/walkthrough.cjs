@@ -291,7 +291,7 @@ const FLOWS = [
     {"wait": 1100, "shot": "c10_biao_home"},
     {"eval": "if(NL.state.skin!=='biao'||document.documentElement.dataset.skin!=='biao')throw new Error('点翻面按钮后应该到表');if(document.querySelector('.m-pixels'))throw new Error('转场结束后像素块没有清掉')"},
     {"eval": "if(JSON.stringify(Object.assign({},NL.state,{skin:0}))!==window.__save0)throw new Error('翻面只应该改皮肤,存档里别的不能变')"},
-    {"eval": "if(!document.querySelector('.bh-zones'))throw new Error('表的主页应该用自己的画法');if(document.querySelectorAll('.bh-zones [data-building]').length!==NL.data.buildings.length)throw new Error('表的主页应该给每栋建筑一个入口')"},
+    {"eval": "if(!document.querySelector('.bh-card'))throw new Error('表的主页应该用自己的画法');if(document.querySelectorAll('.park-map .bh-sign[data-building]').length!==3)throw new Error('表的主页地图上应该有三块地点牌子');if(document.querySelector('.park-map').style.backgroundImage.indexOf('assets/biao/home/map')<0)throw new Error('表的主页应该用表的地图')"},
     {"click": "[data-building=core]", "wait": 500},
     {"eval": "if(NL.current().name!=='stages')throw new Error('表里点地点应该和里点建筑一样进关卡')"},
     {"click": ".back-btn", "wait": 400},
@@ -302,7 +302,7 @@ const FLOWS = [
     {"click": "[data-task=g1] .tk-title", "wait": 500, "shot": "c10_biao_win"},
     {"clickXY": [20, 770], "wait": 300},
     {"click": "[data-nav=role]", "wait": 400, "shot": "c10_biao_role"},
-    {"eval": "if(!document.querySelector('.br-panel'))throw new Error('表的角色页应该用自己的画法')"},
+    {"eval": "if(!document.querySelector('.br-panel'))throw new Error('表的角色页应该用自己的画法');var hh=document.querySelector('.br-hero');if(!hh||hh.style.backgroundImage.indexOf('assets/biao/partner/cut_hero')<0||!document.querySelector('.br-stage'))throw new Error('表的角色页:主角应该是抠图,站在页面画的舞台上')"},
     {"click": "[data-tab=equip]", "wait": 300, "shot": "c10_biao_role_equip"},
     {"eval": "if(document.querySelectorAll('.br-slots [data-slot]').length!==10)throw new Error('表的角色页应该有 10 个装备格')"},
     {"click": "[data-slot=armor]", "wait": 400},
@@ -319,7 +319,7 @@ const FLOWS = [
     {"click": "[data-nav=partner]", "wait": 500, "shot": "c10_biao_plist"},
     {"eval": "if(!document.querySelector('.bp-grid'))throw new Error('表的伙伴列表应该用自己的画法');if(document.querySelectorAll('.bp-card').length!==6)throw new Error('表的伙伴列表应该有 6 张卡')"},
     {"click": "[data-partner=jiguang]", "wait": 500, "shot": "c10_biao_pinfo"},
-    {"eval": "var a=document.querySelector('.bp-art');if(!a||a.style.backgroundImage.indexOf('assets/biao/partner/art_jiguang')<0)throw new Error('表的伙伴页应该用表的立绘')"},
+    {"eval": "var a=document.querySelector('.bp-cut');if(!a||a.style.backgroundImage.indexOf('assets/biao/partner/cut_jiguang')<0)throw new Error('表的伙伴页应该用表的立绘(透明底的抠图)');if(!document.querySelector('.bp-ring'))throw new Error('立绘后面应该有页面自己画的光环')"},
     {"click": "[data-act=like]", "wait": 300},
     {"eval": "if(NL.state.partners.jiguang.likes!==6)throw new Error('表里点赞应该和里一样加 1')"},
     {"click": "[data-act=like]", "wait": 300},
@@ -358,14 +358,19 @@ const FLOWS = [
   ["扩展玩法:开关、调频密码、涂鸦暗号、园区巡游、伙伴援护", [
     {"goto": "?reset#home", "wait": 300},
     {"click": ".dlg-btns .btn.pink", "wait": 200},
-    {"eval": "if(document.querySelector('.ext-spot'))throw new Error('开关关着时不应该有巡游光点');if(NL.ext.ally())throw new Error('开关关着时不应该有援护')"},
+    {"eval": "if(!NL.ext.on()||document.querySelectorAll('.ext-spot').length!==3)throw new Error('扩展玩法默认是开的,主页应该有 3 个巡游光点')"},
+    {"eval": "NL.ui.settings()", "wait": 300},
+    {"click": "[data-act=set-ext]", "wait": 200},
+    {"clickXY": [20, 770], "wait": 300},
+    {"eval": "if(NL.ext.on())throw new Error('点一下开关应该关掉扩展玩法');if(document.querySelector('.ext-spot'))throw new Error('开关关着时不应该有巡游光点');if(NL.ext.ally())throw new Error('开关关着时不应该有援护')"},
     {"click": "[data-act=explore]", "wait": 300},
     {"click": "[data-act=itx-5]", "wait": 300},
     {"eval": "if(document.querySelector('.xt'))throw new Error('开关关着时,调频密码应该还是原版的提示语')"},
     {"eval": "NL.ui.settings()", "wait": 300},
     {"click": "[data-act=set-ext]", "wait": 200, "shot": "c12_ext_on"},
     {"clickXY": [20, 770], "wait": 300},
-    {"eval": "if(document.querySelectorAll('.ext-spot').length!==3)throw new Error('打开开关后主页应该有 3 个巡游光点');window.__t=JSON.stringify(NL.state.partners)"},
+    {"eval": "if(!NL.ext.on()||document.querySelectorAll('.ext-spot').length!==3)throw new Error('重新打开开关后主页应该有 3 个巡游光点')"},
+    {"eval": "var keep=JSON.parse(localStorage.getItem('nextland-web-save-v1'));if(keep.ext!==true||keep.extSet!==true)throw new Error('动过开关应该记进存档');keep.ext=false;keep.extSet=false;var st=NL.state;NL.state=keep;var on=NL.ext.on();NL.state=st;if(!on)throw new Error('没动过开关的老存档(哪怕存着关)也应该算开')"},
     {"click": "[data-spot='1']", "wait": 300, "shot": "c12_patrol"},
     {"click": ".dlg-btns .btn.purple", "wait": 300},
     {"eval": "var sp=NL.ext.spots()[1];if(!sp.done)throw new Error('巡游选完后这个光点应该记为去过');var st=NL.state.partners[sp.pid];if(!st||(st.trust<2&&st.lv<2))throw new Error('巡游选「多聊几句」应该加 2 点信任');if(document.querySelectorAll('.ext-spot').length!==2)throw new Error('去过的光点应该消失')"},
@@ -383,7 +388,7 @@ const FLOWS = [
     {"eval": "if(document.querySelector('[data-act=burst] b').textContent!=='援护')throw new Error('打开开关后爆发按钮应该写着援护');document.querySelector('[data-act=skip]').click()", "wait": 700},
     {"clickXY": [180, 500], "wait": 300},
     {"goto": "?skin=biao&ext=1#home", "wait": 500},
-    {"eval": "if(document.querySelectorAll('.bh-zone .ext-spot').length!==2)throw new Error('表的主页上,没去过的两个光点应该挂在地点按钮上')", "shot": "c12_biao_spots"},
+    {"eval": "if(document.querySelectorAll('.park-map .ext-spot').length!==2)throw new Error('表的主页地图上,应该还剩两个没去过的光点')", "shot": "c12_biao_spots"},
   ]],
   ["3D 战斗:格挡、爆发、击破、结算", [
     {"goto": "?reset#home", "wait": 300},
@@ -439,6 +444,7 @@ const FLOWS = [
   async function runFlow(title, steps, skin) {
     const page = await browser.newPage({ viewport: { width: 360, height: 781 }, deviceScaleFactor: skin ? 1 : 2 });
     const errs = [];
+    let scrolled = false;
     page.on('pageerror', (e) => errs.push('脚本报错: ' + e.message));
     page.on('console', (m) => { if (m.type() === 'error') errs.push('控制台报错: ' + m.text()); });
     for (const s of steps) {
@@ -452,6 +458,8 @@ const FLOWS = [
         while (cur < s.clock - 1e-6) { cur = Math.min(s.clock, cur + 1 / 30); await page.evaluate((t) => new Promise((r) => { NL.testClock = t; requestAnimationFrame(() => requestAnimationFrame(r)); }), cur); }
       }
       if (s.wait) await page.waitForTimeout(s.wait);
+      // 舞台被滚动过就算失败(出过这种事:点一个半露在外面的按钮,浏览器把整个舞台挪了几十像素,之后的点击全偏)
+      if (!scrolled && await page.evaluate(() => { const e = document.querySelector('#stage'); return !!e && (e.scrollLeft !== 0 || e.scrollTop !== 0 || window.scrollX !== 0 || window.scrollY !== 0); })) { scrolled = true; errs.push('舞台被滚动了,发生在这一步之后: ' + JSON.stringify(s).slice(0, 120)); }
       if (s.shot && !skin) await page.screenshot({ path: path.join(SHOTS, s.shot + '.png') });
     }
     console.log((errs.length ? '✗ ' : '✓ ') + (skin ? '表:' : '') + title + (errs.length ? '\n  ' + errs.join('\n  ') : ''));

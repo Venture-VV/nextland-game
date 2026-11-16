@@ -12,10 +12,15 @@
 做法:
 1. 录屏 4:07 起有一段在主页连续拖动地图。按每秒 30 帧抽出来,只留主页画面。
 2. 相邻两帧用相位相关算出地图位移,串成每帧在大图上的位置。
-3. 每帧把没被 HUD 挡住的部分贴到大图上,同一像素取多帧中位数。
-4. 始终被挡住、没拍到的地方,按地砖纹理的周期往外延伸补上。
-5. HUD 固定在屏幕上、地图在动:对每个屏幕像素做「画面 = a*地图 + c」的回归,
+3. 每帧把屏幕中间那一块(肯定没有 HUD)贴到大图上,同一像素取多帧中位数。
+4. HUD 固定在屏幕上、地图在动:对每个屏幕像素做「画面 = a*地图 + c」的回归,
    a 就是透过率,由此得到 HUD 的颜色和透明度。
+5. 有了 HUD 的透明度,再拼一遍:屏幕上凡是 HUD 完全透明的地方都是地图(主要是屏幕上半部分
+   几个按钮之间的空当)。这一步把园区上沿的围墙补全了,补的都是录屏里的真实画面。
+6. 还剩两处录屏里始终看不到:最下面被底部导航栏挡住的一条,和左下角一小块。那里的围墙、
+   蓝色边框、轨道都是沿 2:1 的斜线走的,就顺着斜线把已有的画面往下延,各自延到拐角。
+   **这一部分是补画的,不是录屏里的画面**(成品地图 y≥2153 的园区部分)。
+7. 园区外面没拍到的地方都是一色的地砖,按地砖纹理的周期铺满。
 """
 import argparse
 import glob
@@ -103,14 +108,14 @@ def home_mask():
     return m
 
 
-def composite(frames, c, off, motion):
+def composite(frames, c, off, motion, mask=None):
     ys, xs = [off[i][0] for i in c], [off[i][1] for i in c]
     oy, ox = -min(ys), -min(xs)
     hc, wc = max(ys) - min(ys) + FH, max(xs) - min(xs) + FW
     k = 7
     stack = np.zeros((k, hc, wc, 3), np.uint8)
     cnt = np.zeros((hc, wc), np.uint8)
-    mask = home_mask()
+    mask = home_mask() if mask is None else mask
     for i in sorted(c, key=lambda i: motion[i] + motion.get(i + 1, 0)):  # 先贴静止的帧,更清晰
         a = np.asarray(Image.open(frames[i]).convert("RGB"))
         y, x = off[i][0] + oy, off[i][1] + ox
@@ -127,37 +132,90 @@ def composite(frames, c, off, motion):
     return out, cnt > 0, (oy, ox)
 
 
-def fill_holes(rgb, ok):
-    """没拍到的地方按地砖周期往外延伸。"""
+def hud_free_mask(hud):
+    """屏幕上哪些像素肯定是地图:HUD 完全透明、又不在几个会动或半透明的部件附近。"""
+    import cv2
+    m = (hud[..., 3] > 70).astype(np.uint8)
+    m = cv2.morphologyEx(m, cv2.MORPH_OPEN, np.ones((5, 5), np.uint8))   # 透明度图里零星的噪点
+    mask = ~cv2.dilate(m, np.ones((17, 17), np.uint8)).astype(bool)      # HUD 往外留一圈
+    mask[1396:, :] = False            # 底部导航
+    mask[:56, :] = False              # 状态栏
+    mask[80:170, 500:] = False        # 微信胶囊(半透明,透明度图里认不全)
+    mask[56:130, :240] = False        # 页面名牌子
+    mask[170:260, :] = False          # 资源栏一整行
+    mask[250:430, :500] = False       # 名片
+    mask[250:360, 440:] = False       # 好友、邮箱、设置
+    mask[400:540, :210] = False       # 势力选择、活动日历
+    mask[380:980, 560:] = False       # 右侧一列会上下浮动的按钮
+    mask[1290:1400, 400:560] = False  # 引导箭头
+    return mask
+
+
+def to_final(rgb, ok):
+    """把拼图放进成品地图的画幅(3773×2609):上下左右各留出一圈,给拖动留余量。成品 = 拼图 + (120, -80)。"""
     pt, pb, pl, pr = 420, 330, 60, 60
-    rgb = np.pad(rgb, ((pt, pb), (pl, pr), (0, 0))).astype(np.float32)
+    rgb = np.pad(rgb, ((pt, pb), (pl, pr), (0, 0)))
     ok = np.pad(ok, ((pt, pb), (pl, pr)))
-    floor = rgb[1530 + pt:1700 + pt, 20 + pl:300 + pl].reshape(-1, 3).mean(0)
-    like = ok & (np.abs(rgb - floor).max(axis=2) < 9)
+    hh, ww = ok.shape
+    return rgb[300:hh - 40, 140:ww - 120].copy(), ok[300:hh - 40, 140:ww - 120].copy()
+
+
+# 补画底部时的分界线(成品地图坐标,每个点是 (x, y)):线左边的围墙往右下延(\),右边的围墙和轨道往左下延(/)。
+# 三个转折分别是蓝色边框、紫墙、灰墙的拐角——它们的位置是两段已知的墙各自延长后的交点。
+CORNERS = [(1715, 1850), (1715, 2227), (1687, 2242), (1687, 2336), (1738, 2363), (1738, 99999)]
+STEP = (62, 31)  # 沿斜线走一格:右 62、下 31(2:1 的等距网格)
+
+
+def complete(rgb, ok):
+    """把没拍到的地方补上:底部顺着斜线延伸(补画),其余铺地砖。"""
+    out, known = rgb.copy(), ok.copy()
+    h, w = known.shape
+    yy, xx = np.mgrid[0:h, 0:w]
+    bx = np.interp(np.arange(h), [p[1] for p in CORNERS], [p[0] for p in CORNERS])
+    left, bottom = xx < bx[:, None], yy > CORNERS[0][1]
+    dx, dy = STEP
+
+    def directional(region, from_left):
+        n = 0
+        for _ in range(80):
+            sk, sv = np.zeros_like(known), np.zeros_like(out)
+            if from_left:   # 这个像素的画面取自左上方一格
+                sk[dy:, dx:], sv[dy:, dx:] = known[:-dy, :-dx], out[:-dy, :-dx]
+            else:           # 取自右上方一格
+                sk[dy:, :-dx], sv[dy:, :-dx] = known[:-dy, dx:], out[:-dy, dx:]
+            m = region & ~known & sk
+            if not m.any():
+                break
+            out[m] = sv[m]
+            known[m] = True
+            n += int(m.sum())
+        return n
+
+    drawn = directional(bottom & left, True) + directional(bottom & ~left, False)
+    # 其余的都在园区外面:从已有的地砖按周期往外铺
+    floor = rgb[1650:1820, 60:340].reshape(-1, 3).astype(np.float32).mean(0)
+    like = known & (np.abs(out.astype(np.float32) - floor).max(axis=2) < 9)
     src = like.copy()
-    for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1), (2, 0), (-2, 0), (0, 2), (0, -2)):
-        src &= np.roll(np.roll(like, dy, 0), dx, 1)
-    out, filled = rgb.copy(), ok.copy()
-    for _ in range(200):
+    for sy, sx in ((1, 0), (-1, 0), (0, 1), (0, -1), (2, 0), (-2, 0), (0, 2), (0, -2)):
+        src &= np.roll(np.roll(like, sy, 0), sx, 1)
+    for _ in range(300):
         changed = 0
-        for dy, dx in ((0, 2 * PX), (0, -2 * PX), (2 * PY, 0), (-2 * PY, 0)):
-            sy = np.roll(np.roll(src, dy, 0), dx, 1)
-            sv = np.roll(np.roll(out, dy, 0), dx, 1)
-            if dx > 0: sy[:, :dx] = False
-            if dx < 0: sy[:, dx:] = False
-            if dy > 0: sy[:dy, :] = False
-            if dy < 0: sy[dy:, :] = False
-            m = (~filled) & sy
+        for sy, sx in ((0, 2 * PX), (0, -2 * PX), (2 * PY, 0), (-2 * PY, 0)):
+            k2, v2 = np.roll(np.roll(src, sy, 0), sx, 1), np.roll(np.roll(out, sy, 0), sx, 1)
+            if sx > 0: k2[:, :sx] = False
+            if sx < 0: k2[:, sx:] = False
+            if sy > 0: k2[:sy, :] = False
+            if sy < 0: k2[sy:, :] = False
+            m = (~known) & k2
             if m.any():
-                out[m] = sv[m]
-                filled |= m
+                out[m] = v2[m]
+                known |= m
                 src |= m
                 changed += int(m.sum())
         if not changed:
             break
-    out[~filled] = floor
-    hh, ww = out.shape[:2]
-    return out[300:hh - 40, 140:ww - 120].astype(np.uint8)
+    out[~known] = floor.astype(np.uint8)
+    return out, drawn
 
 
 def extract_hud(frames, c, off, origin, rgb, ok):
@@ -221,9 +279,9 @@ def main():
     ap.add_argument("video", nargs="?", default=None)
     ap.add_argument("--work", default=os.path.join(ROOT, ".work"))
     a = ap.parse_args()
-    video = a.video or sorted(glob.glob(os.path.join(ROOT, "videos", "*.mov")))[0]
     seg = os.path.join(a.work, "seg")
-    if len(glob.glob(os.path.join(seg, "*.jpg"))) < 1300:
+    if len(glob.glob(os.path.join(seg, "*.jpg"))) < 1300:  # 帧已经抽好的话就不需要录屏了
+        video = a.video or sorted(glob.glob(os.path.join(ROOT, "videos", "*.mov")))[0]
         os.makedirs(seg, exist_ok=True)
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", str(SEG_START), "-t", str(SEG_LEN), "-i", video,
                         "-vf", "fps=30", "-q:v", "2", os.path.join(seg, "%04d.jpg")], check=True)
@@ -232,9 +290,16 @@ def main():
     print("主页帧", len(c))
     rgb, ok, origin = composite(frames, c, off, motion)
     print("拼图", rgb.shape[1], "x", rgb.shape[0], "覆盖率 %.2f" % ok.mean())
-    Image.fromarray(fill_holes(rgb, ok)).save(os.path.join(a.work, "map_final.png"))
     hud = extract_hud(frames, c, off, origin, rgb, ok)
     Image.fromarray(hud).save(os.path.join(a.work, "hud_home.png"))
+    # 第二遍:HUD 透明的地方也贴上。第一遍已经有的像素不动,只补新增的
+    rgb2, ok2, _ = composite(frames, c, off, motion, hud_free_mask(hud))
+    full, okf = np.where(ok[..., None], rgb, rgb2), ok | ok2
+    print("加上 HUD 之间的空当后,覆盖率 %.2f" % okf.mean())
+    final, final_ok = to_final(full, okf)
+    final, drawn = complete(final, final_ok)
+    print("补画(顺着斜线延伸)的像素占成品的 %.1f%%" % (100.0 * drawn / final_ok.size))
+    Image.fromarray(final).save(os.path.join(a.work, "map_final.png"))
     Image.fromarray(extract_icons(frames, c, off, motion, origin, rgb, ok, hud)).save(os.path.join(a.work, "hud_icons.png"))
     print("完成")
 

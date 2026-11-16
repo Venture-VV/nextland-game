@@ -88,7 +88,7 @@
     renderBiao(root, pr) {
       const p = byId(pr.id), st = ps(p);
       root.classList.add('bp');
-      root.appendChild(biaoPic('div.bp-art', 'partner/art_' + p.id + '.webp'));
+      biaoStage(root, p.id);
       root.appendChild(h('div.bp-name', h('b', p.name), h('i', p.race || ''), h('span', '伙伴协议')));
       const side = (y, text, name, act) => root.appendChild(h('button.bp-side', { style: { top: y }, 'data-act': act, onclick: () => NL.go(name, { id: p.id }) }, text));
       side(238, '等级权益', 'partnerLv', 'plv');
@@ -102,6 +102,13 @@
         h('div.bp-row', h('span', '特点'), h('em', p.trait), h('button', { 'data-act': 'parchive', onclick: () => archive(p) }, '查看档案'))));
     },
   };
+  // 表的大立绘:透明底的抠图,站在页面自己画的光里(一团光晕、一道光环),不是铺一张带底色的方图
+  function biaoStage(root, id) {
+    root.appendChild(h('div.bp-glow'));
+    root.appendChild(h('div.bp-ring'));
+    root.appendChild(biaoPic('div.bp-cut', 'partner/cut_' + id + '.webp'));
+  }
+  NL.ui.biaoStage = biaoStage;
   // 表的立绘:画好了就用,还没画的留一个「绘制中」的空位(不去借里的图,里没有同名的)
   function biaoPic(spec, path) {
     return NL.biaoAssets[path] ? h(spec, { style: { backgroundImage: NL.bg(path) } }) : h(spec + '.none', h('span', '立绘绘制中'));
@@ -150,7 +157,7 @@
       const g = D.items[giftSel], loved = p.love.includes(giftSel), bonus = loved ? Math.round(g.base * 0.6) : 0; // 录屏:+6 +10、+12 +20
       if (NL.skin() === 'biao') { // 表:夜色底加立绘;下面的赠礼面板两面是同一份
         root.classList.add('bp', 'bpg');
-        root.appendChild(biaoPic('div.bp-art', 'partner/art_' + p.id + '.webp'));
+        biaoStage(root, p.id);
         root.appendChild(h('div.bp-name', h('b', p.name), h('i', p.race || ''), h('span', '情感赠礼')));
       } else {
         root.appendChild(NL.sprite('partner/' + p.art + '.jpg', 0, 0, 360, 781));
@@ -188,7 +195,7 @@
     renderBiao(root, pr) {
       const p = byId(pr.id) || D.partners[0];
       root.classList.add('bp', 'bpv');
-      root.appendChild(biaoPic('div.bp-art', 'partner/art_' + p.id + '.webp'));
+      biaoStage(root, p.id);
       root.appendChild(h('div.bp-name', h('b', p.name), h('i', '视觉档案'), h('span', 'VISUAL ARCHIVE')));
       root.appendChild(h('button.bp-side', { style: { top: 110 }, onclick: () => NL.back() }, '查看立绘'));
       root.appendChild(h('div.bpv-bar', h('b', '1/5'), h('div.bpv-list.scroll-x',

@@ -20,14 +20,18 @@
       draw();
     };
     let glide = null, vel = [0, 0], lastMove = 0;
+    const biao = NL.skin() === 'biao';
     D.buildings.forEach((b) => {
       const [x0, y0, x1, y1] = b.box.map((v) => v / 2);
-      map.appendChild(h('button.hit', { 'data-building': b.id, style: { left: x0, top: y0, width: x1 - x0, height: y1 - y0 }, onclick: () => { if (!moved) onBuilding(b.id); } }));
+      // 里:牌子烙在地图上,这里只是一块透明的热区。表:在同一个位置盖一张自己的牌子(场景图、名字、关卡进度)
+      const z = D.zones[b.id], cleared = NL.state.stages[b.id] || 0;
+      map.appendChild(h('button.hit' + (biao ? '.bh-sign' : ''), { 'data-building': b.id, style: Object.assign({ left: x0, top: y0, width: x1 - x0, height: y1 - y0 }, biao ? { backgroundImage: NL.bg('stage/zone_' + b.id + '.webp') } : {}),
+        onclick: () => { if (!moved) onBuilding(b.id); } }, biao ? [h('i', 'PART ' + z.part), h('b', b.name), h('span', '进度 ' + cleared + ' / ' + D.stageCount)] : null));
     });
     // 扩展玩法「园区巡游」:今天还没去过的光点钉在对应的建筑上(开关关着时没有)
     NL.ext.spots().forEach((sp, i) => {
       const b = D.buildings.find((x) => x.id === sp.zone);
-      if (b && !sp.done) map.appendChild(NL.ext.spotEl(i, { left: (b.box[0] + b.box[2]) / 4 - 17, top: b.box[3] / 2 - 4 })); // 牌子的正下方,不会被上面的资源栏挡住
+      if (b && !sp.done) map.appendChild(NL.ext.spotEl(i, { left: (b.box[0] + b.box[2]) / 4 - 17, top: b.box[3] / 2 - 4 }, () => moved)); // 牌子的正下方,不会被上面的资源栏挡住
     });
     let drag = null, moved = false;
     map.addEventListener('pointerdown', (e) => { if (glide) glide.stop(); clamp(); drag = [e.clientX, e.clientY, pos[0], pos[1]]; moved = false; vel = [0, 0]; lastMove = performance.now(); });
@@ -141,13 +145,14 @@
         if (el) el.textContent = NL.state.energy + '/' + NL.state.energyMax;
       }, 1000);
     },
-    // 表的画法:夜景做底,一位伙伴当看板,原来点地图上建筑的入口排成一排地点按钮;其余按钮和里一一对应
+    // 表的画法:和里是同一张地图(调成了表的配色,建筑位置一样,可以拖),上面的部件自己排;按钮和里一一对应
     renderBiao(root) {
       const s = NL.state;
       root.classList.add('bp');
       root.classList.add('bh');
-      if (NL.biaoAssets['home/bg.webp']) root.appendChild(h('div.bh-bg', { style: { backgroundImage: NL.bg('home/bg.webp') } }));
-      if (NL.biaoAssets['partner/art_ling.webp']) root.appendChild(h('div.bh-art', { style: { backgroundImage: NL.bg('partner/art_ling.webp') } }));
+      mapApi = NL.ui.parkMap((id) => NL.go('stages', { zone: id }));
+      root.appendChild(mapApi.el);
+      root.appendChild(h('div.bh-shade'));
       const hud = h('div.hud');
       root.appendChild(hud);
       hud.appendChild(NL.ui.pill('home/ico_gem.webp', s.gem, 16, 99));
@@ -167,11 +172,6 @@
       root.appendChild(h('button.skin-flip', { 'data-act': 'skin', title: '表 / 里', onclick: () => NL.setSkin('li', 31, 300) }, h('b', '里'), h('i', '翻面')));
       [['shop', '商城'], ['supply', '补给'], ['rank', '无尽之塔'], ['modes', '玩法']].forEach(([name, text], i) =>
         hud.appendChild(h('button.bh-side', { style: { top: 212 + i * 52 }, 'data-act': name, onclick: () => NL.go(name) }, text)));
-      const spots = NL.ext.spots(); // 扩展玩法「园区巡游」的光点,挂在地点按钮上
-      hud.appendChild(h('div.bh-zones', h('span', '园区地点'), D.buildings.map((b) => {
-        const i = spots.findIndex((sp) => sp.zone === b.id && !sp.done);
-        return h('div.bh-zone', h('button', { 'data-building': b.id, onclick: () => NL.go('stages', { zone: b.id }) }, b.name), i >= 0 ? NL.ext.spotEl(i) : null);
-      })));
       hud.appendChild(h('button.btn.purple.bh-adv', { 'data-act': 'adventure', onclick: () => NL.go('adventure') }, '冒险'));
       hud.appendChild(h('button.btn.dark.bh-exp', { 'data-act': 'explore', onclick: () => NL.ui.interact() }, '探索'));
       guideLayer(root);

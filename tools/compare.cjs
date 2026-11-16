@@ -106,7 +106,7 @@ const CASES = [
     const errs = [];
     page.on('pageerror', (e) => errs.push(e.message));
     for (const s of steps) {
-      if (s.goto !== undefined) { await page.goto(base + s.goto.replace(/^(\?[^#]*)?/, (q) => (q ? q + '&' : '?') + 'motion=orig')); await page.waitForTimeout(300); await page.evaluate(HELP); }
+      if (s.goto !== undefined) { await page.goto(base + s.goto.replace(/^(\?[^#]*)?/, (q) => (q ? q + '&' : '?') + 'motion=orig&ext=0')); await page.waitForTimeout(300); await page.evaluate(HELP); }
       if (s.click) await page.click(s.click, { timeout: 3000 }).catch(() => errs.push('点不到 ' + s.click));
       if (s.clickXY) await page.mouse.click(s.clickXY[0], s.clickXY[1]);
       if (s.eval) await page.evaluate(s.eval).catch((e) => errs.push(e.message.split('\n')[0]));

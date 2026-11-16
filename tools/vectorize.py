@@ -129,9 +129,10 @@ def run(name, cast):
     master = os.path.join(ART, "masters", name + ".webp")
     im = Image.open(src if os.path.exists(src) else master).convert("RGB")
     mw, mh = Image.open(master).size
-    im = im.resize((WORK_W, round(WORK_W * mh / mw)), Image.LANCZOS)
+    work_w = WORK_W if mw <= 1300 else 2 * WORK_W  # 地图这样的大图描细一倍,不然建筑的细节都糊掉了
+    im = im.resize((work_w, round(work_w * mh / mw)), Image.LANCZOS)
     rgb = np.asarray(im)
-    k = WORK_W / mw
+    k = work_w / mw
     entry = next((c for cid, c in cast.items() if not cid.startswith("_") and isinstance(c, dict) and c.get("master") == name + ".webp"), None)
     entry = entry or cast.get("_portraits", {}).get(name + ".webp")  # 只在剧情里出场的角色:没有卡面和头像,但也是人物,照样拆层
     is_bg = entry is None  # 不在角色表里的是页面背景:不抠人物,整张当背景,按明暗分两层

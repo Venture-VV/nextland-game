@@ -40,9 +40,11 @@ def upscale4x(im, tile=192, pad=16, log=None):
     for y in ys:
         for x in xs:
             y0, x0, y1, x1 = max(0, y - pad), max(0, x - pad), min(h, y + tile + pad), min(w, x + tile + pad)
-            t = a[y0:y1, x0:x1].transpose(2, 0, 1)[None]
-            r = sess.run(None, {name: t})[0][0]  # 模型报的形状是 (3, 4, 高, 4, 宽),其实就是放大后的图,直接摊平成 (3, 4×高, 4×宽)
-            r = r.reshape(3, r.shape[2] * 4, r.shape[4] * 4).transpose(1, 2, 0)
+            t = a[y0:y1, x0:x1]
+            th0, tw0 = t.shape[:2]
+            t = np.pad(t, ((0, -th0 % 32), (0, -tw0 % 32), (0, 0)), mode="edge")  # 模型要求边长是 32 的倍数,不够的用边缘像素垫上,出来再裁掉
+            r = sess.run(None, {name: t.transpose(2, 0, 1)[None]})[0][0]  # 模型报的形状是 (3, 4, 高, 4, 宽),其实就是放大后的图,直接摊平成 (3, 4×高, 4×宽)
+            r = r.reshape(3, r.shape[2] * 4, r.shape[4] * 4).transpose(1, 2, 0)[:th0 * 4, :tw0 * 4]
             oy, ox = (y - y0) * 4, (x - x0) * 4
             th, tw = (min(h, y + tile) - y) * 4, (min(w, x + tile) - x) * 4
             out[y * 4:y * 4 + th, x * 4:x * 4 + tw] = r[oy:oy + th, ox:ox + tw]

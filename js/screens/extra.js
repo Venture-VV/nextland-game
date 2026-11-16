@@ -193,16 +193,15 @@
     root.appendChild(h('button.bag-btn', { style: { left: 280, top: 730 }, onclick: () => ui.toast('暂无可筛选的类别。') }, h('i.funnel'), '筛选'));
   });
   plain('parkmap', 'parkmap', null, (root) => {
-    // 表:不贴那张像素平面图,把园区的几个区画成示意的街区(位置只表示大致方位)
-    root.classList.add('bmap');
-    root.appendChild(h('div.bs-bg', { style: { backgroundImage: NL.bg('stage/adventure.webp') } }));
-    ui.head(root, null, 0, 0, 360, 132, 'PARK MAP', '园区地图');
-    const ZONE = [['圣物核心', 138, 300, 'rose'], ['阪神公司', 232, 232, 'gold'], ['运动博物馆', 30, 232, 'ice'], ['量子海洋', 24, 400, 'ice'], ['弹道训练营', 236, 396, 'rose'], ['增益市场', 56, 510, 'gold'], ['双生嘉年华', 200, 520, 'rose'], ['零号基地', 128, 164, 'ice']];
-    root.appendChild(h('div.bmap-box', ZONE.map(([name, x, y, c]) => h('div.bmap-zone.' + c, { style: { left: x, top: y - 150 } }, h('i'), name)), h('div.bmap-in', '入口')));
+    // 表:就是里那张园区平面图(原版「地图」页,录屏里只拍到这一屏),调成了表的配色,放在自己的版面里
+    root.classList.add('bmap', 'dots');
+    ui.head(root, null, 0, 0, 360, 110, 'PARK MAP', '园区地图');
+    root.appendChild(h('div.bmap-box', h('img', { src: NL.img('extra/parkplan.webp'), draggable: 'false' })));
+    root.appendChild(h('button.btn.dark.bmap-go', { onclick: () => NL.go('home') }, '回主页看实景'));
   });
   plain('faction', 'faction', null, (root) => {
     root.classList.add('bp', 'bfa');
-    root.appendChild(h('div.bp-art', { style: { backgroundImage: NL.bg('partner/art_hero.webp') } }));
+    ui.biaoStage(root, 'hero');
     root.appendChild(h('div.bp-name', h('b', '改造者'), h('i', '种族与势力'), h('span', 'OCCUPATION')));
     root.appendChild(h('div.bfa-panel', h('h4', '势力介绍'), h('p', '反抗军是Ui直接领导的团体，最有理想和纲领，从外圈开始渗透，近期开始在中圈进行破坏与地下行动。在近期的混乱中，阪神加剧了高压统治，也促使更多的中间派或直接或间接地加入反抗军。'),
       h('h4', '势力特性'), h('p', '反抗军说明内容')));
@@ -266,17 +265,17 @@
     const logout = () => { m.close(); NL.go('login'); };
     const sw = h('button.set-switch', { 'data-act': 'set-sound', onclick: () => { NL.audio.toggle(); paint(); } });
     const paint = () => { sw.classList.toggle('on', NL.audio.on()); sw.textContent = NL.audio.on() ? '开' : '关'; };
-    // 下面三个开关是网页版加的,原版没有。前两个关掉就是原版的样子
+    // 下面几个开关是网页版加的,原版没有。「3D 节拍对决」「升级动效」「扩展玩法」都关掉、停在里,就是原版的样子
     const sw2 = h('button.set-switch', { 'data-act': 'set-beat', onclick: () => { NL.state.beat = !NL.state.beat; NL.save(); paint2(); } });
     const paint2 = () => { sw2.classList.toggle('on', !!NL.state.beat); sw2.textContent = NL.state.beat ? '开' : '关'; };
     const sw3 = h('button.set-switch', { 'data-act': 'set-motion', onclick: () => { NL.state.motion = NL.motion.plus() ? 'orig' : 'plus'; NL.save(); NL.motion.apply(); paint3(); } });
     const paint3 = () => { sw3.classList.toggle('on', NL.motion.plus()); sw3.textContent = NL.motion.plus() ? '开' : '关'; };
     const sw4 = h('button.set-switch' + (NL.skin() === 'biao' ? '.on' : ''), { 'data-act': 'set-skin', onclick: () => { m.close(); NL.setSkin(NL.skin() === 'biao' ? 'li' : 'biao'); } }, NL.skin() === 'biao' ? '表' : '里');
-    const sw5 = h('button.set-switch', { 'data-act': 'set-ext', onclick: () => { NL.state.ext = !NL.state.ext; NL.save(); paint5(); NL.refresh(); } });
-    const paint5 = () => { sw5.classList.toggle('on', !!NL.state.ext); sw5.textContent = NL.state.ext ? '开' : '关'; };
+    const sw5 = h('button.set-switch', { 'data-act': 'set-ext', onclick: () => { NL.ext.set(!NL.ext.on()); paint5(); NL.refresh(); } });
+    const paint5 = () => { sw5.classList.toggle('on', NL.ext.on()); sw5.textContent = NL.ext.on() ? '开' : '关'; };
     paint(); paint2(); paint3(); paint5();
     const ROWS = [['背景音乐', '', sw], ['3D 节拍对决', '关掉就是原版战斗:自动对撞,只能看', sw2], ['升级动效', '关掉就照原版:弹窗和页面直接出现', sw3], ['表 / 里', '表是重画的美术,里是原版;规则和存档是同一份', sw4],
-      ['扩展玩法', '原版没有的新玩法:调频、涂鸦、巡游、援护', sw5]];
+      ['扩展玩法', '调频、涂鸦、巡游、援护;关掉就和原版一样', sw5]];
     if (NL.skin() === 'biao') { // 表:里那张带着三个按钮的底图换成真的按钮,开关排在同一个窗里
       m = ui.win({ title: '设置', h: 516, body(b) {
         b.classList.add('bset');

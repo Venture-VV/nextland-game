@@ -431,7 +431,7 @@
     if (mo) NL.state.motion = mo[1];
     const sk = /[?&]skin=(biao|li)\b/.exec(location.search); // 也可以直接指定皮肤
     const ex = /[?&]ext=([01])\b/.exec(location.search); // 扩展玩法的开关
-    if (ex) { NL.state.ext = ex[1] === '1'; NL.save(); }
+    if (ex) { NL.state.ext = ex[1] === '1'; NL.state.extSet = true; NL.save(); }
     if (sk) NL.state.skin = sk[1];
     NL.applySkin();
     NL.bootHooks.forEach((f) => f()); // 各模块在存档读好之后要做的初始化

@@ -7,9 +7,9 @@ art/biao/cast.json 记着每个角色用哪张母版、脸在哪、卡面裁哪�
     python3 tools/build_biao_assets.py
 
 会生成(都在 assets/biao/ 下):
-    partner/art_<id>.webp   立绘,1080×1578。下沿和四周融进夜色底,所以不用抠图
     partner/card_<id>.webp  列表里的卡面,414×552
     partner/face_<id>.webp  头像,240×240
+    partner/cut_<id>.webp   抠掉背景的透明底人像,页面上的大立绘用它。cast.json 里的 "cut" 是出图高度(半身像 1500,主角全身 1320)
 有 art/biao/hires/ 里的高清版(tools/upscale.py 出的)就从高清版裁,没有就从母版裁。
     battle/me.jpg、battle/enemy.jpg  战斗里的头像(和里的同名),另有 js/embed_biao.js 给 3D 战斗用
     cast.json 里 _backgrounds 列的页面背景(例如 home/bg.webp)
@@ -55,6 +55,23 @@ def fade_into_night(im):
     return Image.composite(im, Image.new("RGB", (w, h), NIGHT), mask)
 
 
+def cutout(im, height=1320):
+    """用抠图模型把人物从底色里抠出来,裁到人物的外框,缩到指定高度。返回带透明度的图。"""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import art_models
+    from PIL import ImageChops
+    matte = art_models.character_matte(im)
+    matte = matte.filter(ImageFilter.MinFilter(5)).filter(ImageFilter.GaussianBlur(1.6))  # 往里收两个像素再柔化,免得带一圈原来的底色
+    matte = matte.point(lambda v: 0 if v < 16 else v)
+    x0, y0, x1, y1 = matte.getbbox()
+    x0, x1 = max(0, x0 - 8), min(im.width, x1 + 8)
+    y0 = max(0, y0 - 8)
+    rgba = im.convert("RGBA")
+    rgba.putalpha(matte)
+    rgba = rgba.crop((x0, y0, x1, im.height))
+    return rgba.resize((round(rgba.width * height / rgba.height), height), Image.LANCZOS)
+
+
 def main():
     cast = json.load(open(os.path.join(SRC, "cast.json"), encoding="utf-8"))
     os.makedirs(os.path.join(OUT, "partner"), exist_ok=True)
@@ -89,13 +106,13 @@ def main():
             print("缺母版,跳过:", cid, c["master"])
             continue
         im, k = load(c["master"])
-        # 立绘出到 1080 宽(页面上占 360 宽,三倍屏也不糊)
-        fade_into_night(im).resize((1080, 1578), Image.LANCZOS).save(os.path.join(OUT, "partner", "art_%s.webp" % cid), quality=86, method=6)
         x0, y0, x1, y1 = [round(v * k) for v in c["card"]]
         im.crop((x0, y0, x1, y1)).resize((414, 552), Image.LANCZOS).save(os.path.join(OUT, "partner", "card_%s.webp" % cid), quality=86, method=6)
         cx, cy, s = [round(v * k) for v in c["face"]]
         im.crop((cx - s // 2, cy - s // 2, cx + s // 2, cy + s // 2)).resize((240, 240), Image.LANCZOS).save(os.path.join(OUT, "partner", "face_%s.webp" % cid), quality=88, method=6)
         n += 1
+        if c.get("cut"):  # 抠掉背景的透明底人像("cut" 是出图的高度):人站在页面自己画的场景里,而不是铺一张带底色的方图
+            cutout(im, int(c["cut"])).save(os.path.join(OUT, "partner", "cut_%s.webp" % cid), quality=90, method=6)
     print("裁好了 %d 个角色" % n)
     # 剧情对话里的立绘(和里的同名):母版渐隐进夜色;story/none.jpg 是没人说话时的空底
     os.makedirs(os.path.join(OUT, "story"), exist_ok=True)
