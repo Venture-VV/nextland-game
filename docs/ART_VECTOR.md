@@ -35,6 +35,9 @@ assets/biao/        运行时用的图,从高清版裁出来;其中的 .svg 是�
 
 界面上其余的部件(按钮、弹窗、页签、横幅上的字、底部导航)是用样式画的,本来就不是图片。
 
+每个运行时的图对应哪张母版、哪份矢量源文件,列在 [`art/biao/SOURCES.md`](../art/biao/SOURCES.md)。
+`python3 tools/check_art_sources.py` 会逐个核对并重写这份清单;有哪个素材缺源文件它就报错,走查里也会顺带查一遍。
+
 ## 3. 怎么重做
 
 ```bash
@@ -51,6 +54,10 @@ python3 tools/build_biao_assets.py
 
 ```bash
 python3 tools/build_biao_icons.py
+```
+
+```bash
+python3 tools/check_art_sources.py
 ```
 
 前两个第一次跑会从 Hugging Face 下载三个模型到 `.work/models/`(共约 300 MB)。都在 CPU 上跑,不需要显卡:

@@ -83,7 +83,7 @@ python3 -m http.server 8000
 - 画风和界面的规矩:[`docs/ART_BIBLE_BIAO.md`](docs/ART_BIBLE_BIAO.md)
 - 每张图的出处、提示词和种子:[`docs/ART_PROVENANCE.md`](docs/ART_PROVENANCE.md)
 - 高清版和分层矢量源文件:[`docs/ART_VECTOR.md`](docs/ART_VECTOR.md)
-- 工具:`tools/upscale.py`(放大)、`tools/vectorize.py`(描成分层矢量)、`tools/build_biao_assets.py`(裁出运行时的图)、`tools/build_biao_icons.py`(画图标)
+- 工具:`tools/upscale.py`(放大)、`tools/vectorize.py`(描成分层矢量)、`tools/build_biao_assets.py`(裁出运行时的图)、`tools/build_biao_icons.py`(画图标)、`tools/check_art_sources.py`(核对每个素材都有矢量源文件,清单在 `art/biao/SOURCES.md`)
 
 ## 扩展玩法(原版没有)
 

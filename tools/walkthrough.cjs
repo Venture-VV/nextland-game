@@ -405,6 +405,9 @@ const FLOWS = [
   let bad = 0;
   try { require('child_process').execFileSync('python3', [path.join(__dirname, 'stamp.py'), '--check'], { stdio: 'pipe' }); console.log('✓ 版本号是最新的'); }
   catch (e) { if (e.status === 1) { bad++; console.log('✗ ' + String(e.stdout).trim()); } else console.log('- 跳过版本号检查(没有 python3)'); }
+  // 表的每个美术素材都要有矢量源文件(业主的要求),这里顺手核对
+  try { const out = require('child_process').execFileSync('python3', [path.join(__dirname, 'check_art_sources.py'), '--check'], { stdio: 'pipe' }); console.log('✓ ' + String(out).trim().split(':')[0]); }
+  catch (e) { if (e.status === 1) { bad++; console.log('✗ ' + String(e.stdout).trim()); } else console.log('- 跳过矢量源文件的核对(没有 python3)'); }
   fs.mkdirSync(SHOTS, { recursive: true });
   const browser = await chromium.launch();
   const base = 'file://' + path.join(ROOT, 'index.html');

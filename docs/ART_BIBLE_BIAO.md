@@ -22,7 +22,7 @@
 2. 母版尺寸 832×1216。脸在画面上三分之一,头顶留一点空。
 3. 不抠图。`tools/build_biao_assets.py` 把母版的四周和下沿压成夜色(`#0b0d1a`),叠到页面上看不出方框。
 4. 一个角色出三样:立绘(1080×1578)、卡面(414×552)、头像(240×240),都从同一张母版的高清版裁,保证是同一个人。
-5. 每张母版都要配一份高清版和一份分层的矢量源文件(业主的要求):出完图后依次跑 `tools/upscale.py`、`tools/vectorize.py`、`tools/build_biao_assets.py`。说明见 `docs/ART_VECTOR.md`。
+5. 每张母版都要配一份高清版和一份分层的矢量源文件(业主的要求):出完图后依次跑 `tools/upscale.py`、`tools/vectorize.py`、`tools/build_biao_assets.py`,最后跑 `tools/check_art_sources.py` 核对(缺源文件会报错)。说明见 `docs/ART_VECTOR.md`。
 5. 同一个角色要再出图(换表情、换衣服)时,提示词里的外貌描述一字不改,只改姿势和表情。
 
 ## 4. 界面
