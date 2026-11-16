@@ -84,6 +84,10 @@ html[data-skin=biao] #nav[data-on=mission] [data-nav=mission]::before, html[data
 html[data-skin=biao] #nav[data-on=role] [data-nav=role]::after, html[data-skin=biao] #nav[data-on=bag] [data-nav=bag]::after, html[data-skin=biao] #nav[data-on=home] [data-nav=home]::after,
 html[data-skin=biao] #nav[data-on=mission] [data-nav=mission]::after, html[data-skin=biao] #nav[data-on=partner] [data-nav=partner]::after { color: #fff; }
 
+/* 红点:有事可做的入口(NL.dots)。导航栏上画在图标右上角 */
+html[data-skin=biao] #nav button.dot { background: radial-gradient(circle 4px at calc(50% + 15px) 17px, var(--b-rose) 96%, transparent) no-repeat; }
+.bh-chip.dot::after { content: ""; position: absolute; right: 1px; top: 1px; width: 8px; height: 8px; border-radius: 50%; background: var(--b-rose); box-shadow: 0 0 6px var(--b-rose); }
+
 /* 物品格:表的图标自带底板,不要再垫深色底 */
 html[data-skin=biao] .item { background-color: transparent; border-radius: 12%; }
 html[data-skin=biao] .pill img { top: 2px; left: 4px; height: 19px; } html[data-skin=biao] .pill .plus { top: 2px; right: 0; width: 19px; height: 19px; }

@@ -164,6 +164,7 @@
     const nav = $('#nav');
     nav.classList.toggle('off', !scr.nav);
     nav.dataset.on = scr.nav || '';
+    if (scr.nav && NL.dots) { const dots = NL.dots(); nav.querySelectorAll('button').forEach((b) => b.classList.toggle('dot', !!dots[b.dataset.nav])); } // 只有表的样式会把它画出来
     if (scr.nav) nav.style.backgroundImage = NL.skin() === 'biao' ? '' : NL.bg('nav/' + scr.nav + '.jpg'); // 表的导航栏是用样式画的
     // 页面可以给表单独写一种画法(renderBiao);没写的就共用同一种,只是素材和样式换了
     (NL.skin() === 'biao' && scr.renderBiao ? scr.renderBiao : scr.render).call(scr, root, top.params || {});

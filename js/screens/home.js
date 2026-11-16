@@ -157,7 +157,8 @@
         h('div.bh-face', NL.biaoAssets['partner/face_hero.webp'] ? { style: { backgroundImage: NL.bg('partner/face_hero.webp') } } : null),
         h('b', s.name), h('span', '等级 ' + s.level)));
       hud.appendChild(h('button.bh-place', { onclick: () => NL.go('parkmap') }, '新生乐园世界 ›'));
-      const chip = (x, y, text, act, fn) => hud.appendChild(h('button.bh-chip', { style: { left: x, top: y }, 'data-act': act, onclick: fn }, text));
+      const dots = NL.dots();
+      const chip = (x, y, text, act, fn) => hud.appendChild(h('button.bh-chip' + (dots[act] ? '.dot' : ''), { style: { left: x, top: y }, 'data-act': act, onclick: fn }, text));
       chip(232, 134, '好友', 'friends', () => NL.go('friends'));
       chip(274, 134, '邮件', 'mail', () => NL.go('mail'));
       chip(316, 134, '设置', 'settings', () => NL.ui.settings());

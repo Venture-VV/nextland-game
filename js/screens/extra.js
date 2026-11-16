@@ -17,6 +17,13 @@
   }));
   D.people = { 书笙: [12, 33000], Yi: [10, 11000], 'q.': [11, 34000], nono: [10, 38000], 展鹏: [14, 29000], '野.': [6, 5484], 吉祥物: [4, 5062], 阿澈: [9, 9800], Mika: [13, 27000], 老周: [8, 7600] };
 
+  // 红点:哪些入口现在有事可做。里的红点是烙在截图上的,不会变;表的导航栏和主页按钮是画的,跟着这里走
+  NL.dots = function () {
+    const s = NL.state;
+    const free = D.slots.some((sl) => !s.equipped[sl.id] && s.gear.some((g) => D.equips[g.id].type === sl.type && !game.slotOf(g.uid))); // 有空着的装备格,而且有能穿的
+    return { role: free, bag: s.gear.some((g) => g.isNew), mission: game.missionDot(), mail: s.mails.some((m) => !m.got), friends: s.friendReq.length > 0 };
+  };
+
   /* ---------- 邮件 ---------- */
   function mailWin(m) {
     const [def, date] = MAILS[m.k];

@@ -327,6 +327,9 @@ const FLOWS = [
     {"eval": "document.querySelector('[data-act=skip]').click()", "wait": 700},
     {"clickXY": [180, 520], "wait": 400},
     {"eval": "NL.testClock=null;1"},
+    {"eval": "var n=function(k){return document.querySelector('#nav [data-nav='+k+']').classList.contains('dot')};if(!n('mission'))throw new Error('有能领的任务时,表的导航栏「任务」应该亮红点');if(!document.querySelector('.bh-chip[data-act=mail].dot'))throw new Error('有没领的邮件时,表主页的「邮件」应该亮红点')"},
+    {"eval": "NL.state.mails.forEach(function(m){m.got=true});NL.refresh();if(document.querySelector('.bh-chip[data-act=mail].dot'))throw new Error('邮件领完后红点应该消失')"},
+    {"eval": "if(document.querySelector('.battle .bbt')===null&&document.querySelector('.bbt-band')===null){/* 战斗已收起 */};var b=NL.ui.battleBanner('start',300);if(b.tagName!=='DIV'||!b.classList.contains('bt-start'))throw new Error('表的战斗横幅应该是用字写的')"},
   ]],
   ["扩展玩法:开关、调频密码、涂鸦暗号、园区巡游、伙伴援护", [
     {"goto": "?reset#home", "wait": 300},
