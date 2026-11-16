@@ -28,6 +28,7 @@
   NL.onGrant = (items) => items.forEach((it) => { if (it.id === 'credit' && it.n > 0) game.track('credit_gain', it.n); });
   const byId = (id) => D.partners.find((p) => p.id === id);
   const hex = (n) => h('div.hex', h('b', String(n)), h('i', 'Lv.'));
+  NL.partnerApi = { ps, addTrust, byId }; // 扩展玩法(巡游、援护)要读写信任值
   function trustCard(p) {
     const st = ps(p);
     return h('div.trust', hex(st.lv), h('span', '信任等级'), h('em', st.trust + '/' + need(st.lv)), h('div.bar', h('i', { style: { width: Math.min(100, (st.trust / need(st.lv)) * 100) + '%' } })));
@@ -53,9 +54,11 @@
       root.appendChild(h('button.bp-sort', { onclick: () => ui.toast('当前按默认顺序排列。') }, '默认'));
       root.appendChild(h('div.bp-grid', D.partners.map((p) => {
         const st = ps(p);
-        return h('button.bp-card', { 'data-partner': p.id, onclick: () => NL.go('partnerInfo', { id: p.id }) },
+        const card = h('button.bp-card', { 'data-partner': p.id, onclick: () => NL.go('partnerInfo', { id: p.id }) },
           biaoPic('div.bp-pic', 'partner/card_' + p.id + '.webp'),
           h('b', p.name), h('span', '♥ ' + st.likes), h('u', 'Lv.' + st.lv));
+        NL.motion.tilt(card, 10); // 手指在卡片上移动时,卡片跟着微微倾斜,带一道高光
+        return card;
       })));
     },
   };
@@ -91,7 +94,7 @@
       side(238, '等级权益', 'partnerLv', 'plv');
       side(302, '视觉档案', 'partnerVisual', 'pvisual');
       side(364, '每日委托', 'partnerDaily', 'pdaily');
-      root.appendChild(h('button.bp-like', { 'data-act': 'like', onclick: () => like(p) }, '♥', h('b', String(st.likes))));
+      root.appendChild(h('button.bp-like' + (st.liked ? '.on' : ''), { 'data-act': 'like', onclick: () => like(p) }, '♥', h('b', String(st.likes))));
       root.appendChild(h('div.bp-panel',
         h('div.bp-trust', trustCard(p)),
         h('button.btn.purple.bp-gift', { 'data-act': 'pgift', onclick: () => NL.go('partnerGift', { id: p.id }) }, '情感赠礼'),
@@ -103,14 +106,27 @@
   function biaoPic(spec, path) {
     return NL.biaoAssets[path] ? h(spec, { style: { backgroundImage: NL.bg(path) } }) : h(spec + '.none', h('span', '立绘绘制中'));
   }
+  // 点赞:每位伙伴只能点一次,再点一下是取消(策划文档的规则;不是每天一次)
   function like(p) {
-    const st = ps(p), d = day();
-    if (d.liked[p.id]) return ui.toast('今天已经点过赞了。');
-    d.liked[p.id] = true; st.likes++; NL.save(); NL.refresh();
+    const st = ps(p);
+    st.liked = !st.liked;
+    st.likes += st.liked ? 1 : -1;
+    NL.save(); NL.refresh();
+    ui.toast(st.liked ? '已点赞。' : '已取消点赞。');
   }
   function archive(p) {
-    const m = ui.mask({});
     const f = p.file || {};
+    if (NL.skin() === 'biao') { // 表:里那张烙着字的档案底图换成真的窗和字
+      ui.win({ title: '档案', h: 452, body(b) {
+        b.classList.add('barch');
+        b.appendChild(h('div.barch-top', biaoPic('i', 'partner/card_' + p.id + '.webp'), h('span', 'NAME // 名字'), h('b', p.name)));
+        [['YEARS', '年龄', f.years], ['BIRTHDAY', '生日', f.birth], ['RACE', '种族', p.race], ['STAR SIGN', '星座', f.star]].forEach(([en, zh, v]) =>
+          b.appendChild(h('div.barch-row', h('span', en + ' // ' + zh), h('em', v || '???'))));
+        [['喜好', f.like], ['讨厌', f.hate], ['特点', p.trait]].forEach(([k, v]) => b.appendChild(h('div.barch-line', h('span', k), h('em', v || '???'))));
+      } });
+      return;
+    }
+    const m = ui.mask({});
     const box = h('div.abs.arch', { style: { left: 0, top: 190, width: 360, height: 455 } }, NL.sprite('partner/archive.jpg', 0, 0, 360, 455));
     if (p.id !== 'jiguang') { // 底图上是冀光的档案,其他伙伴盖上各自的字;录屏里没出现的写 ???
       const fix = (x, y, w, t, big) => box.appendChild(h('div.arch-fix' + (big ? '.big' : ''), { style: { left: x, top: y, width: w } }, t));
@@ -132,8 +148,14 @@
       const gifts = Object.keys(D.items).filter((id) => D.items[id].gift).sort((a, b) => (p.love.includes(b) ? 1 : 0) - (p.love.includes(a) ? 1 : 0));
       if (!gifts.includes(giftSel)) giftSel = gifts[0];
       const g = D.items[giftSel], loved = p.love.includes(giftSel), bonus = loved ? Math.round(g.base * 0.6) : 0; // 录屏:+6 +10、+12 +20
-      root.appendChild(NL.sprite('partner/' + p.art + '.jpg', 0, 0, 360, 781));
-      if (p.blank) root.appendChild(h('div.pi-name', p.name));
+      if (NL.skin() === 'biao') { // 表:夜色底加立绘;下面的赠礼面板两面是同一份
+        root.classList.add('bp', 'bpg');
+        root.appendChild(biaoPic('div.bp-art', 'partner/art_' + p.id + '.webp'));
+        root.appendChild(h('div.bp-name', h('b', p.name), h('i', p.race || ''), h('span', '情感赠礼')));
+      } else {
+        root.appendChild(NL.sprite('partner/' + p.art + '.jpg', 0, 0, 360, 781));
+        if (p.blank) root.appendChild(h('div.pi-name', p.name));
+      }
       root.appendChild(h('div.gift-panel',
         h('div.gp-tab', '赠礼'),
         h('div.gp-card', trustCard(p)),
@@ -162,6 +184,17 @@
   /* ---------- 视觉档案 ---------- */
   NL.screens.partnerVisual = {
     title: '', plate: true,
+    // 表:当前形象是这位伙伴的立绘,其余四个没解锁的位子是真的格子(里是一张带剪影的整图)
+    renderBiao(root, pr) {
+      const p = byId(pr.id) || D.partners[0];
+      root.classList.add('bp', 'bpv');
+      root.appendChild(biaoPic('div.bp-art', 'partner/art_' + p.id + '.webp'));
+      root.appendChild(h('div.bp-name', h('b', p.name), h('i', '视觉档案'), h('span', 'VISUAL ARCHIVE')));
+      root.appendChild(h('button.bp-side', { style: { top: 110 }, onclick: () => NL.back() }, '查看立绘'));
+      root.appendChild(h('div.bpv-bar', h('b', '1/5'), h('div.bpv-list.scroll-x',
+        biaoPic('div.bpv-cell.on', 'partner/card_' + p.id + '.webp'), [2, 3, 4, 5].map(() => h('div.bpv-cell.lock', h('i'), '未解锁')))));
+      root.appendChild(h('button.btn.dark.bpv-set', { onclick: () => ui.toast('该形象尚未解锁。') }, '设为页面形象'));
+    },
     render(root) {
       root.appendChild(NL.sprite('partner/visual.jpg', 0, 0, 360, 781));
       root.appendChild(NL.hit(300, 60, 54, 46, () => NL.back()));
@@ -175,7 +208,7 @@
     render(root, pr) {
       const p = byId(pr.id), st = ps(p);
       root.classList.add('pink');
-      root.appendChild(NL.sprite('partner/band.jpg', 0, 0, 360, 131));
+      ui.head(root, 'partner/band.jpg', 0, 0, 360, 131, 'PRIVILEGE', '等级权益');
       root.appendChild(ui.pill('home/ico_coin.webp', NL.state.credit, 253, 90, { w: 91 }));
       root.appendChild(h('div.plv-list.scroll', { 'data-keep': 'plv' }, D.partnerLv.map((r, i) => {
         const lv = i + 1, ok = st.lv >= lv, got = st.claimed[lv];
@@ -203,7 +236,7 @@
       const p = byId(pr.id), d = day(), s = NL.state;
       clearInterval(timer);
       root.classList.add('pink');
-      root.appendChild(NL.sprite('partner/band.jpg', 0, 0, 360, 131));
+      ui.head(root, 'partner/band.jpg', 0, 0, 360, 131, 'COMMISSION', '每日委托');
       const clock = h('b', NL.fmt.untilReset() + '后刷新');
       root.appendChild(h('div.dp-clock.pd-clock', h('i'), clock));
       timer = setInterval(() => (clock.textContent = NL.fmt.untilReset() + '后刷新'), 1000);

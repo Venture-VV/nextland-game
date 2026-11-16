@@ -24,6 +24,11 @@
       const [x0, y0, x1, y1] = b.box.map((v) => v / 2);
       map.appendChild(h('button.hit', { 'data-building': b.id, style: { left: x0, top: y0, width: x1 - x0, height: y1 - y0 }, onclick: () => { if (!moved) onBuilding(b.id); } }));
     });
+    // 扩展玩法「园区巡游」:今天还没去过的光点钉在对应的建筑上(开关关着时没有)
+    NL.ext.spots().forEach((sp, i) => {
+      const b = D.buildings.find((x) => x.id === sp.zone);
+      if (b && !sp.done) map.appendChild(NL.ext.spotEl(i, { left: (b.box[0] + b.box[2]) / 4 - 17, top: b.box[3] / 2 - 4 })); // 牌子的正下方,不会被上面的资源栏挡住
+    });
     let drag = null, moved = false;
     map.addEventListener('pointerdown', (e) => { if (glide) glide.stop(); clamp(); drag = [e.clientX, e.clientY, pos[0], pos[1]]; moved = false; vel = [0, 0]; lastMove = performance.now(); });
     window.addEventListener('pointermove', onMove);
@@ -129,7 +134,59 @@
       btn('home/btn_adventure.webp', 7, 570, 131, 64, () => NL.go('adventure'), 'adventure');
       btn('home/btn_explore.webp', 249, 635, 98, 52, () => (NL.ui.interact ? NL.ui.interact() : NL.ui.toast('敬请期待。')), 'explore');
 
-      // 线下引导
+      guideLayer(root);
+      clearInterval(timer);
+      timer = setInterval(() => {
+        const el = hud.querySelector('.pill.energy span');
+        if (el) el.textContent = NL.state.energy + '/' + NL.state.energyMax;
+      }, 1000);
+    },
+    // 表的画法:夜景做底,一位伙伴当看板,原来点地图上建筑的入口排成一排地点按钮;其余按钮和里一一对应
+    renderBiao(root) {
+      const s = NL.state;
+      root.classList.add('bp');
+      root.classList.add('bh');
+      if (NL.biaoAssets['home/bg.webp']) root.appendChild(h('div.bh-bg', { style: { backgroundImage: NL.bg('home/bg.webp') } }));
+      if (NL.biaoAssets['partner/art_ling.webp']) root.appendChild(h('div.bh-art', { style: { backgroundImage: NL.bg('partner/art_ling.webp') } }));
+      const hud = h('div.hud');
+      root.appendChild(hud);
+      hud.appendChild(NL.ui.pill('home/ico_gem.webp', s.gem, 16, 99));
+      hud.appendChild(NL.ui.pill('home/ico_coin.webp', s.credit, 115, 99));
+      hud.appendChild(NL.ui.energyPill(215, 99));
+      hud.appendChild(h('button.bh-card', { 'data-act': 'profile', onclick: () => NL.go('profile') },
+        h('div.bh-face', NL.biaoAssets['partner/face_hero.webp'] ? { style: { backgroundImage: NL.bg('partner/face_hero.webp') } } : null),
+        h('b', s.name), h('span', '等级 ' + s.level)));
+      hud.appendChild(h('button.bh-place', { onclick: () => NL.go('parkmap') }, '新生乐园世界 ›'));
+      const dots = NL.dots();
+      const chip = (x, y, text, act, fn) => hud.appendChild(h('button.bh-chip' + (dots[act] ? '.dot' : ''), { style: { left: x, top: y }, 'data-act': act, onclick: fn }, text));
+      chip(232, 134, '好友', 'friends', () => NL.go('friends'));
+      chip(274, 134, '邮件', 'mail', () => NL.go('mail'));
+      chip(316, 134, '设置', 'settings', () => NL.ui.settings());
+      chip(14, 222, '势力', 'faction', () => NL.go('faction'));
+      chip(56, 222, '日历', 'calendar', () => NL.ui.calendar());
+      root.appendChild(h('button.skin-flip', { 'data-act': 'skin', title: '表 / 里', onclick: () => NL.setSkin('li', 31, 300) }, h('b', '里'), h('i', '翻面')));
+      [['shop', '商城'], ['supply', '补给'], ['rank', '无尽之塔'], ['modes', '玩法']].forEach(([name, text], i) =>
+        hud.appendChild(h('button.bh-side', { style: { top: 212 + i * 52 }, 'data-act': name, onclick: () => NL.go(name) }, text)));
+      const spots = NL.ext.spots(); // 扩展玩法「园区巡游」的光点,挂在地点按钮上
+      hud.appendChild(h('div.bh-zones', h('span', '园区地点'), D.buildings.map((b) => {
+        const i = spots.findIndex((sp) => sp.zone === b.id && !sp.done);
+        return h('div.bh-zone', h('button', { 'data-building': b.id, onclick: () => NL.go('stages', { zone: b.id }) }, b.name), i >= 0 ? NL.ext.spotEl(i) : null);
+      })));
+      hud.appendChild(h('button.btn.purple.bh-adv', { 'data-act': 'adventure', onclick: () => NL.go('adventure') }, '冒险'));
+      hud.appendChild(h('button.btn.dark.bh-exp', { 'data-act': 'explore', onclick: () => NL.ui.interact() }, '探索'));
+      guideLayer(root);
+      clearInterval(timer);
+      timer = setInterval(() => {
+        const el = hud.querySelector('.pill.energy span');
+        if (el) el.textContent = NL.state.energy + '/' + NL.state.energyMax;
+      }, 1000);
+    },
+    leave() { clearInterval(timer); if (mapApi) mapApi.destroy(); mapApi = null; },
+  };
+  // 线下引导:第一次进主页先问要不要开;开了之后提示去「任务」
+  function guideLayer(root) {
+    const s = NL.state;
+    {
       if (s.guide == null) {
         NL.ui.dialog({
           html: '你现在在新生乐园园区里吗？<br>开启线下引导后，会一直提示你去「任务」里<br>看下一步做什么。',
@@ -143,12 +200,6 @@
         root.appendChild(h('div.guide-tip', { style: { left: 2, top: 626 } }, '线下引导的每一步都在「任务」里'));
         root.appendChild(h('div.guide-arrow', { style: { left: 226, top: 656 } }));
       }
-      clearInterval(timer);
-      timer = setInterval(() => {
-        const el = hud.querySelector('.pill.energy span');
-        if (el) el.textContent = NL.state.energy + '/' + NL.state.energyMax;
-      }, 1000);
-    },
-    leave() { clearInterval(timer); if (mapApi) mapApi.destroy(); mapApi = null; },
-  };
+    }
+  }
 })();

@@ -70,6 +70,14 @@
   }
   const LABEL = { story: '查看剧情', qr: '出示互动码', stage: '去挑战', go: '去完成' };
 
+  // 有没有能领的东西(表的导航栏用它决定「任务」上要不要亮红点)
+  game.missionDot = function () {
+    const v = visible(), d = daily();
+    if (v.main.concat(v.side, v.explore).some((t) => progress(t).p)) return true;
+    if (D.dailyTasks.some((t) => !d.claimed[t.id] && (d.c[t.ev] || 0) >= 1)) return true;
+    return [10, 20, 30].some((m) => d.points >= m && !d.gifts[m]);
+  };
+
   /* ---------- 界面 ---------- */
   function goalHtml(g) { return g.replace(/\{(.+?)\}/g, '<em>$1</em>'); }
   function titleEl(t, big) {
@@ -181,7 +189,7 @@
       const s = NL.state;
       clearInterval(timer);
       if (s.guide === 'on' && s.guideStep === 0) { s.guideStep = 1; NL.save(); }
-      root.appendChild(NL.sprite('mission/banner.jpg', 0, 0, 360, 104));
+      NL.ui.head(root, 'mission/banner.jpg', 0, 0, 360, 104, 'MISSION', '任务');
       root.appendChild(h('div.tabs2', ['daily', 'task'].map((k) =>
         h('button' + (tab === k ? '.on' : ''), { 'data-tab': k, onclick: () => { tab = k; NL.refresh(); } }, k === 'daily' ? '日常' : '任务'))));
       const list = h('div.tk-list.scroll.' + tab, { 'data-keep': 'mission-' + tab });

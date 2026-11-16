@@ -57,7 +57,8 @@
   NL.skinMiss = {};
   NL.img = function (p) {
     if (NL.skin() === 'biao') {
-      if (NL.biaoAssets[p]) return 'assets/biao/' + p;
+      const b = NL.biaoAssets[p]; // 1 = 同名同路径;字符串 = 表用的是另一个扩展名(矢量图标)
+      if (b) return 'assets/biao/' + (b === 1 ? p : b);
       NL.skinMiss[p] = true;
     }
     return 'assets/img/' + p;
@@ -78,6 +79,21 @@
   // 透明热区
   NL.hit = function (x, y, w, h, fn, attrs) {
     return NL.h('button.hit', Object.assign({ style: { left: x, top: y, width: w, height: h }, onclick: fn }, attrs || {}));
+  };
+
+  // 页面顶上的横幅。里是一张带着页面名的截图;表是一张场景图,页面名用字写在上面(en 是装饰用的英文,zh 是页面名)
+  NL.ui.head = function (root, img, x, y, w, hh, en, zh) {
+    if (NL.skin() !== 'biao') return root.appendChild(NL.sprite(img, x, y, w, hh));
+    document.getElementById('title-tag').textContent = ''; // 页面名写在横幅上了,左上角那块小牌子就不要了
+    return root.appendChild(NL.h('div.b-head', { style: { left: x, top: y, width: w, height: hh } },
+      img ? NL.h('img', { src: NL.img(img), draggable: 'false' }) : null, NL.h('b', en), NL.h('span', zh)));
+  };
+
+  // 战斗的两条横幅(战斗开始、挑战成功)。里是带字的图;表是用字写的
+  NL.ui.battleBanner = function (kind, y) {
+    const start = kind === 'start';
+    if (NL.skin() !== 'biao') return NL.sprite('battle/' + (start ? 'start' : 'win') + '.jpg', 0, y, 360, start ? 160 : 95, { cls: start ? 'bt-start' : 'bt-result' });
+    return NL.h('div.bbt.' + (start ? 'bt-start' : 'bt-result'), { style: { top: y, height: start ? 160 : 95 } }, NL.h('i', start ? 'BATTLE START' : 'VICTORY'), NL.h('b', start ? '战斗开始' : '挑战成功'));
   };
 
   /* ---------- 格式 ---------- */
@@ -128,6 +144,7 @@
   let current = null;
   NL.current = () => stack[stack.length - 1];
   const NAV_ORDER = ['role', 'bag', 'home', 'mission', 'partner'];
+  const STAGGER = '.tk-card, .sh-card, .ml-row, .fr-row, .if-row, .tr-row, .plv-row, .pd-card, .ba-zone, .bm-card, .brk-row, .bp-card, .btk-card, .bpf-grid button, .bpf-assets div';
   let lastNav = null;
   function render(keepScroll) {
     const top = NL.current();
@@ -146,7 +163,9 @@
     $('#capsule').classList.toggle('hidden', scr.plate === 'cap');
     const nav = $('#nav');
     nav.classList.toggle('off', !scr.nav);
-    if (scr.nav) nav.style.backgroundImage = NL.bg('nav/' + scr.nav + '.jpg');
+    nav.dataset.on = scr.nav || '';
+    if (scr.nav && NL.dots) { const dots = NL.dots(); nav.querySelectorAll('button').forEach((b) => b.classList.toggle('dot', !!dots[b.dataset.nav])); } // 只有表的样式会把它画出来
+    if (scr.nav) nav.style.backgroundImage = NL.skin() === 'biao' ? '' : NL.bg('nav/' + scr.nav + '.jpg'); // 表的导航栏是用样式画的
     // 页面可以给表单独写一种画法(renderBiao);没写的就共用同一种,只是素材和样式换了
     (NL.skin() === 'biao' && scr.renderBiao ? scr.renderBiao : scr.render).call(scr, root, top.params || {});
     if (scr.back !== false && !scr.nav) root.appendChild(NL.ui.backBtn());
@@ -157,6 +176,8 @@
     if (!keepScroll) { // 切换页面(不是原地刷新)时才播进场;底部页签之间按左右方向滑
       const a = NAV_ORDER.indexOf(lastNav), b = NAV_ORDER.indexOf(scr.nav);
       NL.motion.page(root, a >= 0 && b >= 0 ? Math.sign(b - a) : 0);
+      // 表:列表里的卡片依次浮上来(只在进页面时播一次,原地刷新不播)
+      if (NL.skin() === 'biao') NL.motion.stagger(root.querySelectorAll(STAGGER), 'rise', 90);
     }
     lastNav = scr.nav || null;
     if (NL.afterRender) NL.afterRender(top.name, root);
@@ -331,6 +352,13 @@
       NL.save();
     }
   };
+  // 把精力退回去(挑战失败返还用),不超过上限
+  game.refundEnergy = function (n) {
+    const s = NL.state;
+    s.energy = Math.min(s.energyMax, s.energy + n);
+    if (s.energy >= s.energyMax) s.energyAt = 0;
+    NL.save(); NL.refresh();
+  };
   game.energyTimers = function () {
     const s = NL.state;
     if (s.energy >= s.energyMax) return null;
@@ -402,6 +430,8 @@
     const mo = /[?&]motion=(plus|orig)\b/.exec(location.search); // 地址里可以直接指定动效档
     if (mo) NL.state.motion = mo[1];
     const sk = /[?&]skin=(biao|li)\b/.exec(location.search); // 也可以直接指定皮肤
+    const ex = /[?&]ext=([01])\b/.exec(location.search); // 扩展玩法的开关
+    if (ex) { NL.state.ext = ex[1] === '1'; NL.save(); }
     if (sk) NL.state.skin = sk[1];
     NL.applySkin();
     NL.bootHooks.forEach((f) => f()); // 各模块在存档读好之后要做的初始化

@@ -31,7 +31,11 @@
       if (line.title) return titleCard(line.title);
       if (line.choice) return choose(line.choice);
       const info = line.who ? D.storyPlates[line.who] : null;
-      plate.src = NL.img(info ? info[0] : 'story/none.jpg');
+      const src = NL.img(info ? info[0] : 'story/none.jpg');
+      if (plate.getAttribute('src') !== src) { // 换了说话的人:立绘重新入场(入场动画在样式里,只有表的升级动效有)
+        plate.src = src;
+        plate.style.animation = 'none'; void plate.offsetWidth; plate.style.animation = '';
+      }
       tag.textContent = line.as || line.who || '';
       tag.className = 'story-name ' + (line.who ? line.side || info[1] : 'hidden');
       full = line.text; shown = 0; text.textContent = '';

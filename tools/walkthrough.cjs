@@ -233,6 +233,27 @@ const FLOWS = [
     {"click": "[data-slot=armor]", "wait": 300, "shot": "c8_pick"},
     {"click": "[data-act=wear]", "wait": 400},
     {"eval": "if(!NL.state.equipped.armor)throw new Error('重新穿戴后护甲格应该有装备')"},
+    {"eval": "NL.state.stages.museum=7;NL.state.energy=60;NL.go('stages',{zone:'museum'});if(NL.game.power()>=NL.data.zones.museum.per*8)throw new Error('走查假设这时打不过运动博物馆第 8 关');1", "wait": 300},
+    {"click": "[data-stage='8']", "wait": 300},
+    {"click": "[data-act=fight]", "wait": 1500},
+    {"eval": "document.querySelector('[data-act=skip]').click()", "wait": 800},
+    {"clickXY": [180, 520], "wait": 500},
+    {"eval": "if(NL.state.stages.museum!==7)throw new Error('战力不够,这一关不应该打得过');if(NL.state.energy!==59)throw new Error('挑战失败应该返还 5 点精力(只扣 1 点),现在是 '+NL.state.energy)"},
+    {"eval": "NL.go('bag')", "wait": 300},
+    {"click": "[data-tab=equip]", "wait": 300},
+    {"eval": "window.__n=NL.state.gear.length;document.querySelector('.bag-grid [data-gear=chain]').click()", "wait": 300},
+    {"click": "[data-act=dismantle]", "wait": 300, "shot": "c8_dismantle_ask"},
+    {"eval": "if(NL.state.gear.length!==window.__n)throw new Error('分解应该先弹确认')"},
+    {"click": ".dlg-btns .btn.purple", "wait": 400},
+    {"eval": "if(NL.state.gear.length!==window.__n-1)throw new Error('确认后应该分解掉一件')"},
+    {"click": ".reward-ok", "wait": 300},
+    {"eval": "var g=NL.state.gear.find(function(x){return x.id==='neck_gold'&&!NL.game.slotOf(x.uid)});if(!g)throw new Error('走查假设仓库里有一条没穿的金链吊坠(紫品)');document.querySelector('.bag-grid [data-gear=neck_gold]').click()", "wait": 300},
+    {"click": "[data-act=dismantle]", "wait": 300},
+    {"click": ".dlg-btns .btn.purple", "wait": 300},
+    {"eval": "if(NL.state.gear.length!==window.__n-1)throw new Error('紫品装备应该再确认一次才分解')"},
+    {"click": ".dlg-btns .btn.purple", "wait": 400},
+    {"eval": "if(NL.state.gear.length!==window.__n-2)throw new Error('第二次确认后才分解掉紫品装备')"},
+    {"click": ".reward-ok", "wait": 300},
   ]],
   ["动效:退场影子、奖励飞入与数字滚动、两档切换、减少动态效果", [
     {"goto": "?reset#home", "wait": 500},
@@ -270,18 +291,40 @@ const FLOWS = [
     {"wait": 1100, "shot": "c10_biao_home"},
     {"eval": "if(NL.state.skin!=='biao'||document.documentElement.dataset.skin!=='biao')throw new Error('点翻面按钮后应该到表');if(document.querySelector('.m-pixels'))throw new Error('转场结束后像素块没有清掉')"},
     {"eval": "if(JSON.stringify(Object.assign({},NL.state,{skin:0}))!==window.__save0)throw new Error('翻面只应该改皮肤,存档里别的不能变')"},
+    {"eval": "if(!document.querySelector('.bh-zones'))throw new Error('表的主页应该用自己的画法');if(document.querySelectorAll('.bh-zones [data-building]').length!==NL.data.buildings.length)throw new Error('表的主页应该给每栋建筑一个入口')"},
+    {"click": "[data-building=core]", "wait": 500},
+    {"eval": "if(NL.current().name!=='stages')throw new Error('表里点地点应该和里点建筑一样进关卡')"},
+    {"click": ".back-btn", "wait": 400},
+    {"click": "[data-act=shop]", "wait": 400},
+    {"click": ".back-btn", "wait": 400},
     {"click": "[data-nav=mission]", "wait": 400},
     {"click": "[data-tab=task]", "wait": 300, "shot": "c10_biao_mission"},
     {"click": "[data-task=g1] .tk-title", "wait": 500, "shot": "c10_biao_win"},
     {"clickXY": [20, 770], "wait": 300},
     {"click": "[data-nav=role]", "wait": 400, "shot": "c10_biao_role"},
-    {"eval": "var n=Object.keys(NL.skinMiss).length;if(!n)throw new Error('表还没有画好的图,应该记下借用了里的哪些');'表借用里的图 '+n+' 张'", "log": "skin"},
+    {"eval": "if(!document.querySelector('.br-panel'))throw new Error('表的角色页应该用自己的画法')"},
+    {"click": "[data-tab=equip]", "wait": 300, "shot": "c10_biao_role_equip"},
+    {"eval": "if(document.querySelectorAll('.br-slots [data-slot]').length!==10)throw new Error('表的角色页应该有 10 个装备格')"},
+    {"click": "[data-slot=armor]", "wait": 400},
+    {"eval": "if(!document.querySelector('.win .gw-name'))throw new Error('表里点装备格应该和里一样打开装备窗')"},
+    {"clickXY": [20, 770], "wait": 300},
+    {"click": "[data-tab=chip]", "wait": 300},
+    {"click": "[data-chip='4']", "wait": 400},
+    {"clickXY": [20, 770], "wait": 300},
+    {"click": "[data-act=perks]", "wait": 400},
+    {"clickXY": [20, 770], "wait": 300},
+    {"click": "[data-tab=profile]", "wait": 300},
+    {"eval": "if(NL.img('item/exp.webp')!=='assets/biao/item/exp.svg')throw new Error('表的物品图标应该指到矢量版');var p=NL.img('no/such.png');if(p!=='assets/img/no/such.png'||!NL.skinMiss['no/such.png'])throw new Error('表没画的图应该借用里的,并记进欠账');delete NL.skinMiss['no/such.png'];'表借用里的图 '+Object.keys(NL.skinMiss).length+' 张'", "log": "skin"},
+    {"eval": "var n=document.querySelector('#nav');if(n.dataset.on!=='role'||n.style.backgroundImage)throw new Error('表的底部导航应该是样式画的,并标出当前页');if(getComputedStyle(document.querySelector('#capsule')).display!=='none')throw new Error('表不画微信胶囊')"},
     {"click": "[data-nav=partner]", "wait": 500, "shot": "c10_biao_plist"},
     {"eval": "if(!document.querySelector('.bp-grid'))throw new Error('表的伙伴列表应该用自己的画法');if(document.querySelectorAll('.bp-card').length!==6)throw new Error('表的伙伴列表应该有 6 张卡')"},
     {"click": "[data-partner=jiguang]", "wait": 500, "shot": "c10_biao_pinfo"},
     {"eval": "var a=document.querySelector('.bp-art');if(!a||a.style.backgroundImage.indexOf('assets/biao/partner/art_jiguang')<0)throw new Error('表的伙伴页应该用表的立绘')"},
     {"click": "[data-act=like]", "wait": 300},
     {"eval": "if(NL.state.partners.jiguang.likes!==6)throw new Error('表里点赞应该和里一样加 1')"},
+    {"click": "[data-act=like]", "wait": 300},
+    {"eval": "if(NL.state.partners.jiguang.likes!==5)throw new Error('再点一次应该取消点赞(每位伙伴只能点一次)')"},
+    {"click": "[data-act=like]", "wait": 300},
     {"click": "[data-act=parchive]", "wait": 400, "shot": "c10_biao_archive"},
     {"clickXY": [20, 770], "wait": 300},
     {"click": "[data-act=plv]", "wait": 400},
@@ -293,6 +336,54 @@ const FLOWS = [
     {"click": "[data-act=settings]", "wait": 400, "shot": "c10_biao_settings"},
     {"click": "[data-act=set-skin]", "wait": 1500},
     {"eval": "if(NL.state.skin!=='li'||document.documentElement.dataset.skin!=='li')throw new Error('设置里应该能翻回里')"},
+  ]],
+  ["表的登录页与战斗头像", [
+    {"goto": "?reset&skin=biao", "wait": 400},
+    {"click": "[data-act=notice-ok]", "wait": 400, "shot": "c11_biao_login"},
+    {"eval": "if(!document.querySelector('.bl-title'))throw new Error('表的登录页应该用自己的画法');if(document.querySelectorAll('.bl-art').length!==3)throw new Error('表的登录页应该有三位伙伴的立绘')"},
+    {"click": "[data-act=enter]", "wait": 3600},
+    {"eval": "if(NL.current().name!=='home')throw new Error('表的登录页点「进入游戏」应该到主页')"},
+    {"click": ".dlg-btns .btn.pink", "wait": 300},
+    {"eval": "NL.state.beat=false;NL.testClock=0;NL.ui.battle({enemy:{name:'林然',lv:5,power:1900},onEnd:function(){}});1", "wait": 900},
+    {"clock": 3.6, "wait": 100, "shot": "c11_biao_battle"},
+    {"eval": "var a=document.querySelectorAll('.btc-av');if(a[0].style.backgroundImage.indexOf('assets/biao/battle/me')<0||a[1].style.backgroundImage.indexOf('assets/biao/battle/enemy')<0)throw new Error('表的战斗应该用表的头像')"},
+    {"eval": "if(!NL.embedBiao||!NL.embedBiao.avatarMe||!NL.embedBiao.avatarFoe)throw new Error('表的 3D 战斗头像没有内嵌')"},
+    {"eval": "document.querySelector('[data-act=skip]').click()", "wait": 700},
+    {"clickXY": [180, 520], "wait": 400},
+    {"eval": "NL.testClock=null;1"},
+    {"eval": "var n=function(k){return document.querySelector('#nav [data-nav='+k+']').classList.contains('dot')};if(!n('mission'))throw new Error('有能领的任务时,表的导航栏「任务」应该亮红点');if(!document.querySelector('.bh-chip[data-act=mail].dot'))throw new Error('有没领的邮件时,表主页的「邮件」应该亮红点')"},
+    {"eval": "NL.state.mails.forEach(function(m){m.got=true});NL.refresh();if(document.querySelector('.bh-chip[data-act=mail].dot'))throw new Error('邮件领完后红点应该消失')"},
+    {"eval": "if(document.querySelector('.battle .bbt')===null&&document.querySelector('.bbt-band')===null){/* 战斗已收起 */};var b=NL.ui.battleBanner('start',300);if(b.tagName!=='DIV'||!b.classList.contains('bt-start'))throw new Error('表的战斗横幅应该是用字写的')"},
+  ]],
+  ["扩展玩法:开关、调频密码、涂鸦暗号、园区巡游、伙伴援护", [
+    {"goto": "?reset#home", "wait": 300},
+    {"click": ".dlg-btns .btn.pink", "wait": 200},
+    {"eval": "if(document.querySelector('.ext-spot'))throw new Error('开关关着时不应该有巡游光点');if(NL.ext.ally())throw new Error('开关关着时不应该有援护')"},
+    {"click": "[data-act=explore]", "wait": 300},
+    {"click": "[data-act=itx-5]", "wait": 300},
+    {"eval": "if(document.querySelector('.xt'))throw new Error('开关关着时,调频密码应该还是原版的提示语')"},
+    {"eval": "NL.ui.settings()", "wait": 300},
+    {"click": "[data-act=set-ext]", "wait": 200, "shot": "c12_ext_on"},
+    {"clickXY": [20, 770], "wait": 300},
+    {"eval": "if(document.querySelectorAll('.ext-spot').length!==3)throw new Error('打开开关后主页应该有 3 个巡游光点');window.__t=JSON.stringify(NL.state.partners)"},
+    {"click": "[data-spot='1']", "wait": 300, "shot": "c12_patrol"},
+    {"click": ".dlg-btns .btn.purple", "wait": 300},
+    {"eval": "var sp=NL.ext.spots()[1];if(!sp.done)throw new Error('巡游选完后这个光点应该记为去过');var st=NL.state.partners[sp.pid];if(!st||(st.trust<2&&st.lv<2))throw new Error('巡游选「多聊几句」应该加 2 点信任');if(document.querySelectorAll('.ext-spot').length!==2)throw new Error('去过的光点应该消失')"},
+    {"click": "[data-act=explore]", "wait": 300},
+    {"click": "[data-act=itx-5]", "wait": 400, "shot": "c12_tune"},
+    {"eval": "window.__c=NL.state.credit;var t=NL.ext.debug.tune;['f','a','p'].forEach(function(k){var el=document.querySelector('[data-knob='+k+']');el.value=t[k];el.dispatchEvent(new Event('input'))});document.querySelector('.xt-meter b').textContent", "wait": 900, "shot": "c12_tune_ok"},
+    {"eval": "if(NL.state.credit!==window.__c+30)throw new Error('调频成功应该得 30 信用点');if(NL.state.extDay.tune!==1)throw new Error('调频的今日次数应该是 1')"},
+    {"click": ".reward-ok", "wait": 400},
+    {"click": "[data-act=explore]", "wait": 300},
+    {"click": "[data-act=itx-4]", "wait": 400},
+    {"eval": "(async function(){var w=function(ms){return new Promise(function(r){setTimeout(r,ms)})};for(var r=0;r<4;r++){var seq=NL.ext.debug.tag;await w(700+seq.length*560);for(var i=0;i<seq.length;i++){document.querySelector('[data-tag=\"'+seq[i]+'\"]').click();await w(60)}await w(750)}return 'ok'})()", "wait": 300, "shot": "c12_tag_ok"},
+    {"eval": "if(NL.game.count('gift_green')<1)throw new Error('涂鸦暗号过 4 轮应该得一个绿品好感道具箱');if(NL.state.extDay.tag!==1)throw new Error('涂鸦的今日次数应该是 1')"},
+    {"click": ".reward-ok", "wait": 400},
+    {"eval": "var a=NL.ext.ally();if(!a||a.mul<=1)throw new Error('打开开关后应该有援护的伙伴');NL.ui.battle({enemy:{name:'测试',lv:1,power:100},rewards:[]})", "wait": 1500},
+    {"eval": "if(document.querySelector('[data-act=burst] b').textContent!=='援护')throw new Error('打开开关后爆发按钮应该写着援护');document.querySelector('[data-act=skip]').click()", "wait": 700},
+    {"clickXY": [180, 500], "wait": 300},
+    {"goto": "?skin=biao&ext=1#home", "wait": 500},
+    {"eval": "if(document.querySelectorAll('.bh-zone .ext-spot').length!==2)throw new Error('表的主页上,没去过的两个光点应该挂在地点按钮上')", "shot": "c12_biao_spots"},
   ]],
   ["3D 战斗:格挡、爆发、击破、结算", [
     {"goto": "?reset#home", "wait": 300},
@@ -338,16 +429,20 @@ const FLOWS = [
   let bad = 0;
   try { require('child_process').execFileSync('python3', [path.join(__dirname, 'stamp.py'), '--check'], { stdio: 'pipe' }); console.log('✓ 版本号是最新的'); }
   catch (e) { if (e.status === 1) { bad++; console.log('✗ ' + String(e.stdout).trim()); } else console.log('- 跳过版本号检查(没有 python3)'); }
+  // 表的每个美术素材都要有矢量源文件(业主的要求),这里顺手核对
+  try { const out = require('child_process').execFileSync('python3', [path.join(__dirname, 'check_art_sources.py'), '--check'], { stdio: 'pipe' }); console.log('✓ ' + String(out).trim().split(':')[0]); }
+  catch (e) { if (e.status === 1) { bad++; console.log('✗ ' + String(e.stdout).trim()); } else console.log('- 跳过矢量源文件的核对(没有 python3)'); }
   fs.mkdirSync(SHOTS, { recursive: true });
   const browser = await chromium.launch();
   const base = 'file://' + path.join(ROOT, 'index.html');
-  for (const [title, steps] of FLOWS) {
-    const page = await browser.newPage({ viewport: { width: 360, height: 781 }, deviceScaleFactor: 2 });
+  // 跑一组流程。skin 给 'biao' 时在地址里加上 skin=biao,不截图(截图只留里的,和录屏对照用)
+  async function runFlow(title, steps, skin) {
+    const page = await browser.newPage({ viewport: { width: 360, height: 781 }, deviceScaleFactor: skin ? 1 : 2 });
     const errs = [];
     page.on('pageerror', (e) => errs.push('脚本报错: ' + e.message));
     page.on('console', (m) => { if (m.type() === 'error') errs.push('控制台报错: ' + m.text()); });
     for (const s of steps) {
-      if (s.goto !== undefined) { await page.goto(base + s.goto); await page.waitForTimeout(350); }
+      if (s.goto !== undefined) { await page.goto(base + (skin ? s.goto.replace(/^(\?[^#]*)?/, (q) => (q ? q + '&' : '?') + 'skin=' + skin) : s.goto)); await page.waitForTimeout(350); }
       if (s.click) await page.click(s.click, { timeout: 3000 }).catch(() => errs.push('点不到: ' + s.click));
       if (s.clickXY) await page.mouse.click(s.clickXY[0], s.clickXY[1]);
       if (s.drag) { await page.mouse.move(s.drag[0], s.drag[1]); await page.mouse.down(); await page.mouse.move(s.drag[2], s.drag[3], { steps: 6 }); await page.mouse.up(); }
@@ -357,11 +452,18 @@ const FLOWS = [
         while (cur < s.clock - 1e-6) { cur = Math.min(s.clock, cur + 1 / 30); await page.evaluate((t) => new Promise((r) => { NL.testClock = t; requestAnimationFrame(() => requestAnimationFrame(r)); }), cur); }
       }
       if (s.wait) await page.waitForTimeout(s.wait);
-      if (s.shot) await page.screenshot({ path: path.join(SHOTS, s.shot + '.png') });
+      if (s.shot && !skin) await page.screenshot({ path: path.join(SHOTS, s.shot + '.png') });
     }
-    console.log((errs.length ? '✗ ' : '✓ ') + title + (errs.length ? '\n  ' + errs.join('\n  ') : ''));
+    console.log((errs.length ? '✗ ' : '✓ ') + (skin ? '表:' : '') + title + (errs.length ? '\n  ' + errs.join('\n  ') : ''));
     bad += errs.length;
     await page.close();
+  }
+  for (const [title, steps] of FLOWS) await runFlow(title, steps);
+  // 同样的流程在表皮肤下再走一遍:按钮都得点得到,检查都得过。
+  // 不重跑的:「冒险…」那组下面比存档时会在表里跑;「动效」「表里切换」「表的登录页」里有只对某一面成立的检查
+  for (const [title, steps] of FLOWS) {
+    if (/^(冒险|动效|表里切换|表的登录页)/.test(title)) continue;
+    await runFlow(title, steps, 'biao');
   }
   // 表和里共用一份规则:把同一组步骤在两种皮肤下各跑一遍,规则用的随机数换成同一个固定序列,跑完的存档必须逐项相同
   {
@@ -384,6 +486,11 @@ const FLOWS = [
       }
       // 时间戳和皮肤本身不比
       saves[skin] = await page.evaluate(() => { const o = JSON.parse(JSON.stringify(NL.state)); delete o.skin; delete o.energyAt; if (o.rank) delete o.rank.idleAt; return o; });
+      if (skin === 'biao') { // 表不能再借用里的图:借了就算失败
+        const miss = await page.evaluate(() => Object.keys(NL.skinMiss).sort());
+        if (miss.length) { bad++; console.log('✗ 表在这组流程里借用了里的图 ' + miss.length + ' 张: ' + miss.slice(0, 8).join('、')); }
+        else console.log('✓ 表在这组流程里没有借用里的图');
+      }
       if (errs.length) { bad += errs.length; console.log('✗ 两种皮肤对比(' + skin + ')\n  ' + errs.join('\n  ')); }
       await page.close();
     }

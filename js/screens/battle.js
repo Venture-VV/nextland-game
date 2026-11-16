@@ -82,6 +82,7 @@
   ui.battleBeat = function (opts) {
     const s = NL.state, e = opts.enemy, myPower = game.power();
     const plan = game.fightPlan(myPower, e.power);
+    const ally = NL.ext.ally(); // 扩展玩法「伙伴援护」:开着时,爆发由信任等级最高的伙伴来放,伤害随等级加成
     const F = { hp: [HP, HP], gauge: 0, armed: false, c: 0, n: 0, over: false, win: false, koAt: 0, loser: 1, tries: {} };
     const atk = {};
     let R = null, t0 = null, raf = 0, closed = false, resultShown = false, shattered = false, hiddenAt = 0;
@@ -92,9 +93,9 @@
     const hpBar = [h('i'), h('i')], hpTxt = [h('u', '100%'), h('u', '100%')];
     const card = (i, name, lv, power) => h('div.bt-card.' + (i ? 'foe' : 'me'), h('b', name), h('i', '等级:' + lv), h('span', '战力'), h('em', NL.fmt.power(power)),
       h('div.bt-hp', hpBar[i]), hpTxt[i]);
-    const banner = NL.sprite('battle/start.jpg', 0, 300, 360, 160, { cls: 'bt-start' });
+    const banner = ui.battleBanner('start', 300);
     const gaugeRing = h('i.ring');
-    const btnBurst = h('button.bt-btn.burst', { 'data-act': 'burst', onclick: (ev) => { ev.stopPropagation(); tryBurst(); } }, gaugeRing, h('b', '爆发'), h('small', '0%'));
+    const btnBurst = h('button.bt-btn.burst', { 'data-act': 'burst', onclick: (ev) => { ev.stopPropagation(); tryBurst(); } }, gaugeRing, h('b', ally ? '援护' : '爆发'), h('small', '0%'));
     const btnBlock = h('button.bt-btn.block', { 'data-act': 'block', onpointerdown: (ev) => { ev.stopPropagation(); tryBlock(); } }, h('b', '格挡'), h('small', '看准光环'));
     const tip = h('div.bt-tip', '对手出手时，光环合拢的瞬间点「格挡」；能量满了点「爆发」');
     const el = h('div.battle', view,
@@ -151,7 +152,7 @@
     /* ----- 规则 ----- */
     function resolve(n) {
       const k = atk[n], a = k.a, d = 1 - a;
-      let dmg = a === 0 ? plan.me * (k.burst ? BURST_MUL : 1) : plan.foe;
+      let dmg = a === 0 ? plan.me * (k.burst ? BURST_MUL * (ally ? ally.mul : 1) : 1) : plan.foe;
       if (a === 1 && F.tries[n] != null && hitAt(n) - F.tries[n] <= BLOCK_WIN) { k.blocked = true; dmg *= BLOCK_MUL; k.guardAt = hitAt(n); }
       F.hp[d] = Math.max(0, F.hp[d] - dmg);
       k.dmg = dmg;
@@ -159,7 +160,7 @@
       const dead = F.hp[d] <= 0.5;
       R.impact({ a, burst: k.burst, blocked: k.blocked, dead });
       float(d, '-' + shownDmg(d, dmg), k.burst ? 'crit' : a ? 'foe' : 'me');
-      if (k.burst) float(0, '爆发!', 'burst', 1.25);
+      if (k.burst) { float(0, ally ? '援护!' : '爆发!', 'burst', 1.25); if (ally) NL.ext.cutIn(el, ally); }
       if (k.blocked) float(0, '格挡!', 'block', 1.25);
       A.sfx(k.blocked ? 'block' : k.burst ? 'burst' : 'hit');
       if (dead) { F.over = true; F.win = d === 1; F.loser = d; F.koAt = hitAt(n); A.sfx('ko'); el.classList.add('ko'); }
@@ -223,7 +224,7 @@
       const rewards = F.win ? opts.rewards || [] : [];
       const delta = rewards.length ? game.grant(rewards) : 0;
       el.classList.add('over');
-      el.appendChild(F.win ? NL.sprite('battle/win.jpg', 0, 235, 360, 95, { cls: 'bt-result' }) : h('div.bt-lose.bt-result', '挑战失败'));
+      el.appendChild(F.win ? ui.battleBanner('win', 235) : h('div.bt-lose.bt-result', '挑战失败'));
       el.appendChild(h('div.bt-items', rewards.map((r) => ui.itemEl(r.id, r.n))));
       el.appendChild(h('div.bt-hint', '点击空白处关闭。'));
       A.sfx(F.win ? 'win' : 'lose'); A.battleDuck(0.45);
@@ -283,6 +284,20 @@
   let quickOpen = false, advMap = null;
   NL.screens.adventure = {
     title: '冒险',
+    // 表:不用那张像素地图,三个地点各是一张场景卡;「快速抵达」把卡片收成紧凑的一列
+    renderBiao(root) {
+      root.classList.add('ba');
+      root.appendChild(h('div.bs-bg', { style: { backgroundImage: NL.bg('stage/adventure.webp') } }));
+      ui.head(root, null, 0, 0, 360, 132, 'ADVENTURE', '冒险');
+      root.appendChild(ui.energyPill(253, 100));
+      root.appendChild(h('button.ba-quick' + (quickOpen ? '.open' : ''), { 'data-act': 'quick', onclick: () => { quickOpen = !quickOpen; NL.refresh(); } }, '快速抵达', h('i')));
+      root.appendChild(h('div.ba-zones.scroll' + (quickOpen ? '.compact' : ''), { 'data-keep': 'adv' }, Object.keys(D.zones).map((id) => {
+        const z = D.zones[id], cleared = NL.state.stages[id] || 0;
+        return h('button.ba-zone', { 'data-zone': id, style: { backgroundImage: NL.bg('stage/zone_' + id + '.webp') }, onclick: () => { quickOpen = false; NL.go('stages', { zone: id }); } },
+          h('i', 'PART ' + z.part), h('b', z.name), h('span', z.desc), h('em', cleared + ' / ' + D.stageCount), h('u', h('s', { style: { width: (cleared / D.stageCount) * 100 + '%' } })));
+      })));
+      root.appendChild(h('button.btn.dark.bh-exp', { onclick: () => (ui.interact ? ui.interact() : ui.toast('敬请期待。')) }, '探索'));
+    },
     render(root) {
       advMap = ui.parkMap((id) => NL.go('stages', { zone: id }));
       root.appendChild(advMap.el);
@@ -297,21 +312,37 @@
   };
 
   /* ---------- 关卡列表 ---------- */
+  const FAIL_REFUND = 5; // 挑战失败返还的精力(每关消耗 6)
   function stageWin(zid, n) {
     const z = D.zones[zid], power = z.per * n;
+    const fight = (m) => {
+      if (!game.useEnergy(D.stageCost)) return;
+      m.close();
+      const drop = NL.rand() < 0.5 ? D.stageDrop : [];
+      ui.battle({ enemy: { name: z.enemy, lv: n, power }, rewards: D.stageRewards.concat(drop), onEnd(win) {
+        if (win && NL.state.stages[zid] < n) { NL.state.stages[zid] = n; NL.save(); NL.refresh(); }
+        if (!win) { game.refundEnergy(FAIL_REFUND); ui.toast('挑战失败，返还 ' + FAIL_REFUND + ' 点精力。'); } // 策划文档:输了只扣 1 点
+      } });
+    };
+    if (NL.skin() === 'biao') { // 表:里那张整块的底图上烙着的字,这里都是真的部件
+      ui.win({ title: z.name + ' ' + two(n), h: 404, body(b, m) {
+        b.classList.add('bst-win');
+        b.appendChild(h('div.bst-foe', h('i', { style: { backgroundImage: NL.bg('battle/enemy.jpg') } }), h('b', z.enemy), h('span', 'Lv.' + n)));
+        b.appendChild(h('div.bst-stats', h('div', '战力', h('b', String(power))), h('div', '通关率', h('b', game.rateText(power)))));
+        b.appendChild(ui.sec('关卡说明', 132));
+        b.appendChild(h('div.bst-desc', z.desc));
+        b.appendChild(ui.sec('通关奖励', 208));
+        b.appendChild(h('div.bst-rewards', D.stageRewards.map((r) => ui.itemEl(r.id, r.n)), h('span', '有几率额外掉落')));
+        b.appendChild(h('button.btn.purple.bst-go', { 'data-act': 'fight', onclick: () => fight(m) }, '挑战', h('em', '体力 ' + D.stageCost)));
+      } });
+      return;
+    }
     const m = ui.mask({});
     const box = h('div.abs.st-win', { style: { left: 15, top: 163, width: 330, height: 481 } },
       NL.sprite('stage/detail.jpg', 0, 0, 330, 481),
       h('div.st-w-title', z.name + two(n)), h('div.st-w-name', z.enemy), h('div.st-w-power', String(power)),
       h('div.st-w-rate', game.rateText(power)), h('div.st-w-desc', z.desc),
-      NL.hit(128, 420, 190, 48, () => {
-        if (!game.useEnergy(D.stageCost)) return;
-        m.close();
-        const drop = NL.rand() < 0.5 ? D.stageDrop : [];
-        ui.battle({ enemy: { name: z.enemy, lv: n, power }, rewards: D.stageRewards.concat(drop), onEnd(win) {
-          if (win && NL.state.stages[zid] < n) { NL.state.stages[zid] = n; NL.save(); NL.refresh(); }
-        } });
-      }, { 'data-act': 'fight' }));
+      NL.hit(128, 420, 190, 48, () => fight(m), { 'data-act': 'fight' }));
     m.el.appendChild(box);
     m.el.appendChild(h('div.close-hint.abs', { style: { left: 0, width: 360, top: 686, textAlign: 'center', margin: 0 } }, '点击空白处关闭。'));
   }
@@ -330,20 +361,35 @@
           h('i')));
       }
       root.appendChild(list);
-      root.appendChild(NL.sprite('stage/head_' + z.head + '.jpg', 0, 0, 360, 190));
-      root.appendChild(h('div.st-prog', String(cleared)));
+      if (NL.skin() === 'biao') { // 里的进度条烙在横幅图上;表的是真的部件
+        ui.head(root, 'stage/zone_' + p.zone + '.webp', 0, 0, 360, 190, 'PART ' + z.part, z.name);
+        root.appendChild(h('div.bst-prog', '关卡进度', h('b', cleared + ' / ' + D.stageCount), h('u', h('s', { style: { width: (cleared / D.stageCount) * 100 + '%' } }))));
+      } else {
+        root.appendChild(NL.sprite('stage/head_' + z.head + '.jpg', 0, 0, 360, 190));
+        root.appendChild(h('div.st-prog', String(cleared)));
+      }
       root.appendChild(ui.energyPill(253, 69));
     },
   };
 
   /* ---------- 玩法 ---------- */
+  // 这几行字在里是烙在卡片图上的(抄自录屏),表用字写出来
+  const MODE_TEXT = { string: ['超弦武装', '50层试炼 · 能量三选一'], ring: ['灰环行动', '横屏搜打撤 · 搜索物资 · 成功撤离'], catch: ['捕捉奇迹', '抓取奖励 · 合成升级'],
+    mine: ['地核矿山探索列车', '挑战该列车可获得大量阪神信用点。'], gorge: ['追光峡谷探索列车', '挑战该列车可获得各类装备。'] };
   NL.screens.modes = {
     title: '玩法',
     render(root) {
       root.classList.add('dusk');
       root.appendChild(ui.pill('home/ico_coin.webp', NL.state.credit, 253, 95, { w: 91 }));
-      root.appendChild(h('div.md-list.scroll', { 'data-keep': 'modes' }, D.modes.map(([img, train]) =>
-        h('img', { src: NL.img('modes/' + img + '.jpg'), 'data-mode': img, draggable: 'false', onclick: () => (train ? NL.go('train', { id: train }) : ui.toast('页面打开失败。')) }))));
+      const open = (train) => (train ? NL.go('train', { id: train }) : ui.toast('页面打开失败。'));
+      if (NL.skin() === 'biao') { // 里的名字烙在图上;表的图是干净的场景,名字和说明用字写
+        ui.head(root, null, 0, 0, 360, 126, 'MODES', '玩法');
+        const left = NL.state.trainDay && NL.state.trainDay.date === today() ? NL.state.trainDay.left : 30;
+        root.appendChild(h('div.md-list.scroll', { 'data-keep': 'modes' }, D.modes.map(([img, train]) =>
+          h('button.bm-card', { 'data-mode': img, style: { backgroundImage: NL.bg('modes/' + img + '.webp') }, onclick: () => open(train) },
+            h('b', MODE_TEXT[img][0]), h('span', MODE_TEXT[img][1]), train ? h('em', '今日剩余 ' + left + '/30') : h('em.off', '敬请期待')))));
+      } else root.appendChild(h('div.md-list.scroll', { 'data-keep': 'modes' }, D.modes.map(([img, train]) =>
+        h('img', { src: NL.img('modes/' + img + '.jpg'), 'data-mode': img, draggable: 'false', onclick: () => open(train) }))));
     },
   };
 
@@ -357,7 +403,8 @@
       const cleared = s.train[p.id] || 0;
       clearInterval(timer);
       root.classList.add('lilac');
-      root.appendChild(h('div.tr-title', t.name));
+      if (NL.skin() === 'biao') ui.head(root, 'modes/' + p.id + '.webp', 0, 0, 360, 132, 'EXPRESS', t.name);
+      else root.appendChild(h('div.tr-title', t.name));
       root.appendChild(h('div.tr-seg', '普通'));
       const clock = h('b', NL.fmt.untilReset() + '后刷新');
       root.appendChild(h('div.tr-info', '今日剩余挑战次数  ' + s.trainDay.left, clock));

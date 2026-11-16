@@ -39,9 +39,14 @@
       const s = NL.state;
       const items = Object.keys(s.bag).filter((id) => s.bag[id] > 0 && !HIDDEN.includes(id) && D.items[id]);
       root.classList.add('dots');
-      root.appendChild(NL.sprite('bag/head_' + tab + '.jpg', 0, 0, 360, 205));
-      root.appendChild(NL.hit(24, 158, 94, 30, () => { tab = 'item'; NL.refresh(); }, { 'data-tab': 'item' }));
-      root.appendChild(NL.hit(122, 158, 96, 30, () => { tab = 'equip'; NL.refresh(); }, { 'data-tab': 'equip' }));
+      if (NL.skin() === 'biao') { // 里的页签烙在横幅图上;表的是真的按钮
+        ui.head(root, 'bag/head.jpg', 0, 0, 360, 150, tab === 'item' ? 'ITEM' : 'EQUIP', '仓库');
+        root.appendChild(h('div.tabs2.bag-tabs', ['item', 'equip'].map((k) => h('button' + (tab === k ? '.on' : ''), { 'data-tab': k, onclick: () => { tab = k; NL.refresh(); } }, k === 'item' ? '道具' : '装备'))));
+      } else {
+        root.appendChild(NL.sprite('bag/head_' + tab + '.jpg', 0, 0, 360, 205));
+        root.appendChild(NL.hit(24, 158, 94, 30, () => { tab = 'item'; NL.refresh(); }, { 'data-tab': 'item' }));
+        root.appendChild(NL.hit(122, 158, 96, 30, () => { tab = 'equip'; NL.refresh(); }, { 'data-tab': 'equip' }));
+      }
       const used = tab === 'item' ? items.length : s.gear.length, cap = tab === 'item' ? 99 : 200;
       root.appendChild(h('div.bag-cap', used + '/' + cap));
       root.appendChild(h('div.bag-capbar', h('i', { style: { width: (used / cap) * 100 + '%' } })));

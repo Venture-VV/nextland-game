@@ -72,10 +72,11 @@
     const av = ['me', 'enemy'].map((n) => h('div.btc-av', { style: { backgroundImage: NL.bg('battle/' + n + '.jpg') } }));
     const fx = h('div.btc-fx');
     const dim = h('div.btc-dim');
-    const banner = NL.sprite('battle/start.jpg', 0, 320, 360, 160, { cls: 'bt-start' });
+    const banner = ui.battleBanner('start', 320);
+    const biao = NL.skin() === 'biao'; // 上下两条警示带:里是截图,表用样式画
     const card = (i, name, lv, power) => h('div.bt-card.' + (i ? 'foe' : 'me'), h('b', name), h('i', '等级:' + lv), h('span', '战力'), h('em', NL.fmt.power(power)));
     const el = h('div.battle.classic', cv,
-      NL.sprite('battle/band_top.jpg', 0, 100, 360, 86), NL.sprite('battle/band_bot.jpg', 0, 643, 360, 81),
+      biao ? h('div.bbt-band', { style: { top: 100, height: 86 } }) : NL.sprite('battle/band_top.jpg', 0, 100, 360, 86), biao ? h('div.bbt-band', { style: { top: 643, height: 81 } }) : NL.sprite('battle/band_bot.jpg', 0, 643, 360, 81),
       card(1, e.name, e.lv, e.power), card(0, s.name, s.level, myPower),
       av[0], av[1], fx, dim, banner,
       h('button.bt-skip', { 'data-act': 'skip', onclick: (ev) => { ev.stopPropagation(); skip(); } }, '跳过战斗'));
@@ -169,7 +170,7 @@
       const delta = rewards.length ? game.grant(rewards) : 0;
       av[loser].style.display = 'none';
       el.classList.add('over');
-      el.appendChild(win ? NL.sprite('battle/win.jpg', 0, 235, 360, 95, { cls: 'bt-result' }) : h('div.bt-lose.bt-result', '挑战失败'));
+      el.appendChild(win ? ui.battleBanner('win', 235) : h('div.bt-lose.bt-result', '挑战失败'));
       el.appendChild(h('div.bt-items', rewards.map((r) => ui.itemEl(r.id, r.n))));
       el.appendChild(h('div.bt-hint', '点击空白处关闭。'));
       A.battleDuck(0.45);
