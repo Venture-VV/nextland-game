@@ -312,6 +312,7 @@
   };
 
   /* ---------- 关卡列表 ---------- */
+  const FAIL_REFUND = 5; // 挑战失败返还的精力(每关消耗 6)
   function stageWin(zid, n) {
     const z = D.zones[zid], power = z.per * n;
     const fight = (m) => {
@@ -320,6 +321,7 @@
       const drop = NL.rand() < 0.5 ? D.stageDrop : [];
       ui.battle({ enemy: { name: z.enemy, lv: n, power }, rewards: D.stageRewards.concat(drop), onEnd(win) {
         if (win && NL.state.stages[zid] < n) { NL.state.stages[zid] = n; NL.save(); NL.refresh(); }
+        if (!win) { game.refundEnergy(FAIL_REFUND); ui.toast('挑战失败，返还 ' + FAIL_REFUND + ' 点精力。'); } // 策划文档:输了只扣 1 点
       } });
     };
     if (NL.skin() === 'biao') { // 表:里那张整块的底图上烙着的字,这里都是真的部件

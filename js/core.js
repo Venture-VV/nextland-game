@@ -352,6 +352,13 @@
       NL.save();
     }
   };
+  // 把精力退回去(挑战失败返还用),不超过上限
+  game.refundEnergy = function (n) {
+    const s = NL.state;
+    s.energy = Math.min(s.energyMax, s.energy + n);
+    if (s.energy >= s.energyMax) s.energyAt = 0;
+    NL.save(); NL.refresh();
+  };
   game.energyTimers = function () {
     const s = NL.state;
     if (s.energy >= s.energyMax) return null;

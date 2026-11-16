@@ -53,6 +53,15 @@
     uids.forEach((uid) => { const g = game.gear(uid); if (g && !game.slotOf(uid)) { n += crystalOf(g.id); NL.state.gear.splice(NL.state.gear.indexOf(g), 1); } });
     if (n) game.award([{ id: 'crystal', n }]);
   };
+  // 单件分解:先确认;紫色及以上,或者带权益的,再确认一次(策划文档的规则)
+  function askDismantle(uid, onDone) {
+    const g = game.gear(uid), e = g && D.equips[g.id];
+    if (!e) return;
+    const go = () => { if (onDone) onDone(); game.dismantle([uid]); };
+    const precious = RANK[e.rare] >= RANK.purple || !!e.perk;
+    ui.confirm('是否分解<em>' + e.name + '</em>？可获得装备晶片 ' + crystalOf(g.id) + '。', () => (precious
+      ? ui.confirm('<em>' + e.name + '</em>是' + D.rarity[e.rare][0] + '品' + (e.perk ? '、带权益的' : '') + '装备，分解后无法找回。确定分解吗？', go) : go()));
+  }
   // 从仓库穿戴:放进同类型的第一个空格,没有空格就换掉第一个
   function slotFor(id) {
     const list = D.slots.filter((s) => s.type === D.equips[id].type);
@@ -116,7 +125,7 @@
       b.appendChild(h('div.gw-btns', worn
         ? [h('button.btn.pink', { 'data-act': 'unwear', onclick: () => { m.close(); game.unequip(worn); } }, '卸下'),
           h('button.btn.dark', { 'data-act': 'swap', onclick: () => { opts.slot = worn; pick(cur); } }, '替换')]
-        : [h('button.btn.pink', { onclick: () => { m.close(); game.dismantle([cur]); } }, h('small', '可获 晶片 ' + crystalOf(g.id)), '分解'),
+        : [h('button.btn.pink', { 'data-act': 'dismantle', onclick: () => askDismantle(cur, () => m.close()) }, h('small', '可获 晶片 ' + crystalOf(g.id)), '分解'),
           h('button.btn.purple', { 'data-act': 'wear', onclick: () => {
             const src = b.querySelector('.gw-ico'), rect = src.getBoundingClientRect(), image = src.style.backgroundImage, slot = opts.slot || slotFor(g.id);
             m.close();

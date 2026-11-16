@@ -116,6 +116,7 @@
   };
 
   /* ---------- 个人 ---------- */
+  const OFFLINE_STAMINA = 0; // 个人页的「体力」是线下体力(在园区里用的),和关卡消耗的精力不是一回事;录屏里这一格是 0,网页版没有线下部分,所以固定是 0
   // 这一页上能点的东西。里是在整张底图上放透明热区,表是真的按钮,两面调的是同一组
   const PF = {
     rename() {
@@ -137,7 +138,7 @@
       root.appendChild(h('div.bpf-card', h('i', { style: { backgroundImage: NL.bg('battle/me.jpg') } }), h('b', s.name), h('span', '活跃度 10　·　势力 ', h('em', '反抗军')), h('u', 'UID ' + s.uid),
         h('button', { 'data-act': 'rename', onclick: PF.rename }, '编辑名片')));
       root.appendChild(h('div.bpf-sec', '我的资产', h('button', { onclick: PF.vault }, '阪神金库 ›')));
-      root.appendChild(h('div.bpf-assets', [['home/ico_bolt.webp', '体力', s.energy], ['home/ico_gem.webp', '储值', s.gem], ['home/ico_coin.webp', '阪神信用点', s.credit], ['ui/p_ticket.svg', '市场券', 0]].map(([ico, name, v]) =>
+      root.appendChild(h('div.bpf-assets', [['home/ico_bolt.webp', '体力', OFFLINE_STAMINA], ['home/ico_gem.webp', '储值', s.gem], ['home/ico_coin.webp', '阪神信用点', s.credit], ['ui/p_ticket.svg', '市场券', 0]].map(([ico, name, v]) =>
         h('div', h('img', { src: NL.img(ico), draggable: 'false' }), h('span', name), h('b', String(v))))));
       const group = (top, title, list) => {
         root.appendChild(h('div.bpf-sec', { style: { top } }, title));
@@ -153,7 +154,7 @@
       root.appendChild(NL.sprite('extra/profile.jpg', 0, 0, 360, 781));
       root.appendChild(h('div.pf-uid', 'UID ' + s.uid));
       if (s.name !== '热心市民VV') root.appendChild(h('div.pf-name', s.name));
-      [[57, s.energy], [134, s.gem], [226, s.credit], [302, 0]].forEach(([x, v]) => root.appendChild(h('div.pf-num', { style: { left: x - 34 } }, String(v))));
+      [[57, OFFLINE_STAMINA], [134, s.gem], [226, s.credit], [302, 0]].forEach(([x, v]) => root.appendChild(h('div.pf-num', { style: { left: x - 34 } }, String(v))));
       root.appendChild(NL.hit(262, 84, 76, 22, PF.rename, { 'data-act': 'rename' }));
       root.appendChild(NL.hit(262, 304, 76, 22, PF.vault));
       const icon = (x, y, fn, act) => root.appendChild(NL.hit(x - 8, y - 4, 64, 66, fn, { 'data-act': act }));

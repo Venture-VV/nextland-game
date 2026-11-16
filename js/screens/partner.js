@@ -94,7 +94,7 @@
       side(238, '等级权益', 'partnerLv', 'plv');
       side(302, '视觉档案', 'partnerVisual', 'pvisual');
       side(364, '每日委托', 'partnerDaily', 'pdaily');
-      root.appendChild(h('button.bp-like', { 'data-act': 'like', onclick: () => like(p) }, '♥', h('b', String(st.likes))));
+      root.appendChild(h('button.bp-like' + (st.liked ? '.on' : ''), { 'data-act': 'like', onclick: () => like(p) }, '♥', h('b', String(st.likes))));
       root.appendChild(h('div.bp-panel',
         h('div.bp-trust', trustCard(p)),
         h('button.btn.purple.bp-gift', { 'data-act': 'pgift', onclick: () => NL.go('partnerGift', { id: p.id }) }, '情感赠礼'),
@@ -106,10 +106,13 @@
   function biaoPic(spec, path) {
     return NL.biaoAssets[path] ? h(spec, { style: { backgroundImage: NL.bg(path) } }) : h(spec + '.none', h('span', '立绘绘制中'));
   }
+  // 点赞:每位伙伴只能点一次,再点一下是取消(策划文档的规则;不是每天一次)
   function like(p) {
-    const st = ps(p), d = day();
-    if (d.liked[p.id]) return ui.toast('今天已经点过赞了。');
-    d.liked[p.id] = true; st.likes++; NL.save(); NL.refresh();
+    const st = ps(p);
+    st.liked = !st.liked;
+    st.likes += st.liked ? 1 : -1;
+    NL.save(); NL.refresh();
+    ui.toast(st.liked ? '已点赞。' : '已取消点赞。');
   }
   function archive(p) {
     const f = p.file || {};

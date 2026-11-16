@@ -403,6 +403,7 @@ html[data-skin=biao] #screen.bp::after { display: none; }
 .bp-side { position: absolute; left: 286px; width: 66px; height: 26px; border-radius: 13px 0 0 13px; background: var(--b-glass); border: 1px solid rgba(232, 207, 154, .6); border-right: 0; color: var(--b-gold); font-size: 10px; letter-spacing: 1px; }
 .bp-like { position: absolute; left: 14px; top: 480px; width: 48px; height: 50px; border-radius: 12px; background: var(--b-glass); border: 1px solid var(--b-rose); color: var(--b-rose); font-size: 18px; line-height: 1; }
 .bp-like b { display: block; margin-top: 3px; color: #fff; font-size: 10px; }
+.bp-like.on { background: linear-gradient(135deg, var(--b-rose), #a23cff); color: #fff; box-shadow: 0 0 12px rgba(255, 61, 127, .6); }
 .bp-panel { position: absolute; left: 14px; top: 548px; width: 332px; height: 172px; border-radius: 14px; background: var(--b-glass); border: 1px solid rgba(232, 207, 154, .45); box-shadow: 0 0 18px rgba(255, 61, 127, .18); }
 .bp-trust { position: absolute; left: 0; top: 0; width: 332px; height: 96px; }
 .bp-trust .trust { background: none; box-shadow: none; }
