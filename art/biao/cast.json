@@ -7,5 +7,26 @@
   "yinsha": {"master": "yinsha.webp", "face": [357, 433, 560], "card": [56, 60, 656, 860]},
   "hero": {"master": "hero.webp", "face": [416, 168, 250], "card": [166, 20, 666, 687]},
   "rival": {"master": "rival.webp", "face": [422, 330, 600], "card": [116, 20, 716, 820]},
-  "_backgrounds": {"home/bg.webp": "home_bg.webp"}
+  "_backgrounds": {"home/bg.webp": "home_bg.webp"},
+  "_scenes": {
+    "stage/zone_core.webp": {"master": "scene_zone_core.webp", "size": [1080, 570]},
+    "stage/zone_hanshin.webp": {"master": "scene_zone_hanshin.webp", "size": [1080, 570]},
+    "stage/zone_museum.webp": {"master": "scene_zone_museum.webp", "size": [1080, 570]},
+    "stage/adventure.webp": {"master": "scene_adventure.webp", "size": [1080, 1578]},
+    "modes/string.webp": {"master": "scene_mode_string.webp", "size": [1080, 486], "focus": [0.5, 0.35]},
+    "modes/ring.webp": {"master": "scene_mode_ring.webp", "size": [1080, 486], "focus": [0.5, 0.7]},
+    "modes/catch.webp": {"master": "scene_mode_catch.webp", "size": [1080, 486], "focus": [0.5, 0.6]},
+    "modes/mine.webp": {"master": "scene_mode_mine.webp", "size": [1080, 486], "focus": [0.5, 0.6]},
+    "modes/gorge.webp": {"master": "scene_mode_gorge.webp", "size": [1080, 486]},
+    "mission/banner.jpg": {"master": "scene_mission.webp", "size": [1080, 312]},
+    "shop/head.jpg": {"master": "scene_shop.webp", "size": [1080, 450]},
+    "bag/head.jpg": {"master": "scene_supply1.webp", "size": [1080, 450], "focus": [0.5, 0.62]},
+    "supply/p1.jpg": {"master": "scene_supply1.webp", "size": [1080, 1578]},
+    "supply/p2.jpg": {"master": "scene_supply2.webp", "size": [1080, 1578]},
+    "supply/p3.jpg": {"master": "scene_supply3.webp", "size": [1080, 1578]},
+    "rank/bg.jpg": {"master": "scene_rank.webp", "size": [1080, 1578]},
+    "mail/head.jpg": {"master": "scene_mail.webp", "size": [1080, 450]},
+    "friend/head.jpg": {"master": "scene_friends.webp", "size": [1080, 450]},
+    "role/iface_bg.jpg": {"master": "scene_iface.webp", "size": [1080, 450]}
+  }
 }

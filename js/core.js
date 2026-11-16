@@ -57,7 +57,8 @@
   NL.skinMiss = {};
   NL.img = function (p) {
     if (NL.skin() === 'biao') {
-      if (NL.biaoAssets[p]) return 'assets/biao/' + p;
+      const b = NL.biaoAssets[p]; // 1 = 同名同路径;字符串 = 表用的是另一个扩展名(矢量图标)
+      if (b) return 'assets/biao/' + (b === 1 ? p : b);
       NL.skinMiss[p] = true;
     }
     return 'assets/img/' + p;
@@ -78,6 +79,14 @@
   // 透明热区
   NL.hit = function (x, y, w, h, fn, attrs) {
     return NL.h('button.hit', Object.assign({ style: { left: x, top: y, width: w, height: h }, onclick: fn }, attrs || {}));
+  };
+
+  // 页面顶上的横幅。里是一张带着页面名的截图;表是一张场景图,页面名用字写在上面(en 是装饰用的英文,zh 是页面名)
+  NL.ui.head = function (root, img, x, y, w, hh, en, zh) {
+    if (NL.skin() !== 'biao') return root.appendChild(NL.sprite(img, x, y, w, hh));
+    document.getElementById('title-tag').textContent = ''; // 页面名写在横幅上了,左上角那块小牌子就不要了
+    return root.appendChild(NL.h('div.b-head', { style: { left: x, top: y, width: w, height: hh } },
+      img ? NL.h('img', { src: NL.img(img), draggable: 'false' }) : null, NL.h('b', en), NL.h('span', zh)));
   };
 
   /* ---------- 格式 ---------- */
@@ -146,7 +155,8 @@
     $('#capsule').classList.toggle('hidden', scr.plate === 'cap');
     const nav = $('#nav');
     nav.classList.toggle('off', !scr.nav);
-    if (scr.nav) nav.style.backgroundImage = NL.bg('nav/' + scr.nav + '.jpg');
+    nav.dataset.on = scr.nav || '';
+    if (scr.nav) nav.style.backgroundImage = NL.skin() === 'biao' ? '' : NL.bg('nav/' + scr.nav + '.jpg'); // 表的导航栏是用样式画的
     // 页面可以给表单独写一种画法(renderBiao);没写的就共用同一种,只是素材和样式换了
     (NL.skin() === 'biao' && scr.renderBiao ? scr.renderBiao : scr.render).call(scr, root, top.params || {});
     if (scr.back !== false && !scr.nav) root.appendChild(NL.ui.backBtn());

@@ -181,7 +181,7 @@
       const s = NL.state;
       clearInterval(timer);
       if (s.guide === 'on' && s.guideStep === 0) { s.guideStep = 1; NL.save(); }
-      root.appendChild(NL.sprite('mission/banner.jpg', 0, 0, 360, 104));
+      NL.ui.head(root, 'mission/banner.jpg', 0, 0, 360, 104, 'MISSION', '任务');
       root.appendChild(h('div.tabs2', ['daily', 'task'].map((k) =>
         h('button' + (tab === k ? '.on' : ''), { 'data-tab': k, onclick: () => { tab = k; NL.refresh(); } }, k === 'daily' ? '日常' : '任务'))));
       const list = h('div.tk-list.scroll.' + tab, { 'data-keep': 'mission-' + tab });

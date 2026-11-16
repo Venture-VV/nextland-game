@@ -13,6 +13,7 @@ art/biao/cast.json 记着每个角色用哪张母版、脸在哪、卡面裁哪�
 有 art/biao/hires/ 里的高清版(tools/upscale.py 出的)就从高清版裁,没有就从母版裁。
     battle/me.jpg、battle/enemy.jpg  战斗里的头像(和里的同名),另有 js/embed_biao.js 给 3D 战斗用
     cast.json 里 _backgrounds 列的页面背景(例如 home/bg.webp)
+    cast.json 里 _scenes 列的场景图(各页的横幅、地点卡、玩法卡、整页背景),按写明的尺寸裁
 然后自动更新 js/skin_assets.js。改完记得再跑 tools/stamp.py。
 """
 import json
@@ -60,6 +61,25 @@ def main():
     for dst, master in cast.get("_backgrounds", {}).items():  # 页面背景:只缩放,不裁脸
         os.makedirs(os.path.dirname(os.path.join(OUT, dst)), exist_ok=True)
         load(master)[0].resize((1080, 1578), Image.LANCZOS).save(os.path.join(OUT, dst), quality=82, method=6)
+    ns = 0
+    for dst, sc in cast.get("_scenes", {}).items():  # 场景图:按目标的长宽比裁一块(focus 是裁切中心,0~1),再缩到目标尺寸
+        if not os.path.exists(os.path.join(SRC, "masters", sc["master"])):
+            print("缺母版,跳过:", dst, sc["master"])
+            continue
+        im, _ = load(sc["master"])
+        tw, th = sc["size"]
+        fx, fy = sc.get("focus", [0.5, 0.5])
+        cw, ch = (im.width, round(im.width * th / tw)) if im.width / im.height < tw / th else (round(im.height * tw / th), im.height)
+        x0 = min(max(0, round(fx * im.width - cw / 2)), im.width - cw)
+        y0 = min(max(0, round(fy * im.height - ch / 2)), im.height - ch)
+        os.makedirs(os.path.dirname(os.path.join(OUT, dst)), exist_ok=True)
+        out = im.crop((x0, y0, x0 + cw, y0 + ch)).resize((tw, th), Image.LANCZOS)
+        if dst.endswith(".webp"):
+            out.save(os.path.join(OUT, dst), quality=84, method=6)
+        else:
+            out.save(os.path.join(OUT, dst), quality=86, optimize=True, progressive=True)
+        ns += 1
+    print("裁好了 %d 张场景图" % ns)
     for cid, c in cast.items():
         if cid.startswith("_"):
             continue

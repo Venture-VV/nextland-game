@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" viewBox="0 0 96 96">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#232849"/><stop offset="1" stop-color="#0b0d1a"/></linearGradient>
+<radialGradient id="gl" cx=".5" cy="1" r=".85"><stop offset="0" stop-color="#4ac6ff" stop-opacity=".6"/><stop offset="1" stop-color="#4ac6ff" stop-opacity="0"/></radialGradient>
+<linearGradient id="ln" x1="0" y1="0" x2="96" y2="96" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#4ac6ff"/></linearGradient>
+</defs>
+<g id="layer-plate" inkscape:groupmode="layer" inkscape:label="底板">
+<rect width="96" height="96" rx="11" fill="url(#bg)"/>
+<rect width="96" height="96" rx="11" fill="url(#gl)"/>
+<rect x="1.5" y="1.5" width="93" height="93" rx="9.5" fill="none" stroke="#4ac6ff" stroke-width="2.2"/>
+<path d="M0 24V11A11 11 0 0 1 11 0h13z" fill="#4ac6ff"/>
+</g>
+<g id="layer-glyph" inkscape:groupmode="layer" inkscape:label="图形" stroke-linecap="round" stroke-linejoin="round" transform="translate(48 50) scale(.78) translate(-48 -48)">
+<g fill="none" stroke="#4ac6ff" stroke-width="10" opacity=".22"><path d="M22 58h52v18H22z"/><path d="M40 58V44c-8-6-8-26 8-26s16 20 8 26v14z"/></g>
+<path d="M22 58h52v18H22z" fill="#4ac6ff" fill-opacity=".3" stroke="url(#ln)" stroke-width="3.4"/>
+<path d="M40 58V44c-8-6-8-26 8-26s16 20 8 26v14z" fill="#4ac6ff" fill-opacity=".3" stroke="url(#ln)" stroke-width="3.4"/>
+<path d="M30 67c4-4 8 4 12 0s8 4 12 0 8 4 12 0" fill="none" stroke="#4ac6ff" stroke-width="2.2" opacity=".9"/>
+<path d="M22 80h52v4H22z" fill="#4ac6ff"/>
+</g>
+</svg>

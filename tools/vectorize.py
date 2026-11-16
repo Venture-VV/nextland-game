@@ -110,14 +110,14 @@ def split_layers(rgb, matte, face):
     return out
 
 
-def trace(rgb, mask):
-    """把蒙版里的那部分画面描成一串 <path>。"""
+def trace(rgb, mask, scene=False):
+    """把蒙版里的那部分画面描成一串 <path>。scene 给场景图用:没有人物可拆,细节全靠颜色分得够细;坐标取整省一点体积。"""
     rgba = np.dstack([rgb, (mask * 255).astype(np.uint8)])
     buf = io.BytesIO()
     Image.fromarray(rgba, "RGBA").save(buf, format="PNG")
     svg = vtracer.convert_raw_image_to_svg(buf.getvalue(), img_format="png", colormode="color", hierarchical="stacked", mode="spline",
-                                           filter_speckle=10, color_precision=6, layer_difference=22, corner_threshold=60,
-                                           length_threshold=4.0, max_iterations=10, splice_threshold=45, path_precision=1)
+                                           filter_speckle=8 if scene else 10, color_precision=7 if scene else 6, layer_difference=14 if scene else 22, corner_threshold=60,
+                                           length_threshold=4.0, max_iterations=10, splice_threshold=45, path_precision=0 if scene else 1)
     return re.findall(r"<path[^>]*/>", svg)
 
 
@@ -150,7 +150,7 @@ def run(name, cast):
         m = masks.get(lid)
         if m is None or m.sum() < 0.0005 * m.size:
             continue
-        paths = trace(rgb, m)
+        paths = trace(rgb, m, scene=is_bg)
         parts.append('<g id="layer-%s" inkscape:groupmode="layer" inkscape:label="%s">' % (lid, label))
         parts.extend(paths)
         parts.append("</g>")
