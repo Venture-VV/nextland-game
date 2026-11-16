@@ -5,7 +5,8 @@
 
 做法(思路来自 GitHub 上的几个项目,见 docs/ART_VECTOR.md):
 1. 用 anime-seg 抠出人物,先分成「背景」和「人物」两大块;
-2. 人物再按元素拆层:霓虹光、皮肤、头发、暗部与线条、服装;
+2. 人物再按元素拆层:头部一带用人脸解析模型认出皮肤、五官、头发(戴头盔的是头盔),
+   其余按颜色分成霓虹光、暗部与线条、服装;
 3. 每一层单独交给 vtracer 描成矢量路径;
 4. 合成一个 SVG:每层是一个带名字的图层(Inkscape 里是图层,Illustrator、Figma 里是编组),
    可以单独选中、隐藏、改色。
@@ -13,8 +14,8 @@
 输入优先用 art/biao/hires/ 里的高清版(先跑 tools/upscale.py),没有就用母版。
 输出在 art/biao/vector/<名字>.svg,另有一份 layers.json 记着每层占多大面积、有多少条路径。
 
-拆层靠的是颜色和位置(脸在哪取自 art/biao/cast.json),不是真正「认得」画的是什么,
-所以边界不会完全准:头发和深色衣领挨着时可能分错。它是给美术一个能直接上手改的起点,
+头部是模型认的(脸在哪取自 art/biao/cast.json),头部以外靠颜色和位置,
+所以边界不会完全准:垂下来的头发和深色衣领挨着时可能分错。它是给美术一个能直接上手改的起点,
 不是手绘矢量稿的替代品。
 """
 import io
@@ -37,7 +38,8 @@ OUT = os.path.join(ART, "vector")
 WORK_W = 1248  # 描矢量时用的宽度:比母版(832)大一半,曲线更顺,文件又不至于太大
 
 LAYERS = [  # (id, 图层名),从下到上
-    ("background", "背景"), ("clothes", "服装"), ("skin", "皮肤"), ("hair", "头发"), ("shade", "暗部与线条"), ("neon", "霓虹光"),
+    ("background", "背景"), ("clothes", "服装"), ("shade", "暗部与线条"), ("skin", "皮肤"), ("features", "五官"), ("hair", "头发"),
+    ("helmet", "头盔与面罩"), ("neon", "霓虹光"),
 ]
 
 
@@ -54,59 +56,60 @@ def clean(mask, k=3, min_area=0.0004):
     return keep.astype(bool)
 
 
-def split_layers(rgb, matte, face):
-    """返回 {层 id: 布尔蒙版}。face 是 (中心 x, 中心 y, 边长),没有就只分背景和人物。"""
+def touching(cand, seed):
+    """cand 里和 seed 连着的那些块。"""
+    n, lab = cv2.connectedComponents((cand | seed).astype(np.uint8), connectivity=8)
+    ids = np.unique(lab[seed])
+    return np.isin(lab, ids[ids > 0]) & cand
+
+
+def split_layers(im, rgb, matte, face):
+    """返回 {层 id: 布尔蒙版}。face 是 (中心 x, 中心 y, 边长)。
+    头部一带交给人脸解析模型去认(皮肤、五官、头发、头盔),它不看肤色,所以脸被霓虹光染成粉的、青的也认得出;
+    头部以外(垂下来的长发、手)再按颜色和位置补。"""
     h, w, _ = rgb.shape
     hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV).astype(np.int32)
     H, S, V = hsv[..., 0], hsv[..., 1], hsv[..., 2]
+    lab_img = cv2.cvtColor(rgb, cv2.COLOR_RGB2LAB).astype(np.float32)
     fg = matte > 127
     out = {"background": ~fg}
-    # 霓虹光:很亮、很艳的品红或冰青
-    neon = clean(fg & (S > 135) & (V > 150) & (((H >= 138) & (H <= 176)) | ((H >= 80) & (H <= 104))), 3, 0.0002)
-    out["neon"] = neon
-    rest = fg & ~neon
-    skin = np.zeros((h, w), bool)
-    hair = np.zeros((h, w), bool)
-    if face:
-        cx, cy, s = face
-        x0, x1, y0, y1 = int(max(0, cx - s * 0.75)), int(min(w, cx + s * 0.75)), int(max(0, cy - s * 0.9)), int(min(h, cy + s * 0.9))
-        # 皮肤:偏橙红的浅色(色相卡得比较窄,免得把金发和金边算进来)。只收和脸连在一起、或者面积够大的块(手)
-        # 霓虹光打在脸上时肤色会偏粉,所以色相也收绕过红色那一小段(172 以上)
-        cand = clean(rest & ((H <= 16) | (H >= 172)) & (S >= 12) & (S <= 140) & (V >= 150), 3, 0.0006)
-        n, lab = cv2.connectedComponents(cand.astype(np.uint8), connectivity=8)
-        for i in range(1, n):
-            comp = lab == i
-            if comp[y0:y1, x0:x1].any() or comp.sum() > 0.004 * h * w:
-                skin |= comp
-        if skin.sum() > 0.01 * h * w:
-            # 头发:在额头上方那一带取主色,再把头部范围里颜色相近的人物像素都算进去
-            lab_img = cv2.cvtColor(rgb, cv2.COLOR_RGB2LAB).astype(np.float32)
-            head = np.zeros((h, w), bool)
-            head[max(0, int(cy - s * 1.15)):int(min(h, cy + s * 0.5)), int(max(0, cx - s * 0.95)):int(min(w, cx + s * 0.95))] = True
-            band = rest & ~skin & head
-            band[int(max(0, cy - s * 0.22)):, :] = False
-            px = lab_img[band]
-            if len(px) > 500:
-                _, labels, centers = cv2.kmeans(px, 3, None, (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 20, 1.0), 3, cv2.KMEANS_PP_CENTERS)
-                counts = np.bincount(labels.ravel(), minlength=3)
-                near = np.zeros((h, w), bool)
-                for c in np.argsort(-counts)[:2]:
-                    if counts[c] > 0.2 * len(px):
-                        near |= np.linalg.norm(lab_img - centers[c], axis=2) < 26
-                cand = clean(rest & ~skin & near, 5, 0.0006)
-                n, lab = cv2.connectedComponents(cand.astype(np.uint8), connectivity=8)
-                for i in range(1, n):
-                    comp = lab == i
-                    inside = (comp & head).sum()
-                    if inside > 0.5 * comp.sum() or inside > 0.004 * h * w:
-                        hair |= comp & (head | (comp & ~head & (np.arange(h)[:, None] < cy + s * 1.6)))
-        else:
-            skin[:] = False  # 没露脸(戴头盔),就不分皮肤和头发
-    out["skin"], out["hair"] = skin, hair
-    rest = rest & ~skin & ~hair
+    parse, (bx0, by0, bx1, by1) = art_models.face_parse(im, face)
+    head = np.zeros((h, w), bool)
+    head[by0:by1, bx0:bx1] = True
+    skin = clean(fg & np.isin(parse, art_models.FACE_SKIN), 3, 0.0003)
+    feat = fg & np.isin(parse, art_models.FACE_FEATURES)
+    hair = clean(fg & (parse == art_models.FACE_HAIR), 3, 0.0003)
+    hat = fg & (parse == art_models.FACE_HAT)
+    helmet = np.zeros((h, w), bool)
+    if hat.sum() > 3 * max(1, skin.sum()):  # 几乎看不到脸:戴着头盔。头盔单独一层,不再分皮肤和头发
+        helmet = clean(hat | skin | feat | hair, 5, 0.001)
+        skin[:] = False
+        feat[:] = False
+        hair[:] = False
+    else:
+        feat = touching(feat, cv2.dilate(skin.astype(np.uint8), np.ones((9, 9), np.uint8)).astype(bool)) if skin.any() else feat & False  # 五官得长在脸上
+        # 头发常常垂到头部范围以外:取认出来的头发的主色,把范围外颜色相近、又和头发连着的人物像素接上
+        px = lab_img[hair]
+        if len(px) > 500:
+            _, labels, centers = cv2.kmeans(px, 3, None, (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 20, 1.0), 3, cv2.KMEANS_PP_CENTERS)
+            counts = np.bincount(labels.ravel(), minlength=3)
+            near = np.zeros((h, w), bool)
+            for c in np.argsort(-counts)[:2]:
+                if counts[c] > 0.2 * len(px):
+                    near |= np.linalg.norm(lab_img - centers[c], axis=2) < 22
+            more = clean(fg & ~head & near & ~skin, 5, 0.0006)
+            hair |= touching(more, cv2.dilate(hair.astype(np.uint8), np.ones((15, 15), np.uint8)).astype(bool))
+        # 头部范围以外露出来的皮肤(手、锁骨):颜色和脸上的皮肤相近、面积够大的块
+        px = lab_img[skin]
+        if len(px) > 500:
+            center = np.median(px, axis=0)
+            cand = clean(fg & ~head & ~hair & (np.linalg.norm(lab_img - center, axis=2) < 16) & (V > 120), 5, 0.004)
+            skin |= cand
+    # 霓虹光:很亮、很艳的品红或冰青(脸、头发、头盔上的不算,它们留在各自的层里)
+    neon = clean(fg & ~skin & ~feat & ~hair & ~helmet & (S > 135) & (V > 150) & (((H >= 138) & (H <= 176)) | ((H >= 80) & (H <= 104))), 3, 0.0002)
+    rest = fg & ~skin & ~feat & ~hair & ~helmet & ~neon
     shade = clean(rest & (V < 46), 3, 0.0003)
-    out["shade"] = shade
-    out["clothes"] = rest & ~shade
+    out.update(skin=skin, features=feat, hair=hair, helmet=helmet, neon=neon, shade=shade, clothes=rest & ~shade)
     return out
 
 
@@ -140,7 +143,7 @@ def run(name, cast):
     else:
         matte = np.asarray(art_models.character_matte(im))
         face = tuple(round(x * k) for x in entry["face"])
-        masks, names = split_layers(rgb, matte, face), LAYERS
+        masks, names = split_layers(im, rgb, matte, face), LAYERS
     w, h = im.size
     parts = ['<?xml version="1.0" encoding="UTF-8"?>',
              '<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="%d" height="%d" viewBox="0 0 %d %d">' % (w, h, w, h),

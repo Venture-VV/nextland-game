@@ -10,7 +10,7 @@
 - **参数**:832×1216,28 步,采样器 k_euler_a,CFG 6.5。
 - **提示词里没有任何作品名、画师名、真人名。**
 - **AI 生成的披露**:这些图是 AI 生成的。一些平台要求披露,发布时请按平台规则标注。
-- **后期**:没有人工改画。`tools/upscale.py` 用 CDC 的二次元放大模型(`deepghs/cdc_anime_onnx`)把母版放大成高清版;`tools/vectorize.py` 用 anime-seg(`skytnt/anime-seg`)抠人物、用 vtracer 描成分层的矢量源文件;`tools/build_biao_assets.py` 做裁切、缩放,并把四周和下沿压成夜色。这几个模型和工具各自的许可上架前也要核对。详见 `docs/ART_VECTOR.md`。
+- **后期**:没有人工改画。`tools/upscale.py` 用 CDC 的二次元放大模型(`deepghs/cdc_anime_onnx`)把母版放大成高清版;`tools/vectorize.py` 用 anime-seg(`skytnt/anime-seg`)抠人物、用 BiSeNet 人脸解析(`bluefoxcreation/Face_parsing_onnx`,许可写的是 other,训练数据限非商业研究用途,见 `docs/ART_VECTOR.md` 第 5 节)认皮肤、五官和头发、用 vtracer 描成分层的矢量源文件;`tools/build_biao_assets.py` 做裁切、缩放,并把四周和下沿压成夜色。这几个模型和工具各自的许可上架前也要核对。详见 `docs/ART_VECTOR.md`。
 
 ## 每张图
 

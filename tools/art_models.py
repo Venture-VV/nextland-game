@@ -1,7 +1,8 @@
-"""美术后期用到的两个现成模型,第一次用时从 Hugging Face 下载到 .work/models/(不进仓库)。
+"""美术后期用到的三个现成模型,第一次用时从 Hugging Face 下载到 .work/models/(不进仓库)。
 
 - 放大:CDC 的二次元 4 倍放大模型(deepghs/cdc_anime_onnx)
 - 抠人物:anime-seg 的 isnetis(skytnt/anime-seg),给出人物的透明度蒙版
+- 认脸上的部位:BiSeNet 人脸解析(bluefoxcreation/Face_parsing_onnx),给出皮肤、五官、头发、帽子等 19 类
 
 都用 onnxruntime 在 CPU 上跑,不需要显卡。
 """
@@ -64,3 +65,27 @@ def character_matte(im, size=1024):
     m = sess.run(None, {name: canvas.transpose(2, 0, 1)[None]})[0][0][0]
     m = (np.clip(m[oy:oy + nh, ox:ox + nw], 0, 1) * 255).astype(np.uint8)
     return Image.fromarray(m).resize((w, h), Image.LANCZOS)
+
+
+# 人脸解析的 19 类(CelebAMask-HQ 的标法)
+FACE_SKIN = (1, 7, 8, 10, 14)          # 皮肤、双耳、鼻子、脖子
+FACE_FEATURES = (2, 3, 4, 5, 6, 11, 12, 13)  # 眉、眼、眼镜、嘴、唇
+FACE_HAIR, FACE_HAT = 17, 18
+
+
+def face_parse(im, face):
+    """认出头部一带每个像素是什么。face 是 (中心 x, 中心 y, 边长)。
+    返回和原图同尺寸的类别图(0 是「不知道」,头部范围以外全是 0)和头部范围的框 (x0, y0, x1, y1)。
+    这个模型是拿真人照片训练的;我们的立绘偏写实,试下来皮肤、五官、头发分得准,戴头盔的会整个认成「帽子」。"""
+    sess = _session("bluefoxcreation/Face_parsing_onnx", "faceparser.onnx")
+    w, h = im.size
+    cx, cy, s = face
+    half = round(s * 1.05)
+    box = (cx - half, cy - half, cx + half, cy + half)
+    crop = im.convert("RGB").crop(box).resize((512, 512), Image.LANCZOS)  # 超出画面的部分自动补黑
+    x = (np.asarray(crop, dtype=np.float32) / 255.0 - [0.485, 0.456, 0.406]) / [0.229, 0.224, 0.225]
+    out = sess.run(None, {sess.get_inputs()[0].name: x.transpose(2, 0, 1)[None].astype(np.float32)})[0][0]
+    lab = Image.fromarray(out.argmax(0).astype(np.uint8)).resize((half * 2, half * 2), Image.NEAREST)
+    full = Image.new("L", (w, h), 0)
+    full.paste(lab, (box[0], box[1]))
+    return np.asarray(full), (max(0, box[0]), max(0, box[1]), min(w, box[2]), min(h, box[3]))
